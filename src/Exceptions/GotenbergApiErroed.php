@@ -7,6 +7,9 @@ namespace Gotenberg\Exceptions;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 
+use function assert;
+use function is_string;
+
 final class GotenbergApiErroed extends Exception
 {
     /** @var array<string,string>  */
@@ -18,6 +21,7 @@ final class GotenbergApiErroed extends Exception
 
         $exception->headers = [];
         foreach ($response->getHeaders() as $name => $values) {
+            assert(is_string($name));
             $exception->headers[$name] = $response->getHeaderLine($name);
         }
 
