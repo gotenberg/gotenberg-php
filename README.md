@@ -204,8 +204,8 @@ use Gotenberg\Gotenberg;
 
 try {
     $response = Gotenberg::send(
-        Gotenberg::chromium('http://localhost:3000')->url('https://my.url'), 
-        $pathToSavingDirectory
+        Gotenberg::chromium('http://localhost:3000')
+            ->url('https://my.url')
     );
 } catch (GotenbergApiErroed $e) {
     $trace = $e->getGotenbergTrace();
