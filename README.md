@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://user-images.githubusercontent.com/8983173/143770434-5714267a-20f2-45f2-8e09-6a7a47bf99a4.png" alt="Gotenberg PHP Logo" width="150" height="140" />
+    <img src="https://user-images.githubusercontent.com/8983173/143772621-444a7bad-7a74-450a-a5b4-59af00c57d60.png" alt="Gotenberg PHP Logo" width="150" height="140" />
     <h3 align="center">Gotenberg PHP</h3>
     <p align="center">A PHP client for interacting with Gotenberg</p>
     <p align="center">
