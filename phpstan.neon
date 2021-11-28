@@ -1,0 +1,11 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#Call to an undefined method Pest\\Expectation\|Pest\\Support\\Extendable#'
+			path: tests/*
+		-
+			message: '#Call to an undefined method Pest\\Expectation<mixed>::toContainFormValue\(\).#'
+			path: tests/*
+		-
+			message: '#Undefined variable: \$this#'
+			path: tests/*

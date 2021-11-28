@@ -1,0 +1,52 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          tools: composer:v2
+          coverage: none
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --no-progress
+      - name: Run linters
+        run: composer lint
+
+  tests:
+    needs:
+      - Lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [ '7.4', '8.0', '8.1' ]
+    name: Tests on PHP ${{ matrix.php }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: xdebug
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --no-progress
+      - name: Run tests
+        run: |
+          composer tests
+          bash <(curl -s https://codecov.io/bash)
