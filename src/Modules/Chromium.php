@@ -176,7 +176,7 @@ class Chromium
     }
 
     /**
-     * Sets the HTTP headers to send by Chromium while loading the HTML
+     * Sets extra HTTP headers that Chromium will send when loading the HTML
      * document.
      *
      * @param array<string,string> $headers

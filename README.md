@@ -270,6 +270,8 @@ $request = Gotenberg::chromium($apiUrl)
     );
 ```
 
+Please note that Gotenberg will add the `<link>` and `<script>` elements based on the order of the arguments.
+
 #### Convert an HTML document to PDF
 
 See https://gotenberg.dev/docs/modules/chromium#html.
@@ -558,7 +560,7 @@ $request = Gotenberg::chromium($apiUrl)
 
 #### Extra HTTP headers
 
-You may set the HTTP headers to send by Chromium while loading the HTML document:
+You may add HTTP headers that Chromium will send when loading the HTML document:
 
 ```php
 use Gotenberg\Gotenberg;
@@ -592,6 +594,16 @@ use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
     ->emulateScreenMediaType()
+    ->url('https://my.url');
+```
+
+You may also force the `print` media type with:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->emulatePrintMediaType()
     ->url('https://my.url');
 ```
 
@@ -746,7 +758,7 @@ $request = Gotenberg::pdfEngines($apiUrl)
 
 Please note that the merging order is determined by the order of the arguments.
 
-You may also et the PDF format of the resulting PDF(s) with:
+You may also set the PDF format of the resulting PDF(s) with:
 
 ```php
 use Gotenberg\Gotenberg;
