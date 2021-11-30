@@ -474,6 +474,7 @@ use Gotenberg\Stream;
 $request = Gotenberg::chromium($apiUrl)
     ->header(Stream::path('/path/to/my_header.html'))
     ->footer(Stream::path('/path/to/my_footer.html'))
+    ->margins(1, 1, 0.39, 0.39)
     ->url('https://my.url');
 ```
 
@@ -508,7 +509,7 @@ The following classes allow you to inject printing values:
 
 ⚠️ Make sure that:
 
-1. Margins top and bottom are large enough.
+1. Margins top and bottom are large enough (i.e., `->margins(1, 1, 0.39, 0.39)`)
 2. The font size is big enough.
 
 ⚠️ There are some limitations:
