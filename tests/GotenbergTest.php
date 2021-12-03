@@ -22,7 +22,7 @@ it(
 );
 
 it(
-    'sends a request and throws an exception if response is not 200',
+    'sends a request and throws an exception if response is not 2xx',
     function (bool $withTrace): void {
         $response = new Response(400, $withTrace ? ['Gotenberg-Trace' => 'debug'] : [], 'Bad Request');
         $client   = new DummyClient($response);
@@ -33,6 +33,7 @@ it(
             expect($e->getCode())->toEqual(400);
             expect($e->getMessage())->toEqual('Bad Request');
             expect($e->getGotenbergTrace())->toEqual($withTrace ? 'debug' : '');
+            expect($e->getResponse())->toBe($response);
 
             throw $e;
         }
