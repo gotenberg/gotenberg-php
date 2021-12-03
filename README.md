@@ -117,11 +117,16 @@ use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium('http://localhost:3000')
     ->url('https://my.url');
-    
-$response = Gotenberg::send($request);
+
+try {
+    $response = Gotenberg::send($request);
+    return $response;
+} catch (GotenbergApiErroed $e) {
+    // $e->getResponse();
+}
 ```
 
-This helper will parse the response and if it is not `200 OK`, it will throw a exception. That's especially useful if 
+This helper will parse the response and if it is not **2xx**, it will throw a exception. That's especially useful if 
 you wish to return the response directly to the browser.
 
 You may also explicitly set the HTTP client:
