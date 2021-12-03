@@ -51,13 +51,11 @@ class Gotenberg
         $client   = $client ?: Psr18ClientDiscovery::find();
         $response = $client->sendRequest($request);
 
-        switch ($response->getStatusCode()) {
-            case 200:
-                return $response;
-
-            default:
-                throw GotenbergApiErroed::createFromResponse($response);
+        if ($response->getStatusCode() < 200 || $response->getStatusCode() > 299) {
+            throw GotenbergApiErroed::createFromResponse($response);
         }
+
+        return $response;
     }
 
     /**
