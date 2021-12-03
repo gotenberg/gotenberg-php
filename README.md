@@ -126,7 +126,7 @@ try {
 }
 ```
 
-This helper will parse the response and if it is not **2xx**, it will throw a exception. That's especially useful if 
+This helper will parse the response and if it is not **2xx**, it will throw an exception. That's especially useful if 
 you wish to return the response directly to the browser.
 
 You may also explicitly set the HTTP client:
