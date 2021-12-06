@@ -829,7 +829,7 @@ use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
     ->webhook('https://my.webhook.url', 'https://my.webhook.error.url')
-    ->url('https://my.url'), 
+    ->url('https://my.url'); 
 ```
 
 You may also override the default HTTP method (`POST`) that Gotenberg will use to call the webhooks:
@@ -841,7 +841,7 @@ $request = Gotenberg::chromium($apiUrl)
     ->webhook('https://my.webhook.url', 'https://my.webhook.error.url')
     ->webhookMethod('PATCH')
     ->webhookErrorMethod('PUT')
-    ->url('https://my.url'), 
+    ->url('https://my.url');
 ```
 
 You may also tell Gotenberg to add extra HTTP headers that it will send alongside the request to the webhooks:
@@ -855,5 +855,5 @@ $request = Gotenberg::chromium($apiUrl)
         'My-Header-1' => 'My value',
         'My-Header-2' => 'My value'    
     ])
-    ->url('https://my.url'), 
+    ->url('https://my.url');
 ```
