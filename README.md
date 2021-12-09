@@ -95,7 +95,7 @@ After having created the HTTP request (see below), you have two options:
 1. Get the response from the API and handle it according to your need.
 2. Save the resulting file to a given directory.
 
-> In the following examples, we assume the Gotenberg API is available at https://localhost:3000.
+> In the following examples, we assume the Gotenberg API is available at http://localhost:3000.
 
 #### Get a response
 
