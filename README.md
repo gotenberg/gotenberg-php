@@ -367,7 +367,7 @@ $request = Gotenberg::chromium($apiUrl)
     )
     ->markdown(
         Stream::path('/path/to/file.html'),
-        Stream::path('/path/to/my.md')
+        Stream::path('/path/to/my.md'),
         Stream::path('/path/to/my2.md')
     );
 ```
