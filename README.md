@@ -298,7 +298,7 @@ use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 
 $request = Gotenberg::chromium($apiUrl)
-    ->html(Stream::string('my.html', $someHtml);
+    ->html(Stream::string('my.html', $someHtml));
 ```
 
 Please note that it automatically sets the filename to `index.html`, as required by Gotenberg, whatever the value you're
