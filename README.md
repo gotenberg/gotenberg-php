@@ -13,8 +13,8 @@
 ---
 
 This package is a PHP client for [Gotenberg](https://gotenberg.dev), a developer-friendly API to interact with powerful 
-tools like Chromium and LibreOffice to convert many documents (HTML, Markdown, Word, Excel, etc.) to PDF, transform them,
-merge them, and more!
+tools like Chromium and LibreOffice for converting numerous document formats (HTML, Markdown, Word, Excel, etc.) into 
+PDF files, and more!
 
 ⚠️ For **Gotenberg 6.x**, use [thecodingmachine/gotenberg-php-client](https://github.com/thecodingmachine/gotenberg-php-client) instead.
 

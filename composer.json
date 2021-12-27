@@ -1,6 +1,6 @@
 {
   "name": "gotenberg/gotenberg-php",
-  "description": "A PHP client for interacting with Gotenberg, a developer-friendly API for converting various documents to PDF",
+  "description": "A PHP client for interacting with Gotenberg, a developer-friendly API for converting numerous document formats into PDF files, and more!",
   "homepage": "https://github.com/gotenberg/gotenberg-php",
   "keywords": [
     "gotenberg",
