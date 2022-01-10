@@ -18,9 +18,11 @@ class Stream
     private string $filename;
     private StreamInterface $stream;
 
-    public static function path(string $path): self
+    public static function path(string $path, ?string $filename = null): self
     {
-        return new self(basename($path), new LazyOpenStream($path, 'r'));
+        $filename ??= basename($path);
+
+        return new self($filename, new LazyOpenStream($path, 'r'));
     }
 
     public static function string(string $filename, string $str): self
