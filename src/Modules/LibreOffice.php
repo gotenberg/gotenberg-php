@@ -85,9 +85,11 @@ class LibreOffice
         $filename = $this->merge ? '0_' . $file->getFilename() : $file->getFilename();
         $this->formFile($filename, $file->getStream());
 
-        foreach ($files as $index => $file) {
-            $filename = $this->merge ? ($index + 1) . '_' . $file->getFilename() : $file->getFilename();
+        $index = 1;
+        foreach ($files as $file) {
+            $filename = $this->merge ? $index . '_' . $file->getFilename() : $file->getFilename();
             $this->formFile($filename, $file->getStream());
+            $index++;
         }
 
         $this->endpoint = '/forms/libreoffice/convert';

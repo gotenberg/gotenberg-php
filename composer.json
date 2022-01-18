@@ -66,6 +66,10 @@
     "tests": "XDEBUG_MODE=coverage pest --coverage --coverage-html coverage_html --coverage-clover coverage.xml"
   },
   "config": {
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "pestphp/pest-plugin": true
+    }
   }
 }

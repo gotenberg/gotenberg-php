@@ -36,8 +36,10 @@ class PdfEngines
         $this->formFile('0_' . $pdf1->getFilename(), $pdf1->getStream());
         $this->formFile('1_' . $pdf2->getFilename(), $pdf2->getStream());
 
-        foreach ($pdfs as $index => $pdf) {
-            $this->formFile(($index + 2 ) . '_' . $pdf->getFilename(), $pdf->getStream());
+        $index = 2;
+        foreach ($pdfs as $pdf) {
+            $this->formFile($index . '_' . $pdf->getFilename(), $pdf->getStream());
+            $index++;
         }
 
         $this->endpoint = '/forms/pdfengines/merge';
