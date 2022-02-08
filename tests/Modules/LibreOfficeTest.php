@@ -15,6 +15,7 @@ it(
         bool $landscape = false,
         ?string $nativePageRanges = null,
         bool $nativePdfA1aFormat = false,
+        ?string $nativePdfFormat = null,
         ?string $pdfFormat = null,
         bool $merge = false
     ): void {
@@ -32,6 +33,10 @@ it(
             $libreOffice->nativePdfA1aFormat();
         }
 
+        if ($nativePdfFormat !== null) {
+            $libreOffice->nativePdfFormat($nativePdfFormat);
+        }
+
         if ($pdfFormat !== null) {
             $libreOffice->pdfFormat($pdfFormat);
         }
@@ -47,6 +52,7 @@ it(
         expect($body)->unless($landscape === false, fn ($body) => $body->toContainFormValue('landscape', '1'));
         expect($body)->unless($nativePageRanges === null, fn ($body) => $body->toContainFormValue('nativePageRanges', $nativePageRanges));
         expect($body)->unless($nativePdfA1aFormat === false, fn ($body) => $body->toContainFormValue('nativePdfA1aFormat', '1'));
+        expect($body)->unless($nativePdfFormat === null, fn ($body) => $body->toContainFormValue('nativePdfFormat', $nativePdfFormat));
         expect($body)->unless($pdfFormat === null, fn ($body) => $body->toContainFormValue('pdfFormat', $pdfFormat));
         expect($body)->unless($merge === false, fn ($body) => $body->toContainFormValue('merge', '1'));
 
@@ -71,6 +77,7 @@ it(
         true,
         '1-2',
         true,
+        'PDF/A-1a',
         'PDF/A-1a',
         true,
     ],

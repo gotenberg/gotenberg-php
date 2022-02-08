@@ -82,14 +82,6 @@ it(
             $links[] = [
                 'href' => $linkTag->getHref(),
             ];
-
-            $stream = $linkTag->getStream();
-            if ($stream === null) {
-                continue;
-            }
-
-            $stream->getStream()->rewind();
-            expect($body)->toContainFormFile($stream->getFilename(), $stream->getStream()->getContents(), 'text/css');
         }
 
         if (count($links) > 0) {
@@ -106,14 +98,6 @@ it(
             $scripts[] = [
                 'src' => $scriptTag->getSrc(),
             ];
-
-            $stream = $scriptTag->getStream();
-            if ($stream === null) {
-                continue;
-            }
-
-            $stream->getStream()->rewind();
-            expect($body)->toContainFormFile($stream->getFilename(), $stream->getStream()->getContents(), 'text/javascript');
         }
 
         if (count($scripts) > 0) {
@@ -156,16 +140,10 @@ it(
     [
         'https://my.url',
         [
-            ChromiumExtraLinkTag::url('https://my.css'),
-            ChromiumExtraLinkTag::stream(
-                Stream::string('my.css', 'CSS content')
-            ),
+            new ChromiumExtraLinkTag('https://my.css'),
         ],
         [
-            ChromiumExtraScriptTag::url('https://my.js'),
-            ChromiumExtraScriptTag::stream(
-                Stream::string('my.js', 'JavaScript content')
-            ),
+            new ChromiumExtraScriptTag('https://my.js'),
         ],
     ],
     [

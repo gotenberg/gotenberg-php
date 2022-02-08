@@ -236,42 +236,22 @@ $request = Gotenberg::chromium($apiUrl)
     ->url('https://my.url');
 ```
 
-By default, Gotenberg auto-detects the following assets: `.woff2`, `.woff`, `.ttf`, `.css` and `.js`.
-
-It adds the corresponding HTML elements (i.e., link and script) inside the DOM of the target URL, using the alphabetical 
-order according to the filenames.
-
-```php
-use Gotenberg\Gotenberg;
-use Gotenberg\Stream;
-
-$request = Gotenberg::chromium($apiUrl)
-    ->assets(
-        Stream::path('/path/to/my.css'),
-        Stream::path('/path/to/my.js')
-    )
-    ->url('https://my.url');
-```
-
-You may override this behavior thanks to the `$extraLinkTags` and `$extraScriptTags` arguments:
+You may inject `<link>` and `<script>` HTML elements thanks to the `$extraLinkTags` and `$extraScriptTags` arguments:
 
 ```php
 use Gotenberg\Gotenberg;
 use Gotenberg\Modules\ChromiumExtraLinkTag;
 use Gotenberg\Modules\ChromiumExtraScriptTag;
-use Gotenberg\Stream;
 
 $request = Gotenberg::chromium($apiUrl)
     ->url(
         'https://my.url',
         [
-            ChromiumExtraLinkTag::url('https://my.css'),
-            ChromiumExtraLinkTag::stream(Stream::path('/path/to/my.css')),
+            new ChromiumExtraLinkTag('https://my.css'),
         ],
         [
-            ChromiumExtraScriptTag::url('https://my.js'),
-            ChromiumExtraScriptTag::stream(Stream::path('/path/to/my.js')),
-        ]
+            new ChromiumExtraScriptTag('https://my.js'),
+        ],
     );
 ```
 
@@ -728,14 +708,14 @@ $request = Gotenberg::libreOffice($apiUrl)
 ```
 
 You may also explicitly tell Gotenberg to use [unoconv](https://github.com/unoconv/unoconv) to convert the resulting 
-PDF(s) to the `PDF/A-1a` format:
+PDF(s) to a PDF format:
 
 ```php
 use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 
 $request = Gotenberg::libreOffice($apiUrl)
-    ->nativePdfA1aFormat()
+    ->nativePdfFormat('PDF/A-1a')
     ->convert(Stream::path('/path/to/my.docx'));
 ```
 

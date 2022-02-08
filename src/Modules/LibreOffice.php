@@ -40,10 +40,23 @@ class LibreOffice
     /**
      * Tells Gotenberg to use unoconv for converting the resulting PDF(s) to
      * the "PDF/A-1a" format.
+     *
+     * @deprecated
      */
     public function nativePdfA1aFormat(): self
     {
         $this->formValue('nativePdfA1aFormat', true);
+
+        return $this;
+    }
+
+    /**
+     * Tells Gotenberg to use unoconv for converting the resulting PDF to a PDF
+     * format.
+     */
+    public function nativePdfFormat(string $format): self
+    {
+        $this->formValue('nativePdfFormat', $format);
 
         return $this;
     }

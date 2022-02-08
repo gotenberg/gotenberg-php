@@ -253,20 +253,6 @@ class Chromium
     /**
      * Converts a target URL to PDF.
      *
-     * By default, Gotenberg auto-detects the following assets:
-     * .woff2
-     * .woff
-     * .ttf
-     * .css
-     * .js
-     *
-     * It adds the corresponding HTML elements (i.e., link and script) inside
-     * the DOM of the target URL, using the alphabetical order according to the
-     * filenames.
-     *
-     * You may override this behavior thanks to the $extraLinkTags and
-     * $extraScriptTags arguments.
-     *
      * See https://gotenberg.dev/docs/modules/chromium#url.
      *
      * @param ChromiumExtraLinkTag[]   $extraLinkTags
@@ -285,26 +271,12 @@ class Chromium
             $links[] = [
                 'href' => $linkTag->getHref(),
             ];
-
-            $stream = $linkTag->getStream();
-            if ($stream === null) {
-                continue;
-            }
-
-            $this->formFile($stream->getFilename(), $stream->getStream());
         }
 
         foreach ($extraScriptTags as $scriptTag) {
             $scripts[] = [
                 'src' => $scriptTag->getSrc(),
             ];
-
-            $stream = $scriptTag->getStream();
-            if ($stream === null) {
-                continue;
-            }
-
-            $this->formFile($stream->getFilename(), $stream->getStream());
         }
 
         if (count($links) > 0) {
