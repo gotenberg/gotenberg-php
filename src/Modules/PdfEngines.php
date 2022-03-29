@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
+use Gotenberg\Index;
 use Gotenberg\MultipartFormDataModule;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
@@ -33,12 +34,12 @@ class PdfEngines
      */
     public function merge(Stream $pdf1, Stream $pdf2, Stream ...$pdfs): RequestInterface
     {
-        $this->formFile('0_' . $pdf1->getFilename(), $pdf1->getStream());
-        $this->formFile('1_' . $pdf2->getFilename(), $pdf2->getStream());
+        $this->formFile(Index::toAlpha(1) . '_' . $pdf1->getFilename(), $pdf1->getStream());
+        $this->formFile(Index::toAlpha(2) . '_' . $pdf2->getFilename(), $pdf2->getStream());
 
-        $index = 2;
+        $index = 3;
         foreach ($pdfs as $pdf) {
-            $this->formFile($index . '_' . $pdf->getFilename(), $pdf->getStream());
+            $this->formFile(Index::toAlpha($index) . '_' . $pdf->getFilename(), $pdf->getStream());
             $index++;
         }
 

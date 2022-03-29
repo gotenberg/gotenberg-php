@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Gotenberg\Gotenberg;
+use Gotenberg\Index;
 use Gotenberg\Stream;
 
 it(
@@ -24,7 +25,7 @@ it(
 
         foreach ($pdfs as $index => $pdf) {
             $pdf->getStream()->rewind();
-            expect($body)->toContainFormFile($index . '_' . $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
+            expect($body)->toContainFormFile(Index::toAlpha($index + 1) . '_' . $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
         }
 
         expect($body)->unless($pdfFormat === null, fn ($body) => $body->toContainFormValue('pdfFormat', $pdfFormat));

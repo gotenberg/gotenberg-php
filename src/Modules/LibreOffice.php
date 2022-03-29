@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
+use Gotenberg\Index;
 use Gotenberg\MultipartFormDataModule;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
@@ -95,12 +96,12 @@ class LibreOffice
      */
     public function convert(Stream $file, Stream ...$files): RequestInterface
     {
-        $filename = $this->merge ? '0_' . $file->getFilename() : $file->getFilename();
+        $filename = $this->merge ? Index::toAlpha(1) . '_' . $file->getFilename() : $file->getFilename();
         $this->formFile($filename, $file->getStream());
 
-        $index = 1;
+        $index = 2;
         foreach ($files as $file) {
-            $filename = $this->merge ? $index . '_' . $file->getFilename() : $file->getFilename();
+            $filename = $this->merge ? Index::toAlpha($index) . '_' . $file->getFilename() : $file->getFilename();
             $this->formFile($filename, $file->getStream());
             $index++;
         }

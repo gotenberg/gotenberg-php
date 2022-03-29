@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Gotenberg\Gotenberg;
+use Gotenberg\Index;
 use Gotenberg\Stream;
 
 it(
@@ -57,7 +58,7 @@ it(
         expect($body)->unless($merge === false, fn ($body) => $body->toContainFormValue('merge', '1'));
 
         foreach ($files as $index => $file) {
-            $filename = $merge ? $index . '_' . $file->getFilename() : $file->getFilename();
+            $filename = $merge ? Index::toAlpha($index + 1) . '_' . $file->getFilename() : $file->getFilename();
             $file->getStream()->rewind();
 
             expect($body)->toContainFormFile($filename, $file->getStream()->getContents(), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
