@@ -75,6 +75,17 @@ class Chromium
     }
 
     /**
+     * Hides default white background and allows generating PDFs with
+     * transparency.
+     */
+    public function omitBackground(): self
+    {
+        $this->formValue('omitBackground', true);
+
+        return $this;
+    }
+
+    /**
      * Sets the paper orientation to landscape.
      */
     public function landscape(): self

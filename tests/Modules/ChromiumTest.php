@@ -29,6 +29,7 @@ it(
         float $marginRight = 0,
         bool $preferCssPageSize = false,
         bool $printBackground = false,
+        bool $omitBackground = false,
         bool $landscape = false,
         ?float $scale = null,
         ?string $nativePageRanges = null,
@@ -55,6 +56,7 @@ it(
             $marginRight,
             $preferCssPageSize,
             $printBackground,
+            $omitBackground,
             $landscape,
             $scale,
             $nativePageRanges,
@@ -119,6 +121,7 @@ it(
             $marginRight,
             $preferCssPageSize,
             $printBackground,
+            $omitBackground,
             $landscape,
             $scale,
             $nativePageRanges,
@@ -159,6 +162,7 @@ it(
         true,
         true,
         true,
+        true,
         1.0,
         '1-2',
         Stream::string('my_header.html', 'Header content'),
@@ -195,6 +199,7 @@ it(
         float $marginRight = 0,
         bool $preferCssPageSize = false,
         bool $printBackground = false,
+        bool $omitBackground = false,
         bool $landscape = false,
         ?float $scale = null,
         ?string $nativePageRanges = null,
@@ -221,6 +226,7 @@ it(
             $marginRight,
             $preferCssPageSize,
             $printBackground,
+            $omitBackground,
             $landscape,
             $scale,
             $nativePageRanges,
@@ -255,6 +261,7 @@ it(
             $marginRight,
             $preferCssPageSize,
             $printBackground,
+            $omitBackground,
             $landscape,
             $scale,
             $nativePageRanges,
@@ -281,6 +288,7 @@ it(
         2,
         2,
         2,
+        true,
         true,
         true,
         true,
@@ -322,6 +330,7 @@ it(
         float $marginRight = 0,
         bool $preferCssPageSize = false,
         bool $printBackground = false,
+        bool $omitBackground = false,
         bool $landscape = false,
         ?float $scale = null,
         ?string $nativePageRanges = null,
@@ -348,6 +357,7 @@ it(
             $marginRight,
             $preferCssPageSize,
             $printBackground,
+            $omitBackground,
             $landscape,
             $scale,
             $nativePageRanges,
@@ -387,6 +397,7 @@ it(
             $marginRight,
             $preferCssPageSize,
             $printBackground,
+            $omitBackground,
             $landscape,
             $scale,
             $nativePageRanges,
@@ -425,6 +436,7 @@ it(
         true,
         true,
         true,
+        true,
         1.0,
         '1-2',
         Stream::string('my_header.html', 'Header content'),
@@ -460,6 +472,7 @@ function hydrate(
     float $marginRight = 0,
     bool $preferCssPageSize = false,
     bool $printBackground = false,
+    bool $omitBackground = false,
     bool $landscape = false,
     ?float $scale = null,
     ?string $nativePageRanges = null,
@@ -489,6 +502,10 @@ function hydrate(
 
     if ($printBackground) {
         $chromium->printBackground();
+    }
+
+    if ($omitBackground) {
+        $chromium->omitBackground();
     }
 
     if ($landscape) {
@@ -568,6 +585,7 @@ function expectOptions(
     float $marginRight,
     bool $preferCssPageSize,
     bool $printBackground,
+    bool $omitBackground,
     bool $landscape,
     ?float $scale,
     ?string $nativePageRanges,
@@ -599,6 +617,7 @@ function expectOptions(
 
     expect($body)->unless($preferCssPageSize === false, fn ($body) => $body->toContainFormValue('preferCssPageSize', '1'));
     expect($body)->unless($printBackground === false, fn ($body) => $body->toContainFormValue('printBackground', '1'));
+    expect($body)->unless($omitBackground === false, fn ($body) => $body->toContainFormValue('omitBackground', '1'));
     expect($body)->unless($landscape === false, fn ($body) => $body->toContainFormValue('landscape', '1'));
     expect($body)->unless($scale === null, fn ($body) => $body->toContainFormValue('scale', $scale . ''));
     expect($body)->unless($nativePageRanges === null, fn ($body) => $body->toContainFormValue('nativePageRanges', $nativePageRanges));

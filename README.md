@@ -412,6 +412,26 @@ $request = Gotenberg::chromium($apiUrl)
     ->url('https://my.url');
 ```
 
+You may also hide the default white background and allow generating PDFs with transparency with:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->printBackground()
+    ->omitBackground()
+    ->url('https://my.url');
+```
+
+The rules regarding the `printBackground` and `omitBackground` form fields are the following:
+
+* If `printBackground` is set to *false*, no background is printed.
+* If `printBackground` is set to *true*:
+    * If the HTML document has a background, that background is used.
+    * If not:
+        * If `omitBackground` is set to *true*, the default background is transparent.
+        * If not, the default white background is used.
+
 #### Landscape orientation
 
 You may override the default portrait orientation with:
@@ -506,6 +526,7 @@ The following classes allow you to inject printing values:
 * Images only work using a base64 encoded source - i.e., `data:image/png;base64, iVBORw0K....`
 * `background-color` and color `CSS` properties require an additional `-webkit-print-color-adjust: exact` CSS property in order to work.
 * Assets are not loaded (i.e., CSS files, scripts, fonts, etc.).
+* Background form fields do not apply.
 
 #### Wait delay
 
