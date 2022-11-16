@@ -16,8 +16,16 @@ class Chromium
 {
     use MultipartFormDataModule;
 
+    public const SIZE_UNIT_INCHES = 1;
+    public const SIZE_UNIT_CENTIMETERS = 1/2.54;
+    public const SIZE_UNIT_MILLIMETERS = 0.1/2.54;
+
     /**
-     * Overrides the default paper size, in inches.
+     * Overrides the default paper size.
+     *
+     * By default, the values have to be set in inches.
+     * Set the `$unit` with one of the `SIZE_UNIT_*` class constants if you want to use another unit.
+     * You can also set any floating number here, which will be multiplied with `$width` and `$height` to convert to inches.
      *
      * Examples of paper size (width x height):
      *
@@ -33,10 +41,10 @@ class Chromium
      * A5 - 5.83 x 8.27
      * A6 - 4.13 x 5.83
      */
-    public function paperSize(float $width, float $height): self
+    public function paperSize(float $width, float $height, float $unitFactor = self::SIZE_UNIT_INCHES): self
     {
-        $this->formValue('paperWidth', $width);
-        $this->formValue('paperHeight', $height);
+        $this->formValue('paperWidth', $width * $unitFactor);
+        $this->formValue('paperHeight', $height * $unitFactor);
 
         return $this;
     }
