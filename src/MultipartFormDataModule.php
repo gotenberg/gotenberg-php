@@ -109,6 +109,24 @@ trait MultipartFormDataModule
         ];
     }
 
+    public function clearFooter(): void
+    {
+        foreach ($this->multipartFormData as $key => $multipartFormDatum) {
+            if (isset($multipartFormDatum['filename']) && $multipartFormDatum['filename'] === 'footer.html') {
+                unset($this->multipartFormData[$key]);
+            }
+        }
+    }
+
+    public function clearHeader(): void
+    {
+        foreach ($this->multipartFormData as $key => $multipartFormDatum) {
+            if (isset($multipartFormDatum['filename']) && $multipartFormDatum['filename'] === 'header.html') {
+                unset($this->multipartFormData[$key]);
+            }
+        }
+    }
+
     protected function request(string $method = 'POST'): RequestInterface
     {
         $body = new MultipartStream($this->multipartFormData);
