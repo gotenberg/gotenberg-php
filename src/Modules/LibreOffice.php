@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
+use Gotenberg\HrtimeIndex;
 use Gotenberg\Index;
 use Gotenberg\MultipartFormDataModule;
 use Gotenberg\Stream;
@@ -13,7 +14,19 @@ class LibreOffice
 {
     use MultipartFormDataModule;
 
-    private bool $merge = false;
+    private ?Index $index = null;
+    private bool $merge   = false;
+
+    /**
+     * Overrides the default index generator for ordering
+     * files we want to merge.
+     */
+    public function index(Index $index): self
+    {
+        $this->index = $index;
+
+        return $this;
+    }
 
     /**
      * Sets the paper orientation to landscape.
@@ -96,14 +109,13 @@ class LibreOffice
      */
     public function convert(Stream $file, Stream ...$files): RequestInterface
     {
-        $filename = $this->merge ? Index::toAlpha(1) . '_' . $file->getFilename() : $file->getFilename();
+        $index    = $this->index ?? new HrtimeIndex();
+        $filename = $this->merge ? $index->create() . '_' . $file->getFilename() : $file->getFilename();
         $this->formFile($filename, $file->getStream());
 
-        $index = 2;
         foreach ($files as $file) {
-            $filename = $this->merge ? Index::toAlpha($index) . '_' . $file->getFilename() : $file->getFilename();
+            $filename = $this->merge ? $index->create() . '_' . $file->getFilename() : $file->getFilename();
             $this->formFile($filename, $file->getStream());
-            $index++;
         }
 
         $this->endpoint = '/forms/libreoffice/convert';

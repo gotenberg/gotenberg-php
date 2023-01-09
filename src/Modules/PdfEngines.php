@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
+use Gotenberg\HrtimeIndex;
 use Gotenberg\Index;
 use Gotenberg\MultipartFormDataModule;
 use Gotenberg\Stream;
@@ -12,6 +13,19 @@ use Psr\Http\Message\RequestInterface;
 class PdfEngines
 {
     use MultipartFormDataModule;
+
+    private ?Index $index = null;
+
+    /**
+     * Overrides the default index generator for ordering
+     * files we want to merge.
+     */
+    public function index(Index $index): self
+    {
+        $this->index = $index;
+
+        return $this;
+    }
 
     /**
      * Sets the PDF format of the resulting PDF.
@@ -34,13 +48,13 @@ class PdfEngines
      */
     public function merge(Stream $pdf1, Stream $pdf2, Stream ...$pdfs): RequestInterface
     {
-        $this->formFile(Index::toAlpha(1) . '_' . $pdf1->getFilename(), $pdf1->getStream());
-        $this->formFile(Index::toAlpha(2) . '_' . $pdf2->getFilename(), $pdf2->getStream());
+        $index = $this->index ?? new HrtimeIndex();
 
-        $index = 3;
+        $this->formFile($index->create() . '_' . $pdf1->getFilename(), $pdf1->getStream());
+        $this->formFile($index->create() . '_' . $pdf2->getFilename(), $pdf2->getStream());
+
         foreach ($pdfs as $pdf) {
-            $this->formFile(Index::toAlpha($index) . '_' . $pdf->getFilename(), $pdf->getStream());
-            $index++;
+            $this->formFile($index->create() . '_' . $pdf->getFilename(), $pdf->getStream());
         }
 
         $this->endpoint = '/forms/pdfengines/merge';

@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Gotenberg\Gotenberg;
-use Gotenberg\Index;
 use Gotenberg\Stream;
+use Gotenberg\Test\DummyIndex;
 
 it(
     'creates a valid request for the "/forms/pdfengines/merge" endpoint',
@@ -12,7 +12,7 @@ it(
      * @param Stream[] $pdfs
      */
     function (array $pdfs, ?string $pdfFormat = null): void {
-        $pdfEngines = Gotenberg::pdfEngines('');
+        $pdfEngines = Gotenberg::pdfEngines('')->index(new DummyIndex());
 
         if ($pdfFormat !== null) {
             $pdfEngines->pdfFormat($pdfFormat);
@@ -23,9 +23,9 @@ it(
 
         expect($request->getUri()->getPath())->toBe('/forms/pdfengines/merge');
 
-        foreach ($pdfs as $index => $pdf) {
+        foreach ($pdfs as $pdf) {
             $pdf->getStream()->rewind();
-            expect($body)->toContainFormFile(Index::toAlpha($index + 1) . '_' . $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
+            expect($body)->toContainFormFile('foo_' . $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
         }
 
         expect($body)->unless($pdfFormat === null, fn ($body) => $body->toContainFormValue('pdfFormat', $pdfFormat));

@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Gotenberg\Gotenberg;
-use Gotenberg\Index;
 use Gotenberg\Stream;
+use Gotenberg\Test\DummyIndex;
 
 it(
     'creates a valid request for the "/forms/libreoffice/convert" endpoint',
@@ -43,7 +43,9 @@ it(
         }
 
         if ($merge) {
-            $libreOffice->merge();
+            $libreOffice
+                ->index(new DummyIndex())
+                ->merge();
         }
 
         $request = $libreOffice->convert(...$files);
@@ -57,8 +59,8 @@ it(
         expect($body)->unless($pdfFormat === null, fn ($body) => $body->toContainFormValue('pdfFormat', $pdfFormat));
         expect($body)->unless($merge === false, fn ($body) => $body->toContainFormValue('merge', '1'));
 
-        foreach ($files as $index => $file) {
-            $filename = $merge ? Index::toAlpha($index + 1) . '_' . $file->getFilename() : $file->getFilename();
+        foreach ($files as $file) {
+            $filename = $merge ? 'foo_' . $file->getFilename() : $file->getFilename();
             $file->getStream()->rewind();
 
             expect($body)->toContainFormFile($filename, $file->getStream()->getContents(), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
