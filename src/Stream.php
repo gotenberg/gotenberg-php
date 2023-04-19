@@ -25,9 +25,9 @@ class Stream
         return new self($filename, new LazyOpenStream($path, 'r'));
     }
 
-    public static function string(string $filename, string $str): self
+    public static function string(string $filename, string $str, bool $preferTemp = false, int $maxTmpSize = 2097152): self
     {
-        $inmemory = fopen('php://memory', 'rb+');
+        $inmemory = fopen(($preferTemp ? 'php://temp/maxmemory:' . $maxTmpSize  : 'php://memory'), 'rb+');
 
         if ($inmemory === false) {
             throw NativeFunctionErroed::createFromLastPhpError();
