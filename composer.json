@@ -36,7 +36,7 @@
     "php": "^7.4|^8.0|^8.1|^8.2",
     "ext-json": "*",
     "ext-mbstring": "*",
-    "guzzlehttp/psr7": "^2.1",
+    "guzzlehttp/psr7": "^1 || ^2.1",
     "php-http/discovery": "^1.14",
     "psr/http-client": "^1.0",
     "psr/http-message": "^1.0"
