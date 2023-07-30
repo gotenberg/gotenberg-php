@@ -78,7 +78,7 @@ class LibreOffice
     /**
      * Sets the PDF format of the resulting PDF.
      *
-     * See https://gotenberg.dev/docs/modules/pdf-engines#engines.
+     * See https://gotenberg.dev/docs/routes#pdfa-libreoffice.
      */
     public function pdfFormat(string $format): self
     {
@@ -105,7 +105,7 @@ class LibreOffice
      * Note: if you requested a merge, the merging order is determined by the
      * order of the arguments.
      *
-     * See https://gotenberg.dev/docs/modules/libreoffice#route.
+     * See https://gotenberg.dev/docs/routes#office-documents-into-pdfs-route.
      */
     public function convert(Stream $file, Stream ...$files): RequestInterface
     {

@@ -44,7 +44,7 @@ class PdfEngines
      *
      * Note: the merging order is determined by the order of the arguments.
      *
-     * See https://gotenberg.dev/docs/modules/pdf-engines#merge.
+     * See https://gotenberg.dev/docs/routes#merge-pdfs-route.
      */
     public function merge(Stream $pdf1, Stream $pdf2, Stream ...$pdfs): RequestInterface
     {
@@ -66,9 +66,7 @@ class PdfEngines
      * Converts PDF(s) to a specific PDF format.
      * Gotenberg will return the PDF or a ZIP archive with the PDFs.
      *
-     * See:
-     * https://gotenberg.dev/docs/modules/pdf-engines#convert.
-     * https://gotenberg.dev/docs/modules/pdf-engines#engines.
+     * See https://gotenberg.dev/routes#convert-into-pdfa-route.
      */
     public function convert(string $pdfFormat, Stream $pdf, Stream ...$pdfs): RequestInterface
     {

@@ -240,7 +240,7 @@ class Chromium
     /**
      * Sets the PDF format of the resulting PDF.
      *
-     * See https://gotenberg.dev/docs/modules/pdf-engines#engines.
+     * See https://gotenberg.dev/docs/routes#pdfa-chromium.
      */
     public function pdfFormat(string $format): self
     {
@@ -264,7 +264,7 @@ class Chromium
     /**
      * Converts a target URL to PDF.
      *
-     * See https://gotenberg.dev/docs/modules/chromium#url.
+     * See https://gotenberg.dev/docs/routes#url-into-pdf-route.
      *
      * @param ChromiumExtraLinkTag[]   $extraLinkTags
      * @param ChromiumExtraScriptTag[] $extraScriptTags
@@ -319,7 +319,7 @@ class Chromium
      * Note: it automatically sets the index filename to "index.html", as
      * required by Gotenberg.
      *
-     * See https://gotenberg.dev/docs/modules/chromium#html.
+     * See https://gotenberg.dev/docs/routes#html-file-into-pdf-route.
      */
     public function html(Stream $index): RequestInterface
     {
@@ -336,7 +336,7 @@ class Chromium
      * Note: it automatically sets the index filename to "index.html", as
      * required by Gotenberg.
      *
-     * See https://gotenberg.dev/docs/modules/chromium#markdown.
+     * See https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route.
      */
     public function markdown(Stream $index, Stream $markdown, Stream ...$markdowns): RequestInterface
     {

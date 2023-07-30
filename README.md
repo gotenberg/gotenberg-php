@@ -51,13 +51,9 @@ $response = Gotenberg::send(
 
 ## Requirement
 
-This packages requires [Gotenberg](https://gotenberg.dev), a Docker-powered stateless API for PDF files:
+This packages requires [Gotenberg](https://gotenberg.dev), a Docker-powered stateless API for PDF files.
 
-* 🔥 [Live Demo](https://gotenberg.dev/docs/get-started/live-demo)
-* [Docker](https://gotenberg.dev/docs/get-started/docker)
-* [Docker Compose](https://gotenberg.dev/docs/get-started/docker-compose)
-* [Kubernetes](https://gotenberg.dev/docs/get-started/kubernetes)
-* [Cloud Run](https://gotenberg.dev/docs/get-started/cloud-run)
+See the [installation guide](https://gotenberg.dev/docs/getting-started/installation) for more information.
 
 ## Installation
 
@@ -221,11 +217,11 @@ try {
 
 ### Chromium
 
-The [Chromium module](https://gotenberg.dev/docs/modules/chromium) interacts with the Chromium browser to convert HTML documents to PDF.
+The [Chromium module](https://gotenberg.dev/docs/routes#convert-with-chromium) interacts with the Chromium browser to convert HTML documents to PDF.
 
 #### Convert a target URL to PDF
 
-See https://gotenberg.dev/docs/modules/chromium#url.
+See https://gotenberg.dev/docs/routes#url-into-pdf-route.
 
 Converting a target URL to PDF is as simple as:
 
@@ -259,7 +255,7 @@ Please note that Gotenberg will add the `<link>` and `<script>` elements based o
 
 #### Convert an HTML document to PDF
 
-See https://gotenberg.dev/docs/modules/chromium#html.
+See https://gotenberg.dev/docs/routes#html-file-into-pdf-route.
 
 You may convert an HTML document with:
 
@@ -301,7 +297,7 @@ $request = Gotenberg::chromium($apiUrl)
 
 #### Convert one or more markdown files to PDF
 
-See https://gotenberg.dev/docs/modules/chromium#markdown.
+See https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route.
 
 You may convert markdown files with:
 
@@ -522,7 +518,7 @@ The following classes allow you to inject printing values:
 * No JavaScript.
 * The CSS properties are independent of the ones from the HTML document.
 * The footer CSS properties override the ones from the header;
-* Only fonts installed in the Docker image are loaded - see the [Fonts chapter](https://gotenberg.dev/docs/customize/fonts).
+* Only fonts installed in the Docker image are loaded - see the [fonts configuration](https://gotenberg.dev/docs/configuration#fonts).
 * Images only work using a base64 encoded source - i.e., `data:image/png;base64, iVBORw0K....`
 * `background-color` and color `CSS` properties require an additional `-webkit-print-color-adjust: exact` CSS property in order to work.
 * Assets are not loaded (i.e., CSS files, scripts, fonts, etc.).
@@ -616,7 +612,7 @@ $request = Gotenberg::chromium($apiUrl)
 
 #### PDF Format
 
-See https://gotenberg.dev/docs/modules/pdf-engines#engines.
+See https://gotenberg.dev/docs/routes#pdfa-chromium.
 
 You may set the PDF format of the resulting PDF with:
 
@@ -630,12 +626,12 @@ $request = Gotenberg::chromium($apiUrl)
 
 ### LibreOffice
 
-The [LibreOffice module](https://gotenberg.dev/docs/modules/libreoffice) interacts with [LibreOffice](https://www.libreoffice.org/) 
+The [LibreOffice module](https://gotenberg.dev/docs/routes#convert-with-libreoffice) interacts with [LibreOffice](https://www.libreoffice.org/) 
 to convert documents to PDF, thanks to [unoconv](https://github.com/unoconv/unoconv).
 
 #### Convert documents to PDF
 
-See https://gotenberg.dev/docs/modules/libreoffice#route.
+See https://gotenberg.dev/docs/routes#office-documents-into-pdfs-route.
 
 Converting a document to PDF is as simple as:
 
@@ -715,7 +711,7 @@ $request = Gotenberg::libreOffice($apiUrl)
 
 #### PDF format
 
-See https://gotenberg.dev/docs/modules/pdf-engines#engines.
+See https://gotenberg.dev/docs/routes#pdfa-libreoffice.
 
 You may set the PDF format of the resulting PDF(s) with:
 
@@ -744,11 +740,11 @@ $request = Gotenberg::libreOffice($apiUrl)
 
 ### PDF Engines
 
-The [PDF Engines module](https://gotenberg.dev/docs/modules/pdf-engines) gathers all engines that can manipulate PDF files.
+The [PDF Engines module](https://gotenberg.dev/docs/configuration#pdf-engines) gathers all engines that can manipulate PDF files.
 
 #### Merge PDFs
 
-See https://gotenberg.dev/docs/modules/pdf-engines#merge.
+See https://gotenberg.dev/docs/routes#merge-pdfs-route.
 
 Merging PDFs is as simple as:
 
@@ -782,7 +778,7 @@ $request = Gotenberg::pdfEngines($apiUrl)
 
 #### Convert to a specific PDF format
 
-See https://gotenberg.dev/docs/modules/pdf-engines#convert.
+See https://gotenberg.dev/docs/routes#convert-into-pdfa-route.
 
 You may convert a PDF to a specific PDF format with:
 
@@ -818,7 +814,7 @@ $filename = Gotenberg::save($request, $pathToSavingDirectory);
 
 ### Webhook
 
-The [Webhook module](https://gotenberg.dev/docs/modules/webhook) is a Gotenberg middleware that sends the API
+The [Webhook module](https://gotenberg.dev/docs/webhook) is a Gotenberg middleware that sends the API
 responses to callbacks.
 
 ⚠️ You cannot use the `Gotenberg::save` method if you're using the webhook feature.
