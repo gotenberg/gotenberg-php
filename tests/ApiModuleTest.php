@@ -16,3 +16,18 @@ it(
         expect($request->getHeader('Gotenberg-Trace'))->toMatchArray(['debug']);
     }
 );
+
+it(
+    'creates a valid request with a custom header',
+    function (): void {
+        $dummy   = new DummyApiModule('https://my.url/');
+        $request = $dummy
+            ->trace('custom-trace-header')
+            ->setHeader('X-Test-Header', 'foo')
+            ->build();
+
+        expect($dummy->getUrl())->toBe('https://my.url');
+        expect($request->getHeader('Gotenberg-Trace'))->toMatchArray(['custom-trace-header']);
+        expect($request->getHeader('X-Test-Header'))->toMatchArray(['foo']);
+    }
+);

@@ -30,14 +30,22 @@ trait ApiModule
     }
 
     /**
+     * Adds or updates a header to send with the request to Gotenberg.
+     */
+    public function setHeader(string $name, string $value): self
+    {
+        $this->headers[$name] = $value;
+
+        return $this;
+    }
+
+    /**
      * Overrides the default UUID trace, or request ID, that identifies a
      * request in Gotenberg's logs.
      */
     public function trace(string $trace, string $header = 'Gotenberg-Trace'): self
     {
-        $this->headers[$header] = $trace;
-
-        return $this;
+        return $this->setHeader($header, $trace);
     }
 
     protected function request(string $method, ?StreamInterface $body = null): RequestInterface
