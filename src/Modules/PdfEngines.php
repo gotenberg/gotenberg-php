@@ -30,7 +30,7 @@ class PdfEngines
     /**
      * Sets the PDF format of the resulting PDF.
      *
-     * See https://gotenberg.dev/docs/modules/pdf-engines#engines.
+     * @deprecated
      */
     public function pdfFormat(string $format): self
     {
@@ -40,11 +40,29 @@ class PdfEngines
     }
 
     /**
+     * Sets the PDF/A format of the resulting PDF.
+     */
+    public function pdfa(string $format): self
+    {
+        $this->formValue('pdfa', $format);
+
+        return $this;
+    }
+
+    /**
+     * Enables PDF for Universal Access for optimal accessibility.
+     */
+    public function pdfua(): self
+    {
+        $this->formValue('pdfua', true);
+
+        return $this;
+    }
+
+    /**
      * Merges PDFs into a unique PDF.
      *
      * Note: the merging order is determined by the order of the arguments.
-     *
-     * See https://gotenberg.dev/docs/routes#merge-pdfs-route.
      */
     public function merge(Stream $pdf1, Stream $pdf2, Stream ...$pdfs): RequestInterface
     {
@@ -63,14 +81,13 @@ class PdfEngines
     }
 
     /**
-     * Converts PDF(s) to a specific PDF format.
+     * Converts PDF(s) to a specific PDF/A format.
      * Gotenberg will return the PDF or a ZIP archive with the PDFs.
-     *
-     * See https://gotenberg.dev/routes#convert-into-pdfa-route.
      */
-    public function convert(string $pdfFormat, Stream $pdf, Stream ...$pdfs): RequestInterface
+    public function convert(string $pdfa, Stream $pdf, Stream ...$pdfs): RequestInterface
     {
-        $this->formValue('pdfFormat', $pdfFormat);
+        $this->pdfFormat($pdfa); // TODO: remove in v2.
+        $this->pdfa($pdfa);
         $this->formFile($pdf->getFilename(), $pdf->getStream());
 
         foreach ($pdfs as $pdf) {

@@ -11,11 +11,19 @@ it(
     /**
      * @param Stream[] $pdfs
      */
-    function (array $pdfs, ?string $pdfFormat = null): void {
+    function (array $pdfs, ?string $pdfFormat = null, ?string $pdfa = null, bool $pdfua = false): void {
         $pdfEngines = Gotenberg::pdfEngines('')->index(new DummyIndex());
 
         if ($pdfFormat !== null) {
             $pdfEngines->pdfFormat($pdfFormat);
+        }
+
+        if ($pdfa !== null) {
+            $pdfEngines->pdfa($pdfa);
+        }
+
+        if ($pdfua) {
+            $pdfEngines->pdfua();
         }
 
         $request = $pdfEngines->merge(...$pdfs);
@@ -44,17 +52,20 @@ it(
             Stream::string('my_third.pdf', 'Third PDF content'),
         ],
         'PDF/A-1a',
+        'PDF/A-1a',
+        true,
     ],
 ]);
 
 it(
     'creates a valid request for the "/forms/pdfengines/convert" endpoint',
-    function (string $pdfFormat, Stream ...$pdfs): void {
-        $request = Gotenberg::pdfEngines('')->convert($pdfFormat, ...$pdfs);
+    function (string $pdfa, Stream ...$pdfs): void {
+        $request = Gotenberg::pdfEngines('')->convert($pdfa, ...$pdfs);
         $body    = sanitize($request->getBody()->getContents());
 
         expect($request->getUri()->getPath())->toBe('/forms/pdfengines/convert');
-        expect($body)->toContainFormValue('pdfFormat', $pdfFormat);
+        expect($body)->toContainFormValue('pdfFormat', $pdfa);
+        expect($body)->toContainFormValue('pdfa', $pdfa);
 
         foreach ($pdfs as $pdf) {
             $pdf->getStream()->rewind();

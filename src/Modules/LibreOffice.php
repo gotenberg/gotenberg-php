@@ -67,6 +67,8 @@ class LibreOffice
     /**
      * Tells Gotenberg to use unoconv for converting the resulting PDF to a PDF
      * format.
+     *
+     * @deprecated
      */
     public function nativePdfFormat(string $format): self
     {
@@ -78,11 +80,31 @@ class LibreOffice
     /**
      * Sets the PDF format of the resulting PDF.
      *
-     * See https://gotenberg.dev/docs/routes#pdfa-libreoffice.
+     * @deprecated
      */
     public function pdfFormat(string $format): self
     {
         $this->formValue('pdfFormat', $format);
+
+        return $this;
+    }
+
+    /**
+     * Sets the PDF/A format of the resulting PDF.
+     */
+    public function pdfa(string $format): self
+    {
+        $this->formValue('pdfa', $format);
+
+        return $this;
+    }
+
+    /**
+     * Enables PDF for Universal Access for optimal accessibility.
+     */
+    public function pdfua(): self
+    {
+        $this->formValue('pdfua', true);
 
         return $this;
     }
@@ -104,8 +126,6 @@ class LibreOffice
      *
      * Note: if you requested a merge, the merging order is determined by the
      * order of the arguments.
-     *
-     * See https://gotenberg.dev/docs/routes#office-documents-into-pdfs-route.
      */
     public function convert(Stream $file, Stream ...$files): RequestInterface
     {
