@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
+/** @deperacted */
 class ChromiumExtraLinkTag
 {
     private string $href;

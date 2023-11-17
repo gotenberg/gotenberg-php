@@ -5,22 +5,16 @@ declare(strict_types=1);
 use Gotenberg\Exceptions\NativeFunctionErroed;
 use Gotenberg\Gotenberg;
 use Gotenberg\Modules\Chromium;
-use Gotenberg\Modules\ChromiumExtraLinkTag;
-use Gotenberg\Modules\ChromiumExtraScriptTag;
 use Gotenberg\Stream;
 
 it(
     'creates a valid request for the "/forms/chromium/convert/url" endpoint',
     /**
-     * @param ChromiumExtraLinkTag[]   $extraLinkTags
-     * @param ChromiumExtraScriptTag[] $extraScriptTags
      * @param array<string,string> $extraHttpHeaders
      * @param Stream[] $assets
      */
     function (
         string $url,
-        array $extraLinkTags = [],
-        array $extraScriptTags = [],
         ?float $paperWidth = null,
         float $paperHeight = 0,
         ?float $marginTop = null,
@@ -43,6 +37,8 @@ it(
         bool $failOnConsoleExceptions = false,
         ?string $emulatedMediaType = null,
         ?string $pdfFormat = null,
+        ?string $pdfa = null,
+        bool $pdfua = false,
         array $assets = []
     ): void {
         $chromium = Gotenberg::chromium('');
@@ -70,46 +66,16 @@ it(
             $failOnConsoleExceptions,
             $emulatedMediaType,
             $pdfFormat,
+            $pdfa,
+            $pdfua,
             $assets
         );
 
-        $request = $chromium->url($url, $extraLinkTags, $extraScriptTags);
+        $request = $chromium->url($url);
         $body    = sanitize($request->getBody()->getContents());
 
         expect($request->getUri()->getPath())->toBe('/forms/chromium/convert/url');
         expect($body)->toContainFormValue('url', $url);
-
-        $links = [];
-        foreach ($extraLinkTags as $linkTag) {
-            $links[] = [
-                'href' => $linkTag->getHref(),
-            ];
-        }
-
-        if (count($links) > 0) {
-            $json = json_encode($links);
-            if ($json === false) {
-                throw NativeFunctionErroed::createFromLastPhpError();
-            }
-
-            expect($body)->toContainFormValue('extraLinkTags', $json);
-        }
-
-        $scripts = [];
-        foreach ($extraScriptTags as $scriptTag) {
-            $scripts[] = [
-                'src' => $scriptTag->getSrc(),
-            ];
-        }
-
-        if (count($scripts) > 0) {
-            $json = json_encode($scripts);
-            if ($json === false) {
-                throw NativeFunctionErroed::createFromLastPhpError();
-            }
-
-            expect($body)->toContainFormValue('extraScriptTags', $json);
-        }
 
         expectOptions(
             $body,
@@ -135,24 +101,16 @@ it(
             $failOnConsoleExceptions,
             $emulatedMediaType,
             $pdfFormat,
+            $pdfa,
+            $pdfua,
             $assets
         );
     }
 )->with([
     ['https://my.url'],
+    ['https://my.url'],
     [
         'https://my.url',
-        [
-            new ChromiumExtraLinkTag('https://my.css'),
-        ],
-        [
-            new ChromiumExtraScriptTag('https://my.js'),
-        ],
-    ],
-    [
-        'https://my.url',
-        [],
-        [],
         8.27,
         11.7,
         2,
@@ -178,6 +136,8 @@ it(
         true,
         'print',
         'PDF/A-1a',
+        'PDF/A-1a',
+        true,
         [
             Stream::string('my.jpg', 'Image content'),
         ],
@@ -213,6 +173,8 @@ it(
         bool $failOnConsoleExceptions = false,
         ?string $emulatedMediaType = null,
         ?string $pdfFormat = null,
+        ?string $pdfa = null,
+        bool $pdfua = false,
         array $assets = []
     ): void {
         $chromium = Gotenberg::chromium('');
@@ -240,6 +202,8 @@ it(
             $failOnConsoleExceptions,
             $emulatedMediaType,
             $pdfFormat,
+            $pdfa,
+            $pdfua,
             $assets
         );
 
@@ -275,6 +239,8 @@ it(
             $failOnConsoleExceptions,
             $emulatedMediaType,
             $pdfFormat,
+            $pdfa,
+            $pdfua,
             $assets
         );
     }
@@ -307,6 +273,8 @@ it(
         true,
         'screen',
         'PDF/A-1a',
+        'PDF/A-1a',
+        true,
         [
             Stream::string('my.jpg', 'Image content'),
         ],
@@ -344,6 +312,8 @@ it(
         bool $failOnConsoleExceptions = false,
         ?string $emulatedMediaType = null,
         ?string $pdfFormat = null,
+        ?string $pdfa = null,
+        bool $pdfua = false,
         array $assets = []
     ): void {
         $chromium = Gotenberg::chromium('');
@@ -371,6 +341,8 @@ it(
             $failOnConsoleExceptions,
             $emulatedMediaType,
             $pdfFormat,
+            $pdfa,
+            $pdfua,
             $assets
         );
 
@@ -411,6 +383,8 @@ it(
             $failOnConsoleExceptions,
             $emulatedMediaType,
             $pdfFormat,
+            $pdfa,
+            $pdfua,
             $assets
         );
     }
@@ -452,6 +426,8 @@ it(
         true,
         'screen',
         'PDF/A-1a',
+        'PDF/A-1a',
+        true,
         [
             Stream::string('my.jpg', 'Image content'),
         ],
@@ -486,6 +462,8 @@ function hydrate(
     bool $failOnConsoleExceptions = false,
     ?string $emulatedMediaType = null,
     ?string $pdfFormat = null,
+    ?string $pdfa = null,
+    bool $pdfua = false,
     array $assets = []
 ): Chromium {
     if ($paperWidth !== null) {
@@ -564,6 +542,14 @@ function hydrate(
         $chromium->pdfFormat($pdfFormat);
     }
 
+    if ($pdfa !== null) {
+        $chromium->pdfa($pdfa);
+    }
+
+    if ($pdfua) {
+        $chromium->pdfua();
+    }
+
     if (count($assets) > 0) {
         $chromium->assets(...$assets);
     }
@@ -599,6 +585,8 @@ function expectOptions(
     bool $failOnConsoleExceptions,
     ?string $emulatedMediaType,
     ?string $pdfFormat,
+    ?string $pdfa,
+    bool $pdfua,
     array $assets
 ): void {
     if ($paperWidth !== null) {
@@ -649,6 +637,9 @@ function expectOptions(
     expect($body)->unless($failOnConsoleExceptions === false, fn ($body) => $body->toContainFormValue('failOnConsoleExceptions', '1'));
     expect($body)->unless($emulatedMediaType === null, fn ($body) => $body->toContainFormValue('emulatedMediaType', $emulatedMediaType));
     expect($body)->unless($pdfFormat === null, fn ($body) => $body->toContainFormValue('pdfFormat', $pdfFormat));
+    expect($body)->unless($pdfFormat === null, fn ($body) => $body->toContainFormValue('pdfFormat', $pdfFormat));
+    expect($body)->unless($pdfa === null, fn ($body) => $body->toContainFormValue('pdfa', $pdfa));
+    expect($body)->unless($pdfua === false, fn ($body) => $body->toContainFormValue('pdfua', '1'));
 
     if (count($assets) <= 0) {
         return;

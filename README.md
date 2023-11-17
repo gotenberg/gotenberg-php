@@ -232,27 +232,6 @@ $request = Gotenberg::chromium($apiUrl)
     ->url('https://my.url');
 ```
 
-You may inject `<link>` and `<script>` HTML elements thanks to the `$extraLinkTags` and `$extraScriptTags` arguments:
-
-```php
-use Gotenberg\Gotenberg;
-use Gotenberg\Modules\ChromiumExtraLinkTag;
-use Gotenberg\Modules\ChromiumExtraScriptTag;
-
-$request = Gotenberg::chromium($apiUrl)
-    ->url(
-        'https://my.url',
-        [
-            new ChromiumExtraLinkTag('https://my.css'),
-        ],
-        [
-            new ChromiumExtraScriptTag('https://my.js'),
-        ],
-    );
-```
-
-Please note that Gotenberg will add the `<link>` and `<script>` elements based on the order of the arguments.
-
 #### Convert an HTML document to PDF
 
 See https://gotenberg.dev/docs/routes#html-file-into-pdf-route.
@@ -482,48 +461,6 @@ $request = Gotenberg::chromium($apiUrl)
 Please note that it automatically sets the filenames to `header.html` and `footer.html`, as required by Gotenberg, 
 whatever the value you're using with the `Stream` class.
 
-Each of them has to be a complete HTML document:
-
-```html
-<html>
-<head>
-    <style>
-    body {
-        font-size: 8rem;
-        margin: 4rem auto;
-    }
-    </style>
-</head>
-<body>
-<p><span class="pageNumber"></span> of <span class="totalPages"></span></p>
-</body>
-</html>
-```
-
-The following classes allow you to inject printing values:
-
-* `date` - formatted print date.
-* `title` - document title.
-* `url` - document location.
-* `pageNumber` - current page number.
-* `totalPages` - total pages in the document.
-
-⚠️ Make sure that:
-
-1. Margins top and bottom are large enough (i.e., `->margins(1, 1, 0.39, 0.39)`)
-2. The font size is big enough.
-
-⚠️ There are some limitations:
-
-* No JavaScript.
-* The CSS properties are independent of the ones from the HTML document.
-* The footer CSS properties override the ones from the header;
-* Only fonts installed in the Docker image are loaded - see the [fonts configuration](https://gotenberg.dev/docs/configuration#fonts).
-* Images only work using a base64 encoded source - i.e., `data:image/png;base64, iVBORw0K....`
-* `background-color` and color `CSS` properties require an additional `-webkit-print-color-adjust: exact` CSS property in order to work.
-* Assets are not loaded (i.e., CSS files, scripts, fonts, etc.).
-* Background form fields do not apply.
-
 #### Wait delay
 
 When the page relies on JavaScript for rendering, and you don't have access to the page's code, you may want to wait a
@@ -545,19 +482,7 @@ You may also wait until a given JavaScript expression returns true:
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
-    ->waitForExpression("window.status === 'ready'")
-    ->url('https://my.url');
-```
-
-#### User agent
-
-You may override the default `User-Agent` header used by Gotenberg:
-
-```php
-use Gotenberg\Gotenberg;
-
-$request = Gotenberg::chromium($apiUrl)
-    ->userAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1")
+    ->waitForExpression("window.globalVar === 'ready'")
     ->url('https://my.url');
 ```
 
@@ -610,17 +535,18 @@ $request = Gotenberg::chromium($apiUrl)
     ->url('https://my.url');
 ```
 
-#### PDF Format
+#### PDF/A & PDF/UA
 
 See https://gotenberg.dev/docs/routes#pdfa-chromium.
 
-You may set the PDF format of the resulting PDF with:
+You may set the PDF/A format and enable PDF/UA for the resulting PDF with:
 
 ```php
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
     ->pdfFormat('PDF/A-1a')
+    ->pdfua()
     ->url('https://my.url');
 ```
 
@@ -709,34 +635,21 @@ $request = Gotenberg::libreOffice($apiUrl)
 
 ⚠️ The page ranges are applied to all files independently.
 
-#### PDF format
+#### PDF/A & PDF/UA
 
 See https://gotenberg.dev/docs/routes#pdfa-libreoffice.
 
-You may set the PDF format of the resulting PDF(s) with:
+You may set the PDF/A format and enable PDF/UA for the resulting PDF(s) with:
 
 ```php
 use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 
 $request = Gotenberg::libreOffice($apiUrl)
-    ->pdfFormat('PDF/A-1a')
+    ->pdfa('PDF/A-1a')
+    ->pdfua()
     ->convert(Stream::path('/path/to/my.docx'));
 ```
-
-You may also explicitly tell Gotenberg to use [unoconv](https://github.com/unoconv/unoconv) to convert the resulting 
-PDF(s) to a PDF format:
-
-```php
-use Gotenberg\Gotenberg;
-use Gotenberg\Stream;
-
-$request = Gotenberg::libreOffice($apiUrl)
-    ->nativePdfFormat('PDF/A-1a')
-    ->convert(Stream::path('/path/to/my.docx'));
-```
-
-⚠️ You cannot set both property, otherwise Gotenberg will return `400 Bad Request` response.
 
 ### PDF Engines
 
@@ -761,14 +674,15 @@ $request = Gotenberg::pdfEngines($apiUrl)
 
 Please note that the merging order is determined by the order of the arguments.
 
-You may also set the PDF format of the resulting PDF(s) with:
+You may also set the PDF/A format and enable PDF/UA for the resulting PDF with:
 
 ```php
 use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 
 $request = Gotenberg::pdfEngines($apiUrl)
-    ->pdfFormat('PDF/A-1a')
+    ->pdfa('PDF/A-1a')
+    ->pdfua()
     ->merge(
         Stream::path('/path/to/my.pdf'),
         Stream::path('/path/to/my2.pdf'),
@@ -780,13 +694,14 @@ $request = Gotenberg::pdfEngines($apiUrl)
 
 See https://gotenberg.dev/docs/routes#convert-into-pdfa-route.
 
-You may convert a PDF to a specific PDF format with:
+You may convert a PDF to a specific PDF/A format and enable PDF/UA with:
 
 ```php
 use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 
 $request = Gotenberg::pdfEngines($apiUrl)
+    ->pdfua()
     ->convert(
         'PDF/A-1a'
         Stream::path('/path/to/my.pdf')

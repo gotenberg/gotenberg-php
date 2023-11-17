@@ -18,6 +18,8 @@ it(
         bool $nativePdfA1aFormat = false,
         ?string $nativePdfFormat = null,
         ?string $pdfFormat = null,
+        ?string $pdfa = null,
+        bool $pdfua = false,
         bool $merge = false
     ): void {
         $libreOffice = Gotenberg::libreOffice('');
@@ -40,6 +42,14 @@ it(
 
         if ($pdfFormat !== null) {
             $libreOffice->pdfFormat($pdfFormat);
+        }
+
+        if ($pdfa !== null) {
+            $libreOffice->pdfa($pdfa);
+        }
+
+        if ($pdfua) {
+            $libreOffice->pdfua();
         }
 
         if ($merge) {
@@ -82,6 +92,8 @@ it(
         true,
         'PDF/A-1a',
         'PDF/A-1a',
+        'PDF/A-1a',
+        true,
         true,
     ],
 ]);

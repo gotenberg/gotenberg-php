@@ -9,7 +9,6 @@ use Gotenberg\MultipartFormDataModule;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
 
-use function count;
 use function json_encode;
 
 class Chromium
@@ -178,6 +177,8 @@ class Chromium
 
     /**
      * Overrides the default "User-Agent" header.
+     *
+     * @deprecated
      */
     public function userAgent(string $userAgent): self
     {
@@ -240,11 +241,31 @@ class Chromium
     /**
      * Sets the PDF format of the resulting PDF.
      *
-     * See https://gotenberg.dev/docs/routes#pdfa-chromium.
+     * @deprecated
      */
     public function pdfFormat(string $format): self
     {
         $this->formValue('pdfFormat', $format);
+
+        return $this;
+    }
+
+    /**
+     * Sets the PDF/A format of the resulting PDF.
+     */
+    public function pdfa(string $format): self
+    {
+        $this->formValue('pdfa', $format);
+
+        return $this;
+    }
+
+    /**
+     * Enables PDF for Universal Access for optimal accessibility.
+     */
+    public function pdfua(): self
+    {
+        $this->formValue('pdfua', true);
 
         return $this;
     }
@@ -264,8 +285,6 @@ class Chromium
     /**
      * Converts a target URL to PDF.
      *
-     * See https://gotenberg.dev/docs/routes#url-into-pdf-route.
-     *
      * @param ChromiumExtraLinkTag[]   $extraLinkTags
      * @param ChromiumExtraScriptTag[] $extraScriptTags
      *
@@ -274,40 +293,6 @@ class Chromium
     public function url(string $url, array $extraLinkTags = [], array $extraScriptTags = []): RequestInterface
     {
         $this->formValue('url', $url);
-
-        $links   = [];
-        $scripts = [];
-
-        foreach ($extraLinkTags as $linkTag) {
-            $links[] = [
-                'href' => $linkTag->getHref(),
-            ];
-        }
-
-        foreach ($extraScriptTags as $scriptTag) {
-            $scripts[] = [
-                'src' => $scriptTag->getSrc(),
-            ];
-        }
-
-        if (count($links) > 0) {
-            $json = json_encode($links);
-            if ($json === false) {
-                throw NativeFunctionErroed::createFromLastPhpError();
-            }
-
-            $this->formValue('extraLinkTags', $json);
-        }
-
-        if (count($scripts) > 0) {
-            $json = json_encode($scripts);
-            if ($json === false) {
-                throw NativeFunctionErroed::createFromLastPhpError();
-            }
-
-            $this->formValue('extraScriptTags', $json);
-        }
-
         $this->endpoint = '/forms/chromium/convert/url';
 
         return $this->request();
@@ -318,13 +303,10 @@ class Chromium
      *
      * Note: it automatically sets the index filename to "index.html", as
      * required by Gotenberg.
-     *
-     * See https://gotenberg.dev/docs/routes#html-file-into-pdf-route.
      */
     public function html(Stream $index): RequestInterface
     {
         $this->formFile('index.html', $index->getStream());
-
         $this->endpoint = '/forms/chromium/convert/html';
 
         return $this->request();
@@ -335,8 +317,6 @@ class Chromium
      *
      * Note: it automatically sets the index filename to "index.html", as
      * required by Gotenberg.
-     *
-     * See https://gotenberg.dev/docs/routes#markdown-files-into-pdf-route.
      */
     public function markdown(Stream $index, Stream $markdown, Stream ...$markdowns): RequestInterface
     {
