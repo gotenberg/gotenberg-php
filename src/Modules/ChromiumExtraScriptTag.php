@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
-/** @deperacted */
+/** @deprecated */
 class ChromiumExtraScriptTag
 {
     private string $src;
