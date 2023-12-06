@@ -14,8 +14,8 @@ class LibreOffice
 {
     use MultipartFormDataModule;
 
-    private ?Index $index = null;
-    private bool $merge   = false;
+    private Index|null $index = null;
+    private bool $merge       = false;
 
     /**
      * Overrides the default index generator for ordering

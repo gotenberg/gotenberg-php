@@ -8,16 +8,14 @@ use Gotenberg\Test\DummyIndex;
 
 it(
     'creates a valid request for the "/forms/libreoffice/convert" endpoint',
-    /**
-     * @param Stream[] $files
-     */
+    /** @param Stream[] $files */
     function (
         array $files,
         bool $landscape = false,
-        ?string $nativePageRanges = null,
-        ?string $pdfa = null,
+        string|null $nativePageRanges = null,
+        string|null $pdfa = null,
         bool $pdfua = false,
-        bool $merge = false
+        bool $merge = false,
     ): void {
         $libreOffice = Gotenberg::libreOffice('');
 
@@ -57,7 +55,7 @@ it(
 
             expect($body)->toContainFormFile($filename, $file->getStream()->getContents(), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
         }
-    }
+    },
 )->with([
     [
         [

@@ -20,5 +20,5 @@ it(
             $result = $indexes[$i] > $indexes[$i - 1];
             expect($result)->toBeTrue();
         }
-    }
+    },
 );

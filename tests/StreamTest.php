@@ -12,7 +12,7 @@ it(
 
         expect($stream->getFilename())->toEqual('my.txt');
         expect($stream->getStream()->getContents())->toEqual('My content');
-    }
+    },
 );
 
 it(
@@ -22,5 +22,5 @@ it(
 
         expect($stream->getFilename())->toEqual('dummy.txt');
         expect($stream->getStream()->getContents())->toEqual('Dummy content');
-    }
+    },
 );

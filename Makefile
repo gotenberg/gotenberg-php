@@ -7,5 +7,5 @@ bash: ## Start a bash process in a PHP 7.4 Docker container
 	docker run --rm -it \
 	-e PHP_EXTENSION_XDEBUG=1 \
 	-v $(PWD):/usr/src/app/ \
-	thecodingmachine/php:7.4-v4-cli \
+	thecodingmachine/php:8.1-v4-cli \
 	bash

@@ -14,5 +14,5 @@ it(
 
         expect($dummy->getUrl())->toBe('https://my.url');
         expect($request->getHeader('Gotenberg-Trace'))->toMatchArray(['debug']);
-    }
+    },
 );

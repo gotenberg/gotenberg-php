@@ -35,5 +35,5 @@ it(
         }
 
         expect($request->getHeader('Gotenberg-Webhook-Extra-Http-Headers'))->toMatchArray([$json]);
-    }
+    },
 );

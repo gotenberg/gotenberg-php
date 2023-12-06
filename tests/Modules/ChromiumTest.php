@@ -15,9 +15,9 @@ it(
      */
     function (
         string $url,
-        ?float $paperWidth = null,
+        float|null $paperWidth = null,
         float $paperHeight = 0,
-        ?float $marginTop = null,
+        float|null $marginTop = null,
         float $marginBottom = 0,
         float $marginLeft = 0,
         float $marginRight = 0,
@@ -25,18 +25,18 @@ it(
         bool $printBackground = false,
         bool $omitBackground = false,
         bool $landscape = false,
-        ?float $scale = null,
-        ?string $nativePageRanges = null,
-        ?Stream $header = null,
-        ?Stream $footer = null,
-        ?string $waitDelay = null,
-        ?string $waitForExpression = null,
+        float|null $scale = null,
+        string|null $nativePageRanges = null,
+        Stream|null $header = null,
+        Stream|null $footer = null,
+        string|null $waitDelay = null,
+        string|null $waitForExpression = null,
         array $extraHttpHeaders = [],
         bool $failOnConsoleExceptions = false,
-        ?string $emulatedMediaType = null,
-        ?string $pdfa = null,
+        string|null $emulatedMediaType = null,
+        string|null $pdfa = null,
         bool $pdfua = false,
-        array $assets = []
+        array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('');
         $chromium = hydrate(
@@ -62,7 +62,7 @@ it(
             $emulatedMediaType,
             $pdfa,
             $pdfua,
-            $assets
+            $assets,
         );
 
         $request = $chromium->url($url);
@@ -94,9 +94,9 @@ it(
             $emulatedMediaType,
             $pdfa,
             $pdfua,
-            $assets
+            $assets,
         );
-    }
+    },
 )->with([
     ['https://my.url'],
     ['https://my.url'],
@@ -134,14 +134,12 @@ it(
 
 it(
     'creates a valid request for the "/forms/chromium/convert/html" endpoint',
-    /**
-     * @param Stream[] $assets
-     */
+    /** @param Stream[] $assets */
     function (
         Stream $index,
-        ?float $paperWidth = null,
+        float|null $paperWidth = null,
         float $paperHeight = 0,
-        ?float $marginTop = null,
+        float|null $marginTop = null,
         float $marginBottom = 0,
         float $marginLeft = 0,
         float $marginRight = 0,
@@ -149,18 +147,18 @@ it(
         bool $printBackground = false,
         bool $omitBackground = false,
         bool $landscape = false,
-        ?float $scale = null,
-        ?string $nativePageRanges = null,
-        ?Stream $header = null,
-        ?Stream $footer = null,
-        ?string $waitDelay = null,
-        ?string $waitForExpression = null,
+        float|null $scale = null,
+        string|null $nativePageRanges = null,
+        Stream|null $header = null,
+        Stream|null $footer = null,
+        string|null $waitDelay = null,
+        string|null $waitForExpression = null,
         array $extraHttpHeaders = [],
         bool $failOnConsoleExceptions = false,
-        ?string $emulatedMediaType = null,
-        ?string $pdfa = null,
+        string|null $emulatedMediaType = null,
+        string|null $pdfa = null,
         bool $pdfua = false,
-        array $assets = []
+        array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('');
         $chromium = hydrate(
@@ -186,7 +184,7 @@ it(
             $emulatedMediaType,
             $pdfa,
             $pdfua,
-            $assets
+            $assets,
         );
 
         $request = $chromium->html($index);
@@ -220,9 +218,9 @@ it(
             $emulatedMediaType,
             $pdfa,
             $pdfua,
-            $assets
+            $assets,
         );
-    }
+    },
 )->with([
     [Stream::string('my.html', 'HTML content')],
     [
@@ -266,9 +264,9 @@ it(
     function (
         Stream $index,
         array $markdowns,
-        ?float $paperWidth = null,
+        float|null $paperWidth = null,
         float $paperHeight = 0,
-        ?float $marginTop = null,
+        float|null $marginTop = null,
         float $marginBottom = 0,
         float $marginLeft = 0,
         float $marginRight = 0,
@@ -276,18 +274,18 @@ it(
         bool $printBackground = false,
         bool $omitBackground = false,
         bool $landscape = false,
-        ?float $scale = null,
-        ?string $nativePageRanges = null,
-        ?Stream $header = null,
-        ?Stream $footer = null,
-        ?string $waitDelay = null,
-        ?string $waitForExpression = null,
+        float|null $scale = null,
+        string|null $nativePageRanges = null,
+        Stream|null $header = null,
+        Stream|null $footer = null,
+        string|null $waitDelay = null,
+        string|null $waitForExpression = null,
         array $extraHttpHeaders = [],
         bool $failOnConsoleExceptions = false,
-        ?string $emulatedMediaType = null,
-        ?string $pdfa = null,
+        string|null $emulatedMediaType = null,
+        string|null $pdfa = null,
         bool $pdfua = false,
-        array $assets = []
+        array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('');
         $chromium = hydrate(
@@ -313,7 +311,7 @@ it(
             $emulatedMediaType,
             $pdfa,
             $pdfua,
-            $assets
+            $assets,
         );
 
         $request = $chromium->markdown($index, ...$markdowns);
@@ -352,9 +350,9 @@ it(
             $emulatedMediaType,
             $pdfa,
             $pdfua,
-            $assets
+            $assets,
         );
-    }
+    },
 )->with([
     [
         Stream::string('my.html', 'HTML content'),
@@ -404,9 +402,9 @@ it(
  */
 function hydrate(
     Chromium $chromium,
-    ?float $paperWidth = null,
+    float|null $paperWidth = null,
     float $paperHeight = 0,
-    ?float $marginTop = null,
+    float|null $marginTop = null,
     float $marginBottom = 0,
     float $marginLeft = 0,
     float $marginRight = 0,
@@ -414,18 +412,18 @@ function hydrate(
     bool $printBackground = false,
     bool $omitBackground = false,
     bool $landscape = false,
-    ?float $scale = null,
-    ?string $nativePageRanges = null,
-    ?Stream $header = null,
-    ?Stream $footer = null,
-    ?string $waitDelay = null,
-    ?string $waitForExpression = null,
+    float|null $scale = null,
+    string|null $nativePageRanges = null,
+    Stream|null $header = null,
+    Stream|null $footer = null,
+    string|null $waitDelay = null,
+    string|null $waitForExpression = null,
     array $extraHttpHeaders = [],
     bool $failOnConsoleExceptions = false,
-    ?string $emulatedMediaType = null,
-    ?string $pdfa = null,
+    string|null $emulatedMediaType = null,
+    string|null $pdfa = null,
     bool $pdfua = false,
-    array $assets = []
+    array $assets = [],
 ): Chromium {
     if ($paperWidth !== null) {
         $chromium->paperSize($paperWidth, $paperHeight);
@@ -512,9 +510,9 @@ function hydrate(
  */
 function expectOptions(
     string $body,
-    ?float $paperWidth,
+    float|null $paperWidth,
     float $paperHeight,
-    ?float $marginTop,
+    float|null $marginTop,
     float $marginBottom,
     float $marginLeft,
     float $marginRight,
@@ -522,18 +520,18 @@ function expectOptions(
     bool $printBackground,
     bool $omitBackground,
     bool $landscape,
-    ?float $scale,
-    ?string $nativePageRanges,
-    ?Stream $header,
-    ?Stream $footer,
-    ?string $waitDelay,
-    ?string $waitForExpression,
+    float|null $scale,
+    string|null $nativePageRanges,
+    Stream|null $header,
+    Stream|null $footer,
+    string|null $waitDelay,
+    string|null $waitForExpression,
     array $extraHttpHeaders,
     bool $failOnConsoleExceptions,
-    ?string $emulatedMediaType,
-    ?string $pdfa,
+    string|null $emulatedMediaType,
+    string|null $pdfa,
     bool $pdfua,
-    array $assets
+    array $assets,
 ): void {
     if ($paperWidth !== null) {
         expect($body)
