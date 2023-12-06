@@ -28,18 +28,6 @@ class PdfEngines
     }
 
     /**
-     * Sets the PDF format of the resulting PDF.
-     *
-     * @deprecated
-     */
-    public function pdfFormat(string $format): self
-    {
-        $this->formValue('pdfFormat', $format);
-
-        return $this;
-    }
-
-    /**
      * Sets the PDF/A format of the resulting PDF.
      */
     public function pdfa(string $format): self
@@ -86,7 +74,6 @@ class PdfEngines
      */
     public function convert(string $pdfa, Stream $pdf, Stream ...$pdfs): RequestInterface
     {
-        $this->pdfFormat($pdfa); // TODO: remove in v2.
         $this->pdfa($pdfa);
         $this->formFile($pdf->getFilename(), $pdf->getStream());
 

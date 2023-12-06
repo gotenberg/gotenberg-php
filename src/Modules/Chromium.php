@@ -153,16 +153,6 @@ class Chromium
     }
 
     /**
-     * @deprecated
-     */
-    public function waitWindowStatus(string $status): self
-    {
-        $this->formValue('waitWindowStatus', $status);
-
-        return $this;
-    }
-
-    /**
      * Sets the JavaScript expression to wait before converting an HTML
      * document to PDF until it returns true.
      *
@@ -171,18 +161,6 @@ class Chromium
     public function waitForExpression(string $expression): self
     {
         $this->formValue('waitForExpression', $expression);
-
-        return $this;
-    }
-
-    /**
-     * Overrides the default "User-Agent" header.
-     *
-     * @deprecated
-     */
-    public function userAgent(string $userAgent): self
-    {
-        $this->formValue('userAgent', $userAgent);
 
         return $this;
     }
@@ -239,18 +217,6 @@ class Chromium
     }
 
     /**
-     * Sets the PDF format of the resulting PDF.
-     *
-     * @deprecated
-     */
-    public function pdfFormat(string $format): self
-    {
-        $this->formValue('pdfFormat', $format);
-
-        return $this;
-    }
-
-    /**
      * Sets the PDF/A format of the resulting PDF.
      */
     public function pdfa(string $format): self
@@ -285,12 +251,9 @@ class Chromium
     /**
      * Converts a target URL to PDF.
      *
-     * @param ChromiumExtraLinkTag[]   $extraLinkTags
-     * @param ChromiumExtraScriptTag[] $extraScriptTags
-     *
      * @throws NativeFunctionErroed
      */
-    public function url(string $url, array $extraLinkTags = [], array $extraScriptTags = []): RequestInterface
+    public function url(string $url): RequestInterface
     {
         $this->formValue('url', $url);
         $this->endpoint = '/forms/chromium/convert/url';

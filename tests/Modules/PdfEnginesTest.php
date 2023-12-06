@@ -11,12 +11,8 @@ it(
     /**
      * @param Stream[] $pdfs
      */
-    function (array $pdfs, ?string $pdfFormat = null, ?string $pdfa = null, bool $pdfua = false): void {
+    function (array $pdfs, ?string $pdfa = null, bool $pdfua = false): void {
         $pdfEngines = Gotenberg::pdfEngines('')->index(new DummyIndex());
-
-        if ($pdfFormat !== null) {
-            $pdfEngines->pdfFormat($pdfFormat);
-        }
 
         if ($pdfa !== null) {
             $pdfEngines->pdfa($pdfa);
@@ -35,8 +31,6 @@ it(
             $pdf->getStream()->rewind();
             expect($body)->toContainFormFile('foo_' . $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
         }
-
-        expect($body)->unless($pdfFormat === null, fn ($body) => $body->toContainFormValue('pdfFormat', $pdfFormat));
     }
 )->with([
     [
@@ -52,7 +46,6 @@ it(
             Stream::string('my_third.pdf', 'Third PDF content'),
         ],
         'PDF/A-1a',
-        'PDF/A-1a',
         true,
     ],
 ]);
@@ -64,7 +57,6 @@ it(
         $body    = sanitize($request->getBody()->getContents());
 
         expect($request->getUri()->getPath())->toBe('/forms/pdfengines/convert');
-        expect($body)->toContainFormValue('pdfFormat', $pdfa);
         expect($body)->toContainFormValue('pdfa', $pdfa);
 
         foreach ($pdfs as $pdf) {

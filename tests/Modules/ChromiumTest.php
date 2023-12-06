@@ -30,13 +30,10 @@ it(
         ?Stream $header = null,
         ?Stream $footer = null,
         ?string $waitDelay = null,
-        ?string $waitWindowStatus = null,
         ?string $waitForExpression = null,
-        ?string $userAgent = null,
         array $extraHttpHeaders = [],
         bool $failOnConsoleExceptions = false,
         ?string $emulatedMediaType = null,
-        ?string $pdfFormat = null,
         ?string $pdfa = null,
         bool $pdfua = false,
         array $assets = []
@@ -59,13 +56,10 @@ it(
             $header,
             $footer,
             $waitDelay,
-            $waitWindowStatus,
             $waitForExpression,
-            $userAgent,
             $extraHttpHeaders,
             $failOnConsoleExceptions,
             $emulatedMediaType,
-            $pdfFormat,
             $pdfa,
             $pdfua,
             $assets
@@ -94,13 +88,10 @@ it(
             $header,
             $footer,
             $waitDelay,
-            $waitWindowStatus,
             $waitForExpression,
-            $userAgent,
             $extraHttpHeaders,
             $failOnConsoleExceptions,
             $emulatedMediaType,
-            $pdfFormat,
             $pdfa,
             $pdfua,
             $assets
@@ -126,16 +117,13 @@ it(
         Stream::string('my_header.html', 'Header content'),
         Stream::string('my_footer.html', 'Footer content'),
         '1s',
-        'ready',
         "window.status === 'ready'",
-        'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
         [
             'My-Http-Header' => 'HTTP Header content',
             'My-Second-Http-Header' => 'Second HTTP Header content',
         ],
         true,
         'print',
-        'PDF/A-1a',
         'PDF/A-1a',
         true,
         [
@@ -166,13 +154,10 @@ it(
         ?Stream $header = null,
         ?Stream $footer = null,
         ?string $waitDelay = null,
-        ?string $waitWindowStatus = null,
         ?string $waitForExpression = null,
-        ?string $userAgent = null,
         array $extraHttpHeaders = [],
         bool $failOnConsoleExceptions = false,
         ?string $emulatedMediaType = null,
-        ?string $pdfFormat = null,
         ?string $pdfa = null,
         bool $pdfua = false,
         array $assets = []
@@ -195,13 +180,10 @@ it(
             $header,
             $footer,
             $waitDelay,
-            $waitWindowStatus,
             $waitForExpression,
-            $userAgent,
             $extraHttpHeaders,
             $failOnConsoleExceptions,
             $emulatedMediaType,
-            $pdfFormat,
             $pdfa,
             $pdfua,
             $assets
@@ -232,13 +214,10 @@ it(
             $header,
             $footer,
             $waitDelay,
-            $waitWindowStatus,
             $waitForExpression,
-            $userAgent,
             $extraHttpHeaders,
             $failOnConsoleExceptions,
             $emulatedMediaType,
-            $pdfFormat,
             $pdfa,
             $pdfua,
             $assets
@@ -263,16 +242,13 @@ it(
         Stream::string('my_header.html', 'Header content'),
         Stream::string('my_footer.html', 'Footer content'),
         '1s',
-        'ready',
         "window.status === 'ready'",
-        'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
         [
             'My-Http-Header' => 'Http Header content',
             'My-Second-Http-Header' => 'Second Http Header content',
         ],
         true,
         'screen',
-        'PDF/A-1a',
         'PDF/A-1a',
         true,
         [
@@ -305,13 +281,10 @@ it(
         ?Stream $header = null,
         ?Stream $footer = null,
         ?string $waitDelay = null,
-        ?string $waitWindowStatus = null,
         ?string $waitForExpression = null,
-        ?string $userAgent = null,
         array $extraHttpHeaders = [],
         bool $failOnConsoleExceptions = false,
         ?string $emulatedMediaType = null,
-        ?string $pdfFormat = null,
         ?string $pdfa = null,
         bool $pdfua = false,
         array $assets = []
@@ -334,13 +307,10 @@ it(
             $header,
             $footer,
             $waitDelay,
-            $waitWindowStatus,
             $waitForExpression,
-            $userAgent,
             $extraHttpHeaders,
             $failOnConsoleExceptions,
             $emulatedMediaType,
-            $pdfFormat,
             $pdfa,
             $pdfua,
             $assets
@@ -376,13 +346,10 @@ it(
             $header,
             $footer,
             $waitDelay,
-            $waitWindowStatus,
             $waitForExpression,
-            $userAgent,
             $extraHttpHeaders,
             $failOnConsoleExceptions,
             $emulatedMediaType,
-            $pdfFormat,
             $pdfa,
             $pdfua,
             $assets
@@ -416,16 +383,13 @@ it(
         Stream::string('my_header.html', 'Header content'),
         Stream::string('my_footer.html', 'Footer content'),
         '1s',
-        'ready',
         "window.status === 'ready'",
-        'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
         [
             'My-Http-Header' => 'Http Header content',
             'My-Second-Http-Header' => 'Second Http Header content',
         ],
         true,
         'screen',
-        'PDF/A-1a',
         'PDF/A-1a',
         true,
         [
@@ -455,13 +419,10 @@ function hydrate(
     ?Stream $header = null,
     ?Stream $footer = null,
     ?string $waitDelay = null,
-    ?string $waitWindowStatus = null,
     ?string $waitForExpression = null,
-    ?string $userAgent = null,
     array $extraHttpHeaders = [],
     bool $failOnConsoleExceptions = false,
     ?string $emulatedMediaType = null,
-    ?string $pdfFormat = null,
     ?string $pdfa = null,
     bool $pdfua = false,
     array $assets = []
@@ -510,16 +471,8 @@ function hydrate(
         $chromium->waitDelay($waitDelay);
     }
 
-    if ($waitWindowStatus !== null) {
-        $chromium->waitWindowStatus($waitWindowStatus);
-    }
-
     if ($waitForExpression !== null) {
         $chromium->waitForExpression($waitForExpression);
-    }
-
-    if ($userAgent !== null) {
-        $chromium->userAgent($userAgent);
     }
 
     if (count($extraHttpHeaders) > 0) {
@@ -536,10 +489,6 @@ function hydrate(
 
     if ($emulatedMediaType === 'screen') {
         $chromium->emulateScreenMediaType();
-    }
-
-    if ($pdfFormat !== null) {
-        $chromium->pdfFormat($pdfFormat);
     }
 
     if ($pdfa !== null) {
@@ -578,13 +527,10 @@ function expectOptions(
     ?Stream $header,
     ?Stream $footer,
     ?string $waitDelay,
-    ?string $waitWindowStatus,
     ?string $waitForExpression,
-    ?string $userAgent,
     array $extraHttpHeaders,
     bool $failOnConsoleExceptions,
     ?string $emulatedMediaType,
-    ?string $pdfFormat,
     ?string $pdfa,
     bool $pdfua,
     array $assets
@@ -621,9 +567,7 @@ function expectOptions(
     }
 
     expect($body)->unless($waitDelay === null, fn ($body) => $body->toContainFormValue('waitDelay', $waitDelay));
-    expect($body)->unless($waitWindowStatus === null, fn ($body) => $body->toContainFormValue('waitWindowStatus', $waitWindowStatus));
     expect($body)->unless($waitForExpression === null, fn ($body) => $body->toContainFormValue('waitForExpression', $waitForExpression));
-    expect($body)->unless($userAgent === null, fn ($body) => $body->toContainFormValue('userAgent', $userAgent));
 
     if (count($extraHttpHeaders) > 0) {
         $json = json_encode($extraHttpHeaders);
@@ -636,8 +580,6 @@ function expectOptions(
 
     expect($body)->unless($failOnConsoleExceptions === false, fn ($body) => $body->toContainFormValue('failOnConsoleExceptions', '1'));
     expect($body)->unless($emulatedMediaType === null, fn ($body) => $body->toContainFormValue('emulatedMediaType', $emulatedMediaType));
-    expect($body)->unless($pdfFormat === null, fn ($body) => $body->toContainFormValue('pdfFormat', $pdfFormat));
-    expect($body)->unless($pdfFormat === null, fn ($body) => $body->toContainFormValue('pdfFormat', $pdfFormat));
     expect($body)->unless($pdfa === null, fn ($body) => $body->toContainFormValue('pdfa', $pdfa));
     expect($body)->unless($pdfua === false, fn ($body) => $body->toContainFormValue('pdfua', '1'));
 
