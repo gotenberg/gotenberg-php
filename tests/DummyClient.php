@@ -10,11 +10,8 @@ use Psr\Http\Message\ResponseInterface;
 
 class DummyClient implements ClientInterface
 {
-    private ResponseInterface $response;
-
-    public function __construct(ResponseInterface $response)
+    public function __construct(private readonly ResponseInterface $response)
     {
-        $this->response = $response;
     }
 
     public function sendRequest(RequestInterface $request): ResponseInterface

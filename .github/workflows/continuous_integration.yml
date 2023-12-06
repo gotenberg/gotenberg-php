@@ -19,7 +19,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
+          php-version: 8.1
           tools: composer:v2
           coverage: none
       - name: Install PHP dependencies
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [ '7.4', '8.0', '8.1', '8.2', '8.3' ]
+        php: [ '8.1', '8.2', '8.3' ]
     name: Tests on PHP ${{ matrix.php }}
     steps:
       - name: Checkout source code

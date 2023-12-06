@@ -18,7 +18,7 @@ it(
         $response = Gotenberg::send(new Request('POST', 'https://my.url'), $client);
 
         expect($response)->not()->toBeNull();
-    }
+    },
 );
 
 it(
@@ -37,10 +37,10 @@ it(
 
             throw $e;
         }
-    }
+    },
 )->with([
-    true,
-    false,
+    'with trace' => [ true ],
+    'without trace' => [ false ],
 ])->throws(GotenbergApiErroed::class);
 
 it(
@@ -53,18 +53,18 @@ it(
 
         expect(unlink(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'my.pdf'))->toBeTrue();
         expect($filename)->toEqual('my.pdf');
-    }
+    },
 );
 
 it(
     'throws an exception if there is no attachment',
-    function (?string $contentDisposition): void {
+    function (string|null $contentDisposition): void {
         $response = new Response(200, $contentDisposition === null ? [] : ['Content-Disposition' => $contentDisposition]);
         $client   = new DummyClient($response);
 
         Gotenberg::save(new Request('POST', 'https://my.url'), sys_get_temp_dir(), $client);
-    }
+    },
 )->with([
-    null,
-    'no attachment',
+    'without content disposition' => [ null ],
+    'with content disposition' => [ 'no attachment' ],
 ])->throws(NoOutputFileInResponse::class);

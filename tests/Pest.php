@@ -18,11 +18,11 @@ expect()->extend('toContainFormValue', function (string $name, string $value) {
     $length = mb_strlen($value);
 
     return $this->toContain(
-        'Content-Disposition: form-data; name="' . $name . '" Content-Length: ' . $length . ' ' . $value
+        'Content-Disposition: form-data; name="' . $name . '" Content-Length: ' . $length . ' ' . $value,
     );
 });
 
-expect()->extend('toContainFormFile', function (string $filename, string $content, ?string $contentType = null) {
+expect()->extend('toContainFormFile', function (string $filename, string $content, string|null $contentType = null) {
     $length = mb_strlen($content);
 
     $needle =  'Content-Disposition: form-data; name="files"; filename="' . $filename . '" Content-Length: ' . $length;

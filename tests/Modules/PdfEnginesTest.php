@@ -8,10 +8,8 @@ use Gotenberg\Test\DummyIndex;
 
 it(
     'creates a valid request for the "/forms/pdfengines/merge" endpoint',
-    /**
-     * @param Stream[] $pdfs
-     */
-    function (array $pdfs, ?string $pdfa = null, bool $pdfua = false): void {
+    /** @param Stream[] $pdfs */
+    function (array $pdfs, string|null $pdfa = null, bool $pdfua = false): void {
         $pdfEngines = Gotenberg::pdfEngines('')->index(new DummyIndex());
 
         if ($pdfa !== null) {
@@ -31,7 +29,7 @@ it(
             $pdf->getStream()->rewind();
             expect($body)->toContainFormFile('foo_' . $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
         }
-    }
+    },
 )->with([
     [
         [
@@ -63,7 +61,7 @@ it(
             $pdf->getStream()->rewind();
             expect($body)->toContainFormFile($pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
         }
-    }
+    },
 )->with([
     [
         'PDF/A-1a',

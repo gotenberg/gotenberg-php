@@ -40,7 +40,7 @@ trait ApiModule
         return $this;
     }
 
-    protected function request(string $method, ?StreamInterface $body = null): RequestInterface
+    protected function request(string $method, StreamInterface|null $body = null): RequestInterface
     {
         $request = Psr17FactoryDiscovery::findRequestFactory()
             ->createRequest($method, $this->url . $this->endpoint);
