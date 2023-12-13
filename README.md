@@ -486,6 +486,19 @@ $request = Gotenberg::chromium($apiUrl)
     ->url('https://my.url');
 ```
 
+#### Skip network idle event
+
+If you are rendering simple html and are looking for maximum performance you can tell Chromium not to wait for network idle events.
+This may not work correctly if you have external assets:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->skipNetworkIdleEvent()
+    ->url('https://my.url');
+```
+
 #### Extra HTTP headers
 
 You may add HTTP headers that Chromium will send when loading the HTML document:

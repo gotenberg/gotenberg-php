@@ -32,6 +32,7 @@ it(
         ?string $waitDelay = null,
         ?string $waitWindowStatus = null,
         ?string $waitForExpression = null,
+        bool $skipNetworkIdleEvent = false,
         ?string $userAgent = null,
         array $extraHttpHeaders = [],
         bool $failOnConsoleExceptions = false,
@@ -61,6 +62,7 @@ it(
             $waitDelay,
             $waitWindowStatus,
             $waitForExpression,
+            $skipNetworkIdleEvent,
             $userAgent,
             $extraHttpHeaders,
             $failOnConsoleExceptions,
@@ -96,6 +98,7 @@ it(
             $waitDelay,
             $waitWindowStatus,
             $waitForExpression,
+            $skipNetworkIdleEvent,
             $userAgent,
             $extraHttpHeaders,
             $failOnConsoleExceptions,
@@ -128,6 +131,7 @@ it(
         '1s',
         'ready',
         "window.status === 'ready'",
+        true,
         'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
         [
             'My-Http-Header' => 'HTTP Header content',
@@ -168,6 +172,7 @@ it(
         ?string $waitDelay = null,
         ?string $waitWindowStatus = null,
         ?string $waitForExpression = null,
+        bool $skipNetworkIdleEvent = false,
         ?string $userAgent = null,
         array $extraHttpHeaders = [],
         bool $failOnConsoleExceptions = false,
@@ -197,6 +202,7 @@ it(
             $waitDelay,
             $waitWindowStatus,
             $waitForExpression,
+            $skipNetworkIdleEvent,
             $userAgent,
             $extraHttpHeaders,
             $failOnConsoleExceptions,
@@ -234,6 +240,7 @@ it(
             $waitDelay,
             $waitWindowStatus,
             $waitForExpression,
+            $skipNetworkIdleEvent,
             $userAgent,
             $extraHttpHeaders,
             $failOnConsoleExceptions,
@@ -265,6 +272,7 @@ it(
         '1s',
         'ready',
         "window.status === 'ready'",
+        true,
         'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
         [
             'My-Http-Header' => 'Http Header content',
@@ -307,6 +315,7 @@ it(
         ?string $waitDelay = null,
         ?string $waitWindowStatus = null,
         ?string $waitForExpression = null,
+        bool $skipNetworkIdleEvent = false,
         ?string $userAgent = null,
         array $extraHttpHeaders = [],
         bool $failOnConsoleExceptions = false,
@@ -336,6 +345,7 @@ it(
             $waitDelay,
             $waitWindowStatus,
             $waitForExpression,
+            $skipNetworkIdleEvent,
             $userAgent,
             $extraHttpHeaders,
             $failOnConsoleExceptions,
@@ -378,6 +388,7 @@ it(
             $waitDelay,
             $waitWindowStatus,
             $waitForExpression,
+            $skipNetworkIdleEvent,
             $userAgent,
             $extraHttpHeaders,
             $failOnConsoleExceptions,
@@ -418,6 +429,7 @@ it(
         '1s',
         'ready',
         "window.status === 'ready'",
+        false,
         'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
         [
             'My-Http-Header' => 'Http Header content',
@@ -457,6 +469,7 @@ function hydrate(
     ?string $waitDelay = null,
     ?string $waitWindowStatus = null,
     ?string $waitForExpression = null,
+    bool $skipNetworkIdleEvent = false,
     ?string $userAgent = null,
     array $extraHttpHeaders = [],
     bool $failOnConsoleExceptions = false,
@@ -516,6 +529,10 @@ function hydrate(
 
     if ($waitForExpression !== null) {
         $chromium->waitForExpression($waitForExpression);
+    }
+
+    if ($skipNetworkIdleEvent) {
+        $chromium->skipNetworkIdleEvent();
     }
 
     if ($userAgent !== null) {
@@ -580,6 +597,7 @@ function expectOptions(
     ?string $waitDelay,
     ?string $waitWindowStatus,
     ?string $waitForExpression,
+    bool $skipNetworkIdleEvent,
     ?string $userAgent,
     array $extraHttpHeaders,
     bool $failOnConsoleExceptions,
@@ -623,6 +641,7 @@ function expectOptions(
     expect($body)->unless($waitDelay === null, fn ($body) => $body->toContainFormValue('waitDelay', $waitDelay));
     expect($body)->unless($waitWindowStatus === null, fn ($body) => $body->toContainFormValue('waitWindowStatus', $waitWindowStatus));
     expect($body)->unless($waitForExpression === null, fn ($body) => $body->toContainFormValue('waitForExpression', $waitForExpression));
+    expect($body)->unless($skipNetworkIdleEvent === false, fn ($body) => $body->toContainFormValue('skipNetworkIdleEvent', '1'));
     expect($body)->unless($userAgent === null, fn ($body) => $body->toContainFormValue('userAgent', $userAgent));
 
     if (count($extraHttpHeaders) > 0) {

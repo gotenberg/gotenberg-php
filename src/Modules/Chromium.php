@@ -176,6 +176,16 @@ class Chromium
     }
 
     /**
+     * Enables more performant PDF generation by not waiting for "networkIdle" event.
+     */
+    public function skipNetworkIdleEvent(): self
+    {
+        $this->formValue('skipNetworkIdleEvent', true);
+
+        return $this;
+    }
+
+    /**
      * Overrides the default "User-Agent" header.
      *
      * @deprecated
