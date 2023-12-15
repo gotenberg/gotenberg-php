@@ -92,7 +92,7 @@ trait MultipartFormDataModule
     /**
      * @param mixed $value
      */
-    protected function formValue(string $name, $value): void
+    public function formValue(string $name, $value): void
     {
         $this->multipartFormData[] = [
             'name' => $name,
