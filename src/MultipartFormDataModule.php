@@ -92,12 +92,14 @@ trait MultipartFormDataModule
     /**
      * @param mixed $value
      */
-    protected function formValue(string $name, $value): void
+    public function formValue(string $name, $value): self
     {
         $this->multipartFormData[] = [
             'name' => $name,
             'contents' => $value,
         ];
+
+        return $this;
     }
 
     protected function formFile(string $filename, StreamInterface $stream): void
