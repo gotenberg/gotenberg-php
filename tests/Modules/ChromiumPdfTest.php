@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gotenberg\Exceptions\NativeFunctionErroed;
+use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
 use Gotenberg\Modules\Chromium;
 use Gotenberg\Stream;
@@ -570,7 +570,7 @@ function expectOptions(
     if (count($extraHttpHeaders) > 0) {
         $json = json_encode($extraHttpHeaders);
         if ($json === false) {
-            throw NativeFunctionErroed::createFromLastPhpError();
+            throw NativeFunctionErrored::createFromLastPhpError();
         }
 
         expect($body)->toContainFormValue('extraHttpHeaders', $json);
