@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg;
 
-use Gotenberg\Exceptions\NativeFunctionErroed;
+use Gotenberg\Exceptions\NativeFunctionErrored;
 
 use function hrtime;
 use function is_numeric;
@@ -15,7 +15,7 @@ final class HrtimeIndex implements Index
     {
         $index = hrtime(true);
         if (! is_numeric($index)) {
-            throw NativeFunctionErroed::createFromLastPhpError();
+            throw NativeFunctionErrored::createFromLastPhpError();
         }
 
         return $index . '';

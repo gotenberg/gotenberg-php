@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gotenberg\Exceptions\NativeFunctionErroed;
+use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Test\DummyMultipartFormDataModule;
 
 it(
@@ -31,7 +31,7 @@ it(
             'My-Second-Webhook-Http-Header' => 'Second HTTP header content',
         ]);
         if ($json === false) {
-            throw NativeFunctionErroed::createFromLastPhpError();
+            throw NativeFunctionErrored::createFromLastPhpError();
         }
 
         expect($request->getHeader('Gotenberg-Webhook-Extra-Http-Headers'))->toMatchArray([$json]);

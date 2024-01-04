@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Gotenberg;
 
-use Gotenberg\Exceptions\GotenbergApiErroed;
-use Gotenberg\Exceptions\NativeFunctionErroed;
+use Gotenberg\Exceptions\GotenbergApiErrored;
+use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Exceptions\NoOutputFileInResponse;
 use Gotenberg\Modules\Chromium;
 use Gotenberg\Modules\LibreOffice;
@@ -44,7 +44,7 @@ class Gotenberg
      * Sends a request to Gotenberg and throws an exception if the status code
      * is not 200.
      *
-     * @throws GotenbergApiErroed
+     * @throws GotenbergApiErrored
      */
     public static function send(RequestInterface $request, ClientInterface|null $client = null): ResponseInterface
     {
@@ -52,7 +52,7 @@ class Gotenberg
         $response = $client->sendRequest($request);
 
         if ($response->getStatusCode() < 200 || $response->getStatusCode() > 299) {
-            throw GotenbergApiErroed::createFromResponse($response);
+            throw GotenbergApiErrored::createFromResponse($response);
         }
 
         return $response;
@@ -62,9 +62,9 @@ class Gotenberg
      * Handles a request to Gotenberg and saves the output file if any.
      * On success, returns the filename based on the 'Content-Disposition' header.
      *
-     * @throws GotenbergApiErroed
+     * @throws GotenbergApiErrored
      * @throws NoOutputFileInResponse
-     * @throws NativeFunctionErroed
+     * @throws NativeFunctionErrored
      */
     public static function save(RequestInterface $request, string $dirPath, ClientInterface|null $client = null): string
     {
@@ -94,15 +94,15 @@ class Gotenberg
 
         $file = fopen($dirPath . DIRECTORY_SEPARATOR . $filename, 'w');
         if ($file === false) {
-            throw NativeFunctionErroed::createFromLastPhpError();
+            throw NativeFunctionErrored::createFromLastPhpError();
         }
 
         if (fwrite($file, $response->getBody()->getContents()) === false) {
-            throw NativeFunctionErroed::createFromLastPhpError();
+            throw NativeFunctionErrored::createFromLastPhpError();
         }
 
         if (fclose($file) === false) {
-            throw NativeFunctionErroed::createFromLastPhpError();
+            throw NativeFunctionErrored::createFromLastPhpError();
         }
 
         return $filename;

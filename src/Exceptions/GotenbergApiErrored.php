@@ -7,7 +7,7 @@ namespace Gotenberg\Exceptions;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 
-final class GotenbergApiErroed extends Exception
+final class GotenbergApiErrored extends Exception
 {
     private ResponseInterface $response;
 

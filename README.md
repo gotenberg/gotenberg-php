@@ -27,7 +27,7 @@ use Gotenberg\Gotenberg;
 
 // Converts a target URL to PDF and saves it to a given directory.
 $filename = Gotenberg::save(
-    Gotenberg::chromium($apiUrl)->url('https://my.url'), 
+    Gotenberg::chromium($apiUrl)->pdf()->url('https://my.url'), 
     $pathToSavingDirectory
 );
 ```
@@ -101,6 +101,7 @@ You may use any HTTP client that is able to handle a *PSR-7* `RequestInterface` 
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium('http://localhost:3000')
+    ->pdf()
     ->url('https://my.url');
     
 $response = $client->sendRequest($request);
@@ -112,12 +113,13 @@ If you have a *PSR-18* compatible HTTP client (see [Installation](#installation)
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium('http://localhost:3000')
+    ->pdf()
     ->url('https://my.url');
 
 try {
     $response = Gotenberg::send($request);
     return $response;
-} catch (GotenbergApiErroed $e) {
+} catch (GotenbergApiErrored $e) {
     // $e->getResponse();
 }
 ```
@@ -141,6 +143,7 @@ If you have a *PSR-18* compatible HTTP client (see [Installation](#installation)
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium('http://localhost:3000')
+    ->pdf()
     ->url('https://my.url');
     
 $filename = Gotenberg::save($request, '/path/to/saving/directory');
@@ -165,6 +168,7 @@ You may override the output filename with:
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium('http://localhost:3000')
+    ->pdf()
     ->outputFilename('my_file')
     ->url('https://my.url');
 ```
@@ -179,6 +183,7 @@ By default, Gotenberg creates a *UUID* trace that identifies a request in its lo
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium('http://localhost:3000')
+    ->pdf()
     ->trace('debug')
     ->url('https://my.url');
 ```
@@ -189,6 +194,7 @@ It will set the header `Gotenberg-Trace` with your value. You may also override 
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium('http://localhost:3000')
+    ->pdf()
     ->trace('debug', 'Request-Id')
     ->url('https://my.url');
 ```
@@ -200,15 +206,16 @@ The response from Gotenberg will also contain the trace header. In case of error
 trace:
 
 ```php
-use Gotenberg\Exceptions\GotenbergApiErroed;
+use Gotenberg\Exceptions\GotenbergApiErrored;
 use Gotenberg\Gotenberg;
 
 try {
     $response = Gotenberg::send(
         Gotenberg::chromium('http://localhost:3000')
+            ->pdf()
             ->url('https://my.url')
     );
-} catch (GotenbergApiErroed $e) {
+} catch (GotenbergApiErrored $e) {
     $trace = $e->getGotenbergTrace();
     // Or if you override the header name:
     $trace = $e->getGotenbergTrace('Request-Id');
@@ -217,7 +224,7 @@ try {
 
 ### Chromium
 
-The [Chromium module](https://gotenberg.dev/docs/routes#convert-with-chromium) interacts with the Chromium browser to convert HTML documents to PDF.
+The [Chromium module](https://gotenberg.dev/docs/routes#convert-with-chromium) interacts with the Chromium browser to convert HTML documents to PDF or capture screenshots.
 
 #### Convert a target URL to PDF
 
@@ -229,6 +236,7 @@ Converting a target URL to PDF is as simple as:
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->url('https://my.url');
 ```
 
@@ -243,6 +251,7 @@ use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->html(Stream::path('/path/to/file.html'));
 ```
 
@@ -253,6 +262,7 @@ use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->html(Stream::string('my.html', $someHtml));
 ```
 
@@ -267,6 +277,7 @@ use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->assets(
         Stream::path('/path/to/my.css'),
         Stream::path('/path/to/my.js')
@@ -285,6 +296,7 @@ use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->markdown(
         Stream::path('/path/to/my_wrapper.html'),
         Stream::path('/path/to/file.md')
@@ -316,6 +328,7 @@ use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->assets(
         Stream::path('/path/to/my.css'),
         Stream::path('/path/to/my.js')
@@ -335,6 +348,7 @@ You may override the default paper size with:
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->paperSize($width, $height)
     ->url('https://my.url');
 ```
@@ -361,6 +375,7 @@ You may override the default margins (i.e., `0.39`, in inches):
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->margins($top, $bottom, $left, $right)
     ->url('https://my.url');
 ```
@@ -373,6 +388,7 @@ You may force page size as defined by CSS:
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->preferCssPageSize()
     ->url('https://my.url');
 ```
@@ -383,6 +399,7 @@ $request = Gotenberg::chromium($apiUrl)
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->printBackground()
     ->url('https://my.url');
 ```
@@ -393,6 +410,7 @@ You may also hide the default white background and allow generating PDFs with tr
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->printBackground()
     ->omitBackground()
     ->url('https://my.url');
@@ -415,6 +433,7 @@ You may override the default portrait orientation with:
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->landscape()
     ->url('https://my.url');
 ```
@@ -427,6 +446,7 @@ You may override the default scale of the page rendering (i.e., `1.0`) with:
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->scale(2.0)
     ->url('https://my.url');
 ```
@@ -439,6 +459,7 @@ You may set the page ranges to print, e.g., `1-5, 8, 11-13`. Empty means all pag
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->nativePageRanges('1-2')
     ->url('https://my.url');
 ```
@@ -452,6 +473,7 @@ use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->header(Stream::path('/path/to/my_header.html'))
     ->footer(Stream::path('/path/to/my_footer.html'))
     ->margins(1, 1, 0.39, 0.39)
@@ -470,6 +492,7 @@ certain amount of time (i.e., `1s`, `2ms`, etc.) to make sure Chromium has fully
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->waitDelay('3s')
     ->url('https://my.url');
 ```
@@ -482,34 +505,8 @@ You may also wait until a given JavaScript expression returns true:
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->waitForExpression("window.globalVar === 'ready'")
-    ->url('https://my.url');
-```
-
-#### Extra HTTP headers
-
-You may add HTTP headers that Chromium will send when loading the HTML document:
-
-```php
-use Gotenberg\Gotenberg;
-
-$request = Gotenberg::chromium($apiUrl)
-    ->extraHttpHeaders([
-        'My-Header-1' => 'My value',
-        'My-Header-2' => 'My value'
-    ])
-    ->url('https://my.url');
-```
-
-#### Fail on console exceptions
-
-You may force Gotenberg to return a `409 Conflict` response if there are exceptions in the Chromium console:
-
-```php
-use Gotenberg\Gotenberg;
-
-$request = Gotenberg::chromium($apiUrl)
-    ->failOnConsoleExceptions()
     ->url('https://my.url');
 ```
 
@@ -521,6 +518,7 @@ Some websites have dedicated CSS rules for print. Using `screen` allows you to f
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->emulateScreenMediaType()
     ->url('https://my.url');
 ```
@@ -531,7 +529,67 @@ You may also force the `print` media type with:
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->emulatePrintMediaType()
+    ->url('https://my.url');
+```
+
+#### Extra HTTP headers
+
+You may add HTTP headers that Chromium will send when loading the HTML document:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->pdf()
+    ->extraHttpHeaders([
+        'My-Header-1' => 'My value',
+        'My-Header-2' => 'My value'
+    ])
+    ->url('https://my.url');
+```
+
+#### Invalid HTTP status codes
+
+You may force Gotenberg to return a `409 Conflict` response if the HTTP status code from the main page is not acceptable:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->pdf()
+    ->failOnHttpStatusCodes([499])
+    ->url('https://my.url');
+```
+
+A `X99` entry means every HTTP status codes between `X00` and `X99` (e.g., 499 means every HTTP status codes between 400 and 499).
+
+#### Fail on console exceptions
+
+You may force Gotenberg to return a `409 Conflict` response if there are exceptions in the Chromium console:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->pdf()
+    ->failOnConsoleExceptions()
+    ->url('https://my.url');
+```
+
+#### Performance mode
+
+Gotenberg, by default, waits for the network idle event to ensure that the majority of the page is rendered during 
+conversion. However, this often significantly slows down the conversion process. Setting `skipNetworkEventIdle` form 
+field to true can greatly enhance the conversion speed.
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->pdf()
+    ->skipNetworkIdleEvent()
     ->url('https://my.url');
 ```
 
@@ -545,9 +603,52 @@ You may set the PDF/A format and enable PDF/UA for the resulting PDF with:
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
+    ->pdf()
     ->pdfFormat('PDF/A-1a')
     ->pdfua()
     ->url('https://my.url');
+```
+
+#### Screenshots
+
+You can capture full-page screenshots using the following three routes, which function similarly to their PDF equivalents:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->screenshot()
+    ->png()
+    ->optimizeForSpeed()
+    ->url('https://my.url');
+```
+
+```php
+use Gotenberg\Gotenberg;
+use Gotenberg\Stream;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->screenshot()
+    ->jpeg()
+    ->quality(50)
+    ->assets(
+        Stream::path('/path/to/my.css'),
+        Stream::path('/path/to/my.js')
+    )
+    ->html(Stream::path('/path/to/file.html'));
+```
+
+```php
+use Gotenberg\Gotenberg;
+use Gotenberg\Stream;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->screenshot()
+    ->webp()
+    ->markdown(
+        Stream::path('/path/to/my_wrapper.html'),
+        Stream::path('/path/to/file.md')
+    );
 ```
 
 ### LibreOffice
