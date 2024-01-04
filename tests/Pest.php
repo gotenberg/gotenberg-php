@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Gotenberg\Exceptions\NativeFunctionErroed;
+use Gotenberg\Exceptions\NativeFunctionErrored;
 
 function sanitize(string $body): string
 {
     $sanitized = preg_replace('/\s\s+/', ' ', $body);
     if ($sanitized === null) {
-        throw NativeFunctionErroed::createFromLastPhpError();
+        throw NativeFunctionErrored::createFromLastPhpError();
     }
 
     return trim($sanitized);

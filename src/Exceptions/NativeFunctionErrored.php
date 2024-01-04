@@ -8,7 +8,7 @@ use RuntimeException;
 
 use function error_get_last;
 
-final class NativeFunctionErroed extends RuntimeException
+final class NativeFunctionErrored extends RuntimeException
 {
     public static function createFromLastPhpError(): self
     {

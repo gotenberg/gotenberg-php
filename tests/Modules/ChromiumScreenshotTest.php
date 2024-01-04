@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
-use Gotenberg\Modules\ChromiumPdf;
+use Gotenberg\Modules\ChromiumScreenshot;
 use Gotenberg\Stream;
 
 it(
-    'creates a valid request for the "/forms/chromium/convert/url" endpoint',
+    'creates a valid request for the "/forms/chromium/screenshot/url" endpoint',
     /**
      * @param array<string,string> $extraHttpHeaders
      * @param int[] $failOnHttpStatusCodes
@@ -16,20 +16,10 @@ it(
      */
     function (
         string $url,
-        float|null $paperWidth = null,
-        float $paperHeight = 0,
-        float|null $marginTop = null,
-        float $marginBottom = 0,
-        float $marginLeft = 0,
-        float $marginRight = 0,
-        bool $preferCssPageSize = false,
-        bool $printBackground = false,
+        string|null $format = null,
+        int|null $quality = null,
+        bool $optimizeForSpeed = false,
         bool $omitBackground = false,
-        bool $landscape = false,
-        float|null $scale = null,
-        string|null $nativePageRanges = null,
-        Stream|null $header = null,
-        Stream|null $footer = null,
         string|null $waitDelay = null,
         string|null $waitForExpression = null,
         string|null $emulatedMediaType = null,
@@ -37,27 +27,15 @@ it(
         array $failOnHttpStatusCodes = [],
         bool $failOnConsoleExceptions = false,
         bool $skipNetworkIdleEvent = false,
-        string|null $pdfa = null,
-        bool $pdfua = false,
         array $assets = [],
     ): void {
-        $chromium = Gotenberg::chromium('')->pdf();
-        $chromium = hydrateChromiumPdfFormData(
+        $chromium = Gotenberg::chromium('')->screenshot();
+        $chromium = hydrateChromiumScreenshotFormData(
             $chromium,
-            $paperWidth,
-            $paperHeight,
-            $marginTop,
-            $marginBottom,
-            $marginLeft,
-            $marginRight,
-            $preferCssPageSize,
-            $printBackground,
+            $format,
+            $quality,
+            $optimizeForSpeed,
             $omitBackground,
-            $landscape,
-            $scale,
-            $nativePageRanges,
-            $header,
-            $footer,
             $waitDelay,
             $waitForExpression,
             $emulatedMediaType,
@@ -65,33 +43,21 @@ it(
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
-            $pdfa,
-            $pdfua,
             $assets,
         );
 
         $request = $chromium->url($url);
         $body    = sanitize($request->getBody()->getContents());
 
-        expect($request->getUri()->getPath())->toBe('/forms/chromium/convert/url');
+        expect($request->getUri()->getPath())->toBe('/forms/chromium/screenshot/url');
         expect($body)->toContainFormValue('url', $url);
 
-        expectChromiumPdfOptions(
+        expectChromiumScreenshotOptions(
             $body,
-            $paperWidth,
-            $paperHeight,
-            $marginTop,
-            $marginBottom,
-            $marginLeft,
-            $marginRight,
-            $preferCssPageSize,
-            $printBackground,
+            $format,
+            $quality,
+            $optimizeForSpeed,
             $omitBackground,
-            $landscape,
-            $scale,
-            $nativePageRanges,
-            $header,
-            $footer,
             $waitDelay,
             $waitForExpression,
             $emulatedMediaType,
@@ -99,8 +65,6 @@ it(
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
-            $pdfa,
-            $pdfua,
             $assets,
         );
     },
@@ -109,20 +73,10 @@ it(
     ['https://my.url'],
     [
         'https://my.url',
-        8.27,
-        11.7,
-        2,
-        2,
-        2,
-        2,
+        'png',
+        100,
         true,
         true,
-        true,
-        true,
-        1.0,
-        '1-2',
-        Stream::string('my_header.html', 'Header content'),
-        Stream::string('my_footer.html', 'Footer content'),
         '1s',
         "window.status === 'ready'",
         'print',
@@ -133,8 +87,6 @@ it(
         [ 499, 599 ],
         true,
         true,
-        'PDF/A-1a',
-        true,
         [
             Stream::string('my.jpg', 'Image content'),
         ],
@@ -142,7 +94,7 @@ it(
 ]);
 
 it(
-    'creates a valid request for the "/forms/chromium/convert/html" endpoint',
+    'creates a valid request for the "/forms/chromium/screenshot/html" endpoint',
     /**
      * @param array<string,string> $extraHttpHeaders
      * @param int[] $failOnHttpStatusCodes
@@ -150,20 +102,10 @@ it(
      */
     function (
         Stream $index,
-        float|null $paperWidth = null,
-        float $paperHeight = 0,
-        float|null $marginTop = null,
-        float $marginBottom = 0,
-        float $marginLeft = 0,
-        float $marginRight = 0,
-        bool $preferCssPageSize = false,
-        bool $printBackground = false,
+        string|null $format = null,
+        int|null $quality = null,
+        bool $optimizeForSpeed = false,
         bool $omitBackground = false,
-        bool $landscape = false,
-        float|null $scale = null,
-        string|null $nativePageRanges = null,
-        Stream|null $header = null,
-        Stream|null $footer = null,
         string|null $waitDelay = null,
         string|null $waitForExpression = null,
         string|null $emulatedMediaType = null,
@@ -171,27 +113,15 @@ it(
         array $failOnHttpStatusCodes = [],
         bool $failOnConsoleExceptions = false,
         bool $skipNetworkIdleEvent = false,
-        string|null $pdfa = null,
-        bool $pdfua = false,
         array $assets = [],
     ): void {
-        $chromium = Gotenberg::chromium('')->pdf();
-        $chromium = hydrateChromiumPdfFormData(
+        $chromium = Gotenberg::chromium('')->screenshot();
+        $chromium = hydrateChromiumScreenshotFormData(
             $chromium,
-            $paperWidth,
-            $paperHeight,
-            $marginTop,
-            $marginBottom,
-            $marginLeft,
-            $marginRight,
-            $preferCssPageSize,
-            $printBackground,
+            $format,
+            $quality,
+            $optimizeForSpeed,
             $omitBackground,
-            $landscape,
-            $scale,
-            $nativePageRanges,
-            $header,
-            $footer,
             $waitDelay,
             $waitForExpression,
             $emulatedMediaType,
@@ -199,35 +129,23 @@ it(
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
-            $pdfa,
-            $pdfua,
             $assets,
         );
 
         $request = $chromium->html($index);
         $body    = sanitize($request->getBody()->getContents());
 
-        expect($request->getUri()->getPath())->toBe('/forms/chromium/convert/html');
+        expect($request->getUri()->getPath())->toBe('/forms/chromium/screenshot/html');
 
         $index->getStream()->rewind();
         expect($body)->toContainFormFile('index.html', $index->getStream()->getContents(), 'text/html');
 
-        expectChromiumPdfOptions(
+        expectChromiumScreenshotOptions(
             $body,
-            $paperWidth,
-            $paperHeight,
-            $marginTop,
-            $marginBottom,
-            $marginLeft,
-            $marginRight,
-            $preferCssPageSize,
-            $printBackground,
+            $format,
+            $quality,
+            $optimizeForSpeed,
             $omitBackground,
-            $landscape,
-            $scale,
-            $nativePageRanges,
-            $header,
-            $footer,
             $waitDelay,
             $waitForExpression,
             $emulatedMediaType,
@@ -235,8 +153,6 @@ it(
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
-            $pdfa,
-            $pdfua,
             $assets,
         );
     },
@@ -244,20 +160,10 @@ it(
     [Stream::string('my.html', 'HTML content')],
     [
         Stream::string('my.html', 'HTML content'),
-        8.27,
-        11.7,
-        2,
-        2,
-        2,
-        2,
+        'jpeg',
+        100,
         true,
         true,
-        true,
-        true,
-        1.0,
-        '1-2',
-        Stream::string('my_header.html', 'Header content'),
-        Stream::string('my_footer.html', 'Footer content'),
         '1s',
         "window.status === 'ready'",
         'screen',
@@ -268,8 +174,6 @@ it(
         [ 499, 599 ],
         true,
         true,
-        'PDF/A-1a',
-        true,
         [
             Stream::string('my.jpg', 'Image content'),
         ],
@@ -277,7 +181,7 @@ it(
 ]);
 
 it(
-    'creates a valid request for the "/forms/chromium/convert/markdown" endpoint',
+    'creates a valid request for the "/forms/chromium/screenshot/markdown" endpoint',
     /**
      * @param array<string,string> $extraHttpHeaders
      * @param int[] $failOnHttpStatusCodes
@@ -287,20 +191,10 @@ it(
     function (
         Stream $index,
         array $markdowns,
-        float|null $paperWidth = null,
-        float $paperHeight = 0,
-        float|null $marginTop = null,
-        float $marginBottom = 0,
-        float $marginLeft = 0,
-        float $marginRight = 0,
-        bool $preferCssPageSize = false,
-        bool $printBackground = false,
+        string|null $format = null,
+        int|null $quality = null,
+        bool $optimizeForSpeed = false,
         bool $omitBackground = false,
-        bool $landscape = false,
-        float|null $scale = null,
-        string|null $nativePageRanges = null,
-        Stream|null $header = null,
-        Stream|null $footer = null,
         string|null $waitDelay = null,
         string|null $waitForExpression = null,
         string|null $emulatedMediaType = null,
@@ -308,27 +202,15 @@ it(
         array $failOnHttpStatusCodes = [],
         bool $failOnConsoleExceptions = false,
         bool $skipNetworkIdleEvent = false,
-        string|null $pdfa = null,
-        bool $pdfua = false,
         array $assets = [],
     ): void {
-        $chromium = Gotenberg::chromium('')->pdf();
-        $chromium = hydrateChromiumPdfFormData(
+        $chromium = Gotenberg::chromium('')->screenshot();
+        $chromium = hydrateChromiumScreenshotFormData(
             $chromium,
-            $paperWidth,
-            $paperHeight,
-            $marginTop,
-            $marginBottom,
-            $marginLeft,
-            $marginRight,
-            $preferCssPageSize,
-            $printBackground,
+            $format,
+            $quality,
+            $optimizeForSpeed,
             $omitBackground,
-            $landscape,
-            $scale,
-            $nativePageRanges,
-            $header,
-            $footer,
             $waitDelay,
             $waitForExpression,
             $emulatedMediaType,
@@ -336,15 +218,13 @@ it(
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
-            $pdfa,
-            $pdfua,
             $assets,
         );
 
         $request = $chromium->markdown($index, ...$markdowns);
         $body    = sanitize($request->getBody()->getContents());
 
-        expect($request->getUri()->getPath())->toBe('/forms/chromium/convert/markdown');
+        expect($request->getUri()->getPath())->toBe('/forms/chromium/screenshot/markdown');
 
         $index->getStream()->rewind();
         expect($body)->toContainFormFile('index.html', $index->getStream()->getContents(), 'text/html');
@@ -354,22 +234,12 @@ it(
             expect($body)->toContainFormFile($markdown->getFilename(), $markdown->getStream()->getContents());
         }
 
-        expectChromiumPdfOptions(
+        expectChromiumScreenshotOptions(
             $body,
-            $paperWidth,
-            $paperHeight,
-            $marginTop,
-            $marginBottom,
-            $marginLeft,
-            $marginRight,
-            $preferCssPageSize,
-            $printBackground,
+            $format,
+            $quality,
+            $optimizeForSpeed,
             $omitBackground,
-            $landscape,
-            $scale,
-            $nativePageRanges,
-            $header,
-            $footer,
             $waitDelay,
             $waitForExpression,
             $emulatedMediaType,
@@ -377,8 +247,6 @@ it(
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
-            $pdfa,
-            $pdfua,
             $assets,
         );
     },
@@ -395,20 +263,10 @@ it(
             Stream::string('my.md', 'Markdown content'),
             Stream::string('my_second.md', 'Second Markdown content'),
         ],
-        8.27,
-        11.7,
-        2,
-        2,
-        2,
-        2,
+        'webp',
+        100,
         true,
         true,
-        true,
-        true,
-        1.0,
-        '1-2',
-        Stream::string('my_header.html', 'Header content'),
-        Stream::string('my_footer.html', 'Footer content'),
         '1s',
         "window.status === 'ready'",
         'screen',
@@ -418,8 +276,6 @@ it(
         ],
         [ 499, 599 ],
         true,
-        true,
-        'PDF/A-1a',
         true,
         [
             Stream::string('my.jpg', 'Image content'),
@@ -432,22 +288,12 @@ it(
  * @param int[]                $failOnHttpStatusCodes
  * @param Stream[]             $assets
  */
-function hydrateChromiumPdfFormData(
-    ChromiumPdf $chromium,
-    float|null $paperWidth = null,
-    float $paperHeight = 0,
-    float|null $marginTop = null,
-    float $marginBottom = 0,
-    float $marginLeft = 0,
-    float $marginRight = 0,
-    bool $preferCssPageSize = false,
-    bool $printBackground = false,
+function hydrateChromiumScreenshotFormData(
+    ChromiumScreenshot $chromium,
+    string|null $format = null,
+    int|null $quality = null,
+    bool $optimizeForSpeed = false,
     bool $omitBackground = false,
-    bool $landscape = false,
-    float|null $scale = null,
-    string|null $nativePageRanges = null,
-    Stream|null $header = null,
-    Stream|null $footer = null,
     string|null $waitDelay = null,
     string|null $waitForExpression = null,
     string|null $emulatedMediaType = null,
@@ -455,48 +301,30 @@ function hydrateChromiumPdfFormData(
     array $failOnHttpStatusCodes = [],
     bool $failOnConsoleExceptions = false,
     bool $skipNetworkIdleEvent = false,
-    string|null $pdfa = null,
-    bool $pdfua = false,
     array $assets = [],
-): ChromiumPdf {
-    if ($paperWidth !== null) {
-        $chromium->paperSize($paperWidth, $paperHeight);
+): ChromiumScreenshot {
+    if ($format === 'png') {
+        $chromium->png();
     }
 
-    if ($marginTop !== null) {
-        $chromium->margins($marginTop, $marginBottom, $marginLeft, $marginRight);
+    if ($format === 'jpeg') {
+        $chromium->jpeg();
     }
 
-    if ($preferCssPageSize) {
-        $chromium->preferCssPageSize();
+    if ($format === 'webp') {
+        $chromium->webp();
     }
 
-    if ($printBackground) {
-        $chromium->printBackground();
+    if ($quality !== null) {
+        $chromium->quality($quality);
+    }
+
+    if ($optimizeForSpeed) {
+        $chromium->optimizeForSpeed();
     }
 
     if ($omitBackground) {
         $chromium->omitBackground();
-    }
-
-    if ($landscape) {
-        $chromium->landscape();
-    }
-
-    if ($scale !== null) {
-        $chromium->scale($scale);
-    }
-
-    if ($nativePageRanges !== null) {
-        $chromium->nativePageRanges($nativePageRanges);
-    }
-
-    if ($header !== null) {
-        $chromium->header($header);
-    }
-
-    if ($footer !== null) {
-        $chromium->footer($footer);
     }
 
     if ($waitDelay !== null) {
@@ -531,14 +359,6 @@ function hydrateChromiumPdfFormData(
         $chromium->skipNetworkIdleEvent();
     }
 
-    if ($pdfa !== null) {
-        $chromium->pdfa($pdfa);
-    }
-
-    if ($pdfua) {
-        $chromium->pdfua();
-    }
-
     if (count($assets) > 0) {
         $chromium->assets(...$assets);
     }
@@ -551,22 +371,12 @@ function hydrateChromiumPdfFormData(
  * @param int[]                $failOnHttpStatusCodes
  * @param Stream[]             $assets
  */
-function expectChromiumPdfOptions(
+function expectChromiumScreenshotOptions(
     string $body,
-    float|null $paperWidth,
-    float $paperHeight,
-    float|null $marginTop,
-    float $marginBottom,
-    float $marginLeft,
-    float $marginRight,
-    bool $preferCssPageSize,
-    bool $printBackground,
+    string|null $format,
+    int|null $quality,
+    bool $optimizeForSpeed,
     bool $omitBackground,
-    bool $landscape,
-    float|null $scale,
-    string|null $nativePageRanges,
-    Stream|null $header,
-    Stream|null $footer,
     string|null $waitDelay,
     string|null $waitForExpression,
     string|null $emulatedMediaType,
@@ -574,41 +384,12 @@ function expectChromiumPdfOptions(
     array $failOnHttpStatusCodes,
     bool $failOnConsoleExceptions,
     bool $skipNetworkIdleEvent,
-    string|null $pdfa,
-    bool $pdfua,
     array $assets,
 ): void {
-    if ($paperWidth !== null) {
-        expect($body)
-            ->toContainFormValue('paperWidth', $paperWidth . '')
-            ->toContainFormValue('paperHeight', $paperHeight . '');
-    }
-
-    if ($marginTop !== null) {
-        expect($body)
-            ->toContainFormValue('marginTop', $marginTop . '')
-            ->toContainFormValue('marginBottom', $marginBottom . '')
-            ->toContainFormValue('marginLeft', $marginLeft . '')
-            ->toContainFormValue('marginRight', $marginRight . '');
-    }
-
-    expect($body)->unless($preferCssPageSize === false, fn ($body) => $body->toContainFormValue('preferCssPageSize', '1'));
-    expect($body)->unless($printBackground === false, fn ($body) => $body->toContainFormValue('printBackground', '1'));
+    expect($body)->unless($format === null, fn ($body) => $body->toContainFormValue('format', $format));
+    expect($body)->unless($quality === null, fn ($body) => $body->toContainFormValue('quality', $quality . ''));
+    expect($body)->unless($optimizeForSpeed === false, fn ($body) => $body->toContainFormValue('optimizeForSpeed', '1'));
     expect($body)->unless($omitBackground === false, fn ($body) => $body->toContainFormValue('omitBackground', '1'));
-    expect($body)->unless($landscape === false, fn ($body) => $body->toContainFormValue('landscape', '1'));
-    expect($body)->unless($scale === null, fn ($body) => $body->toContainFormValue('scale', $scale . ''));
-    expect($body)->unless($nativePageRanges === null, fn ($body) => $body->toContainFormValue('nativePageRanges', $nativePageRanges));
-
-    if ($header !== null) {
-        $header->getStream()->rewind();
-        expect($body)->toContainFormFile('header.html', $header->getStream()->getContents(), 'text/html');
-    }
-
-    if ($footer !== null) {
-        $footer->getStream()->rewind();
-        expect($body)->toContainFormFile('footer.html', $footer->getStream()->getContents(), 'text/html');
-    }
-
     expect($body)->unless($waitDelay === null, fn ($body) => $body->toContainFormValue('waitDelay', $waitDelay));
     expect($body)->unless($waitForExpression === null, fn ($body) => $body->toContainFormValue('waitForExpression', $waitForExpression));
     expect($body)->unless($emulatedMediaType === null, fn ($body) => $body->toContainFormValue('emulatedMediaType', $emulatedMediaType));
@@ -633,8 +414,6 @@ function expectChromiumPdfOptions(
 
     expect($body)->unless($failOnConsoleExceptions === false, fn ($body) => $body->toContainFormValue('failOnConsoleExceptions', '1'));
     expect($body)->unless($skipNetworkIdleEvent === false, fn ($body) => $body->toContainFormValue('skipNetworkIdleEvent', '1'));
-    expect($body)->unless($pdfa === null, fn ($body) => $body->toContainFormValue('pdfa', $pdfa));
-    expect($body)->unless($pdfua === false, fn ($body) => $body->toContainFormValue('pdfua', '1'));
 
     if (count($assets) <= 0) {
         return;

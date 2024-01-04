@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg;
 
-use Gotenberg\Exceptions\NativeFunctionErroed;
+use Gotenberg\Exceptions\NativeFunctionErrored;
 use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7\Utils;
 use Psr\Http\Message\StreamInterface;
@@ -27,11 +27,11 @@ class Stream
         $inmemory = fopen('php://memory', 'rb+');
 
         if ($inmemory === false) {
-            throw NativeFunctionErroed::createFromLastPhpError();
+            throw NativeFunctionErrored::createFromLastPhpError();
         }
 
         if (fwrite($inmemory, $str) === false) {
-            throw NativeFunctionErroed::createFromLastPhpError();
+            throw NativeFunctionErrored::createFromLastPhpError();
         }
 
         return new self($filename, Utils::streamFor($inmemory));

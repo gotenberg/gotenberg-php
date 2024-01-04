@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg;
 
-use Gotenberg\Exceptions\NativeFunctionErroed;
+use Gotenberg\Exceptions\NativeFunctionErrored;
 use GuzzleHttp\Psr7\MultipartStream;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Psr\Http\Message\RequestInterface;
@@ -75,13 +75,13 @@ trait MultipartFormDataModule
      *
      * @param array<string,string> $headers
      *
-     * @throws NativeFunctionErroed
+     * @throws NativeFunctionErrored
      */
     public function webhookExtraHttpHeaders(array $headers): self
     {
         $json = json_encode($headers);
         if ($json === false) {
-            throw NativeFunctionErroed::createFromLastPhpError();
+            throw NativeFunctionErrored::createFromLastPhpError();
         }
 
         $this->headers['Gotenberg-Webhook-Extra-Http-Headers'] = $json;

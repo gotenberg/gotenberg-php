@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Gotenberg\Exceptions\GotenbergApiErroed;
+use Gotenberg\Exceptions\GotenbergApiErrored;
 use Gotenberg\Exceptions\NoOutputFileInResponse;
 use Gotenberg\Gotenberg;
 use Gotenberg\Test\DummyClient;
@@ -29,7 +29,7 @@ it(
 
         try {
             Gotenberg::send(new Request('POST', 'https://my.url'), $client);
-        } catch (GotenbergApiErroed $e) {
+        } catch (GotenbergApiErrored $e) {
             expect($e->getCode())->toEqual(400);
             expect($e->getMessage())->toEqual('Bad Request');
             expect($e->getGotenbergTrace())->toEqual($withTrace ? 'debug' : '');
@@ -41,7 +41,7 @@ it(
 )->with([
     'with trace' => [ true ],
     'without trace' => [ false ],
-])->throws(GotenbergApiErroed::class);
+])->throws(GotenbergApiErrored::class);
 
 it(
     'saves the output file',
