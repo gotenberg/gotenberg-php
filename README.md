@@ -480,7 +480,6 @@ $request = Gotenberg::chromium($apiUrl)
     ->pdf()
     ->header(Stream::path('/path/to/my_header.html'))
     ->footer(Stream::path('/path/to/my_footer.html'))
-    ->margins(1, 1, 0.39, 0.39)
     ->url('https://my.url');
 ```
 
