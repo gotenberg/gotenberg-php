@@ -845,6 +845,7 @@ use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
     ->webhook('https://my.webhook.url', 'https://my.webhook.error.url')
+    ->pdf()
     ->url('https://my.url'); 
 ```
 
@@ -857,6 +858,7 @@ $request = Gotenberg::chromium($apiUrl)
     ->webhook('https://my.webhook.url', 'https://my.webhook.error.url')
     ->webhookMethod('PATCH')
     ->webhookErrorMethod('PUT')
+    ->pdf()
     ->url('https://my.url');
 ```
 
@@ -871,5 +873,6 @@ $request = Gotenberg::chromium($apiUrl)
         'My-Header-1' => 'My value',
         'My-Header-2' => 'My value'    
     ])
+    ->pdf()
     ->url('https://my.url');
 ```
