@@ -13,6 +13,16 @@ class ChromiumPdf
     use ChromiumMultipartFormDataModule;
 
     /**
+     * Defines whether to print the entire content in one single page.
+     */
+    public function singlePage(): self
+    {
+        $this->formValue('singlePage', true);
+
+        return $this;
+    }
+
+    /**
      * Overrides the default paper size, in inches.
      *
      * Examples of paper size (width x height):

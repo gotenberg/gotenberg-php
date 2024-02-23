@@ -344,6 +344,19 @@ $request = Gotenberg::chromium($apiUrl)
     );
 ```
 
+### Single page
+
+You may print the entire content in one single page with:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->pdf()
+    ->singlePage()
+    ->url('https://my.url');
+```
+
 #### Paper size
 
 You may override the default paper size with:

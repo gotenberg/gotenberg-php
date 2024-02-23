@@ -16,6 +16,7 @@ it(
      */
     function (
         string $url,
+        bool $singlePage = false,
         float|null $paperWidth = null,
         float $paperHeight = 0,
         float|null $marginTop = null,
@@ -44,6 +45,7 @@ it(
         $chromium = Gotenberg::chromium('')->pdf();
         $chromium = hydrateChromiumPdfFormData(
             $chromium,
+            $singlePage,
             $paperWidth,
             $paperHeight,
             $marginTop,
@@ -78,6 +80,7 @@ it(
 
         expectChromiumPdfOptions(
             $body,
+            $singlePage,
             $paperWidth,
             $paperHeight,
             $marginTop,
@@ -109,6 +112,7 @@ it(
     ['https://my.url'],
     [
         'https://my.url',
+        true,
         8.27,
         11.7,
         2,
@@ -150,6 +154,7 @@ it(
      */
     function (
         Stream $index,
+        bool $singlePage = false,
         float|null $paperWidth = null,
         float $paperHeight = 0,
         float|null $marginTop = null,
@@ -178,6 +183,7 @@ it(
         $chromium = Gotenberg::chromium('')->pdf();
         $chromium = hydrateChromiumPdfFormData(
             $chromium,
+            $singlePage,
             $paperWidth,
             $paperHeight,
             $marginTop,
@@ -214,6 +220,7 @@ it(
 
         expectChromiumPdfOptions(
             $body,
+            $singlePage,
             $paperWidth,
             $paperHeight,
             $marginTop,
@@ -244,6 +251,7 @@ it(
     [Stream::string('my.html', 'HTML content')],
     [
         Stream::string('my.html', 'HTML content'),
+        true,
         8.27,
         11.7,
         2,
@@ -287,6 +295,7 @@ it(
     function (
         Stream $index,
         array $markdowns,
+        bool $singlePage = false,
         float|null $paperWidth = null,
         float $paperHeight = 0,
         float|null $marginTop = null,
@@ -315,6 +324,7 @@ it(
         $chromium = Gotenberg::chromium('')->pdf();
         $chromium = hydrateChromiumPdfFormData(
             $chromium,
+            $singlePage,
             $paperWidth,
             $paperHeight,
             $marginTop,
@@ -356,6 +366,7 @@ it(
 
         expectChromiumPdfOptions(
             $body,
+            $singlePage,
             $paperWidth,
             $paperHeight,
             $marginTop,
@@ -395,6 +406,7 @@ it(
             Stream::string('my.md', 'Markdown content'),
             Stream::string('my_second.md', 'Second Markdown content'),
         ],
+        true,
         8.27,
         11.7,
         2,
@@ -434,6 +446,7 @@ it(
  */
 function hydrateChromiumPdfFormData(
     ChromiumPdf $chromium,
+    bool $singlePage = false,
     float|null $paperWidth = null,
     float $paperHeight = 0,
     float|null $marginTop = null,
@@ -459,6 +472,10 @@ function hydrateChromiumPdfFormData(
     bool $pdfua = false,
     array $assets = [],
 ): ChromiumPdf {
+    if ($singlePage) {
+        $chromium->singlePage();
+    }
+
     if ($paperWidth !== null) {
         $chromium->paperSize($paperWidth, $paperHeight);
     }
@@ -553,6 +570,7 @@ function hydrateChromiumPdfFormData(
  */
 function expectChromiumPdfOptions(
     string $body,
+    bool $singlePage,
     float|null $paperWidth,
     float $paperHeight,
     float|null $marginTop,
@@ -578,6 +596,8 @@ function expectChromiumPdfOptions(
     bool $pdfua,
     array $assets,
 ): void {
+    expect($body)->unless($singlePage === false, fn ($body) => $body->toContainFormValue('singlePage', '1'));
+
     if ($paperWidth !== null) {
         expect($body)
             ->toContainFormValue('paperWidth', $paperWidth . '')
