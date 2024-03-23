@@ -804,6 +804,7 @@ You may set the metadata to write with:
 
 ```php
 use Gotenberg\Gotenberg;
+use Gotenberg\Stream;
 
 $request = Gotenberg::libreOffice($apiUrl)
     ->metadata(['Producer' => 'Gotenberg'])
@@ -842,6 +843,21 @@ use Gotenberg\Stream;
 $request = Gotenberg::pdfEngines($apiUrl)
     ->pdfa('PDF/A-1a')
     ->pdfua()
+    ->merge(
+        Stream::path('/path/to/my.pdf'),
+        Stream::path('/path/to/my2.pdf'),
+        Stream::path('/path/to/my3.pdf')
+    );
+```
+
+You may also set the metadata to write with:
+
+```php
+use Gotenberg\Gotenberg;
+use Gotenberg\Stream;
+
+$request = Gotenberg::pdfEngines($apiUrl)
+    ->metadata(['Producer' => 'Gotenberg'])
     ->merge(
         Stream::path('/path/to/my.pdf'),
         Stream::path('/path/to/my2.pdf'),
