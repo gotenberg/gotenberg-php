@@ -13,6 +13,7 @@ it(
         array $files,
         bool $landscape = false,
         string|null $nativePageRanges = null,
+        bool|null $exportFormFields = null,
         string|null $pdfa = null,
         bool $pdfua = false,
         bool $merge = false,
@@ -25,6 +26,10 @@ it(
 
         if ($nativePageRanges !== null) {
             $libreOffice->nativePageRanges($nativePageRanges);
+        }
+
+        if ($exportFormFields !== null) {
+            $libreOffice->exportFormFields($exportFormFields);
         }
 
         if ($pdfa !== null) {
@@ -47,6 +52,8 @@ it(
         expect($request->getUri()->getPath())->toBe('/forms/libreoffice/convert');
         expect($body)->unless($landscape === false, fn ($body) => $body->toContainFormValue('landscape', '1'));
         expect($body)->unless($nativePageRanges === null, fn ($body) => $body->toContainFormValue('nativePageRanges', $nativePageRanges));
+        expect($body)->unless($exportFormFields === null, fn ($body) => $body->toContainFormValue('exportFormFields', $exportFormFields === true ? '1' : '0'));
+
         expect($body)->unless($merge === false, fn ($body) => $body->toContainFormValue('merge', '1'));
 
         foreach ($files as $file) {
@@ -69,6 +76,7 @@ it(
         ],
         true,
         '1-2',
+        false,
         'PDF/A-1a',
         true,
         true,

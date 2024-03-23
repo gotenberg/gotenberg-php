@@ -752,6 +752,19 @@ $request = Gotenberg::libreOffice($apiUrl)
 
 ⚠️ The page ranges are applied to all files independently.
 
+#### Export form fields
+
+You may set whether to export the form fields or to use the inputted/selected content of the fields:
+
+```php
+use Gotenberg\Gotenberg;
+use Gotenberg\Stream;
+
+$request = Gotenberg::libreOffice($apiUrl)
+    ->exportFormFields(false)
+    ->convert(Stream::path('/path/to/my.docx'));
+```
+
 #### PDF/A & PDF/UA
 
 See https://gotenberg.dev/docs/routes#pdfa-libreoffice.

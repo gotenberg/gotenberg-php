@@ -52,6 +52,17 @@ class LibreOffice
     }
 
     /**
+     * Set whether to export the form fields or to use the inputted/selected
+     * content of the fields.
+     */
+    public function exportFormFields(bool $export = true): self
+    {
+        $this->formValue('exportFormFields', $export ?: '0');
+
+        return $this;
+    }
+
+    /**
      * Sets the PDF/A format of the resulting PDF.
      */
     public function pdfa(string $format): self
