@@ -8,7 +8,10 @@ use Gotenberg\Test\DummyIndex;
 
 it(
     'creates a valid request for the "/forms/libreoffice/convert" endpoint',
-    /** @param Stream[] $files */
+    /**
+     * @param Stream[] $files
+     * @param array<string,string|bool|float|int|array<string>> $metadata
+     */
     function (
         array $files,
         bool $landscape = false,
@@ -16,6 +19,7 @@ it(
         bool|null $exportFormFields = null,
         string|null $pdfa = null,
         bool $pdfua = false,
+        array $metadata = [],
         bool $merge = false,
     ): void {
         $libreOffice = Gotenberg::libreOffice('');
@@ -40,6 +44,10 @@ it(
             $libreOffice->pdfua();
         }
 
+        if (count($metadata) > 0) {
+            $libreOffice->metadata($metadata);
+        }
+
         if ($merge) {
             $libreOffice
                 ->index(new DummyIndex())
@@ -53,8 +61,16 @@ it(
         expect($body)->unless($landscape === false, fn ($body) => $body->toContainFormValue('landscape', '1'));
         expect($body)->unless($nativePageRanges === null, fn ($body) => $body->toContainFormValue('nativePageRanges', $nativePageRanges));
         expect($body)->unless($exportFormFields === null, fn ($body) => $body->toContainFormValue('exportFormFields', $exportFormFields === true ? '1' : '0'));
-
         expect($body)->unless($merge === false, fn ($body) => $body->toContainFormValue('merge', '1'));
+
+        if (count($metadata) > 0) {
+            $json = json_encode($metadata);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            expect($body)->toContainFormValue('metadata', $json);
+        }
 
         foreach ($files as $file) {
             $filename = $merge ? 'foo_' . $file->getFilename() : $file->getFilename();
@@ -79,6 +95,7 @@ it(
         false,
         'PDF/A-1a',
         true,
+        [ 'Producer' => 'Gotenberg' ],
         true,
     ],
 ]);

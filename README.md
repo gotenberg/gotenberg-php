@@ -625,6 +625,21 @@ $request = Gotenberg::chromium($apiUrl)
     ->url('https://my.url');
 ```
 
+#### Metadata
+
+See https://gotenberg.dev/docs/routes#metadata-chromium.
+
+You may set the metadata to write with:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->pdf()
+    ->metadata(['Producer' => 'Gotenberg'])
+    ->url('https://my.url');
+```
+
 #### Screenshots
 
 You can capture full-page screenshots using the following three routes, which function similarly to their PDF equivalents:
@@ -781,6 +796,20 @@ $request = Gotenberg::libreOffice($apiUrl)
     ->convert(Stream::path('/path/to/my.docx'));
 ```
 
+#### Metadata
+
+See https://gotenberg.dev/docs/routes#metadata-libreoffice.
+
+You may set the metadata to write with:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::libreOffice($apiUrl)
+    ->metadata(['Producer' => 'Gotenberg'])
+    ->convert(Stream::path('/path/to/my.docx'));
+```
+
 ### PDF Engines
 
 The [PDF Engines module](https://gotenberg.dev/docs/configuration#pdf-engines) gathers all engines that can manipulate PDF files.
@@ -848,6 +877,63 @@ $request = Gotenberg::pdfEngines($apiUrl)
     ->outputFilename('archive')
     ->convert(
         'PDF/A-1a',
+        Stream::path('/path/to/my.pdf'),
+        Stream::path('/path/to/my2.pdf'),
+        Stream::path('/path/to/my3.pdf')
+    );
+
+// $filename = archive.zip
+$filename = Gotenberg::save($request, $pathToSavingDirectory);
+```
+
+#### Read PDF metadata
+
+See https://gotenberg.dev/docs/routes#read-pdf-metadata-route
+
+⚠️ You cannot use the `Gotenberg::save` method if you're using this feature.
+
+You may retrieve one or more PDFs metadata with:
+
+```php
+use Gotenberg\Gotenberg;
+use Gotenberg\Stream;
+
+$request = Gotenberg::pdfEngines($apiUrl)
+    ->readMetadata(
+        Stream::path('/path/to/my.pdf'),
+        Stream::path('/path/to/my2.pdf')
+    );
+```
+
+This request returns a JSON formatted response with the structure filename => metadata.
+
+#### Write PDF metadata
+
+See https://gotenberg.dev/docs/routes#write-pdf-metadata-route
+
+You may write specified metadata to one or more PDFs:
+
+```php
+use Gotenberg\Gotenberg;
+use Gotenberg\Stream;
+
+$request = Gotenberg::pdfEngines($apiUrl)
+    ->writeMetadata(
+        [ 'Producer' => 'Gotenberg' ],
+        Stream::path('/path/to/my.pdf')
+    );
+```
+
+If you send many PDFs, Gotenberg will return a ZIP archive with the PDFs:
+
+```php
+use Gotenberg\Gotenberg;
+use Gotenberg\Stream;
+
+$request = Gotenberg::pdfEngines($apiUrl)
+    ->outputFilename('archive')
+    ->writeMetadata(
+        [ 'Producer' => 'Gotenberg' ],
         Stream::path('/path/to/my.pdf'),
         Stream::path('/path/to/my2.pdf'),
         Stream::path('/path/to/my3.pdf')

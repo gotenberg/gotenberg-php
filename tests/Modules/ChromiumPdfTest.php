@@ -12,6 +12,7 @@ it(
     /**
      * @param array<string,string> $extraHttpHeaders
      * @param int[] $failOnHttpStatusCodes
+     * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[] $assets
      */
     function (
@@ -40,6 +41,7 @@ it(
         bool $skipNetworkIdleEvent = false,
         string|null $pdfa = null,
         bool $pdfua = false,
+        array $metadata = [],
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
@@ -69,6 +71,7 @@ it(
             $skipNetworkIdleEvent,
             $pdfa,
             $pdfua,
+            $metadata,
             $assets,
         );
 
@@ -104,6 +107,7 @@ it(
             $skipNetworkIdleEvent,
             $pdfa,
             $pdfua,
+            $metadata,
             $assets,
         );
     },
@@ -139,6 +143,7 @@ it(
         true,
         'PDF/A-1a',
         true,
+        [ 'Producer' => 'Gotenberg' ],
         [
             Stream::string('my.jpg', 'Image content'),
         ],
@@ -150,6 +155,7 @@ it(
     /**
      * @param array<string,string> $extraHttpHeaders
      * @param int[] $failOnHttpStatusCodes
+     * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[] $assets
      */
     function (
@@ -178,6 +184,7 @@ it(
         bool $skipNetworkIdleEvent = false,
         string|null $pdfa = null,
         bool $pdfua = false,
+        array $metadata = [],
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
@@ -207,6 +214,7 @@ it(
             $skipNetworkIdleEvent,
             $pdfa,
             $pdfua,
+            $metadata,
             $assets,
         );
 
@@ -244,6 +252,7 @@ it(
             $skipNetworkIdleEvent,
             $pdfa,
             $pdfua,
+            $metadata,
             $assets,
         );
     },
@@ -278,6 +287,7 @@ it(
         true,
         'PDF/A-1a',
         true,
+        [ 'Producer' => 'Gotenberg' ],
         [
             Stream::string('my.jpg', 'Image content'),
         ],
@@ -290,6 +300,7 @@ it(
      * @param array<string,string> $extraHttpHeaders
      * @param int[] $failOnHttpStatusCodes
      * @param Stream[] $markdowns
+     * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[] $assets
      */
     function (
@@ -319,6 +330,7 @@ it(
         bool $skipNetworkIdleEvent = false,
         string|null $pdfa = null,
         bool $pdfua = false,
+        array $metadata = [],
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
@@ -348,6 +360,7 @@ it(
             $skipNetworkIdleEvent,
             $pdfa,
             $pdfua,
+            $metadata,
             $assets,
         );
 
@@ -390,6 +403,7 @@ it(
             $skipNetworkIdleEvent,
             $pdfa,
             $pdfua,
+            $metadata,
             $assets,
         );
     },
@@ -433,6 +447,7 @@ it(
         true,
         'PDF/A-1a',
         true,
+        [ 'Producer' => 'Gotenberg' ],
         [
             Stream::string('my.jpg', 'Image content'),
         ],
@@ -440,9 +455,10 @@ it(
 ]);
 
 /**
- * @param array<string,string> $extraHttpHeaders
- * @param int[]                $failOnHttpStatusCodes
- * @param Stream[]             $assets
+ * @param array<string,string>                              $extraHttpHeaders
+ * @param int[]                                             $failOnHttpStatusCodes
+ * @param array<string,string|bool|float|int|array<string>> $metadata
+ * @param Stream[]                                          $assets
  */
 function hydrateChromiumPdfFormData(
     ChromiumPdf $chromium,
@@ -470,6 +486,7 @@ function hydrateChromiumPdfFormData(
     bool $skipNetworkIdleEvent = false,
     string|null $pdfa = null,
     bool $pdfua = false,
+    array $metadata = [],
     array $assets = [],
 ): ChromiumPdf {
     if ($singlePage) {
@@ -556,6 +573,10 @@ function hydrateChromiumPdfFormData(
         $chromium->pdfua();
     }
 
+    if (count($metadata) > 0) {
+        $chromium->metadata($metadata);
+    }
+
     if (count($assets) > 0) {
         $chromium->assets(...$assets);
     }
@@ -564,9 +585,10 @@ function hydrateChromiumPdfFormData(
 }
 
 /**
- * @param array<string,string> $extraHttpHeaders
- * @param int[]                $failOnHttpStatusCodes
- * @param Stream[]             $assets
+ * @param array<string,string>                              $extraHttpHeaders
+ * @param int[]                                             $failOnHttpStatusCodes
+ * @param array<string,string|bool|float|int|array<string>> $metadata
+ * @param Stream[]                                          $assets
  */
 function expectChromiumPdfOptions(
     string $body,
@@ -594,6 +616,7 @@ function expectChromiumPdfOptions(
     bool $skipNetworkIdleEvent,
     string|null $pdfa,
     bool $pdfua,
+    array $metadata,
     array $assets,
 ): void {
     expect($body)->unless($singlePage === false, fn ($body) => $body->toContainFormValue('singlePage', '1'));
@@ -655,6 +678,15 @@ function expectChromiumPdfOptions(
     expect($body)->unless($skipNetworkIdleEvent === false, fn ($body) => $body->toContainFormValue('skipNetworkIdleEvent', '1'));
     expect($body)->unless($pdfa === null, fn ($body) => $body->toContainFormValue('pdfa', $pdfa));
     expect($body)->unless($pdfua === false, fn ($body) => $body->toContainFormValue('pdfua', '1'));
+
+    if (count($metadata) > 0) {
+        $json = json_encode($metadata);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        expect($body)->toContainFormValue('metadata', $json);
+    }
 
     if (count($assets) <= 0) {
         return;

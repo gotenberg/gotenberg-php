@@ -8,6 +8,8 @@ use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
 
+use function json_encode;
+
 class ChromiumPdf
 {
     use ChromiumMultipartFormDataModule;
@@ -157,6 +159,25 @@ class ChromiumPdf
     public function pdfua(): self
     {
         $this->formValue('pdfua', true);
+
+        return $this;
+    }
+
+    /**
+     * Sets the metadata to write.
+     *
+     * @param array<string,string|bool|float|int|array<string>> $metadata
+     *
+     * @throws NativeFunctionErrored
+     */
+    public function metadata(array $metadata): self
+    {
+        $json = json_encode($metadata);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        $this->formValue('metadata', $json);
 
         return $this;
     }
