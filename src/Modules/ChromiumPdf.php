@@ -23,7 +23,9 @@ class ChromiumPdf
     }
 
     /**
-     * Overrides the default paper size, in inches.
+     * Overrides the default paper size, using various units such as 72pt,
+     * 96px, 1in, 25.4mm, 2.54cm, or 6pc. The default unit is inches when
+     * not specified.
      *
      * Examples of paper size (width x height):
      *
@@ -39,7 +41,7 @@ class ChromiumPdf
      * A5 - 5.83 x 8.27
      * A6 - 4.13 x 5.83
      */
-    public function paperSize(float $width, float $height): self
+    public function paperSize(float|string $width, float|string $height): self
     {
         $this->formValue('paperWidth', $width);
         $this->formValue('paperHeight', $height);
@@ -48,9 +50,11 @@ class ChromiumPdf
     }
 
     /**
-     * Overrides the default margins (i.e., 0.39), in inches.
+     * Overrides the default margins (i.e., 0.39), using various units such as
+     * 72pt, 96px, 1in, 25.4mm, 2.54cm, or 6pc. The default unit is inches when
+     * not specified.
      */
-    public function margins(float $top, float $bottom, float $left, float $right): self
+    public function margins(float|string $top, float|string $bottom, float|string $left, float|string $right): self
     {
         $this->formValue('marginTop', $top);
         $this->formValue('marginBottom', $bottom);

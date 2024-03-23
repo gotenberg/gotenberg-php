@@ -386,7 +386,7 @@ Examples of paper size (width x height, in inches):
 
 #### Margins
 
-You may override the default margins (i.e., `0.39`, in inches):
+You may override the default margins (i.e., `0.39`):
 
 ```php
 use Gotenberg\Gotenberg;
