@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 use Gotenberg\Test\DummyIndex;
