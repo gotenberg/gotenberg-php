@@ -70,6 +70,25 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
+     * Cookies to store in the Chromium cookie jar.
+     *
+     * @param ChromiumCookie[] $cookies
+     *
+     * @throws NativeFunctionErrored
+     */
+    public function cookies(array $cookies): self
+    {
+        $json = json_encode($cookies);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        $this->formValue('cookies', $json);
+
+        return $this;
+    }
+
+    /**
      * Sets extra HTTP headers that Chromium will send when loading the HTML
      * document.
      *

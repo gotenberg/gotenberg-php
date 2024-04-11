@@ -550,6 +550,22 @@ $request = Gotenberg::chromium($apiUrl)
     ->url('https://my.url');
 ```
 
+#### Cookies
+
+You may add ccookies to store in the Chromium cookie jar:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->pdf()
+    ->cookies([
+        new ChromiumCookie(name: 'yummy_cookie', value: 'choco', domain: 'theyummycookie.com'),
+        new ChromiumCookie(name: 'vanilla_cookie', value: 'vanilla', domain: 'theyummycookie.com', path: '/', secure: true, httpOnly: true, sameSite: 'Lax'),
+    ])
+    ->url('https://my.url');
+```
+
 #### Extra HTTP headers
 
 You may add HTTP headers that Chromium will send when loading the HTML document:

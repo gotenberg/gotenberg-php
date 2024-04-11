@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
+use Gotenberg\Modules\ChromiumCookie;
 use Gotenberg\Modules\ChromiumPdf;
 use Gotenberg\Stream;
 
 it(
     'creates a valid request for the "/forms/chromium/convert/url" endpoint',
     /**
+     * @param ChromiumCookie[] $cookies
      * @param array<string,string> $extraHttpHeaders
      * @param int[] $failOnHttpStatusCodes
      * @param array<string,string|bool|float|int|array<string>> $metadata
@@ -35,6 +37,7 @@ it(
         string|null $waitDelay = null,
         string|null $waitForExpression = null,
         string|null $emulatedMediaType = null,
+        array $cookies = [],
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         bool $failOnConsoleExceptions = false,
@@ -65,6 +68,7 @@ it(
             $waitDelay,
             $waitForExpression,
             $emulatedMediaType,
+            $cookies,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
@@ -101,6 +105,7 @@ it(
             $waitDelay,
             $waitForExpression,
             $emulatedMediaType,
+            $cookies,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
@@ -135,6 +140,10 @@ it(
         "window.status === 'ready'",
         'print',
         [
+            new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
+            new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
+        ],
+        [
             'My-Http-Header' => 'HTTP Header content',
             'My-Second-Http-Header' => 'Second HTTP Header content',
         ],
@@ -153,6 +162,7 @@ it(
 it(
     'creates a valid request for the "/forms/chromium/convert/html" endpoint',
     /**
+     * @param ChromiumCookie[] $cookies
      * @param array<string,string> $extraHttpHeaders
      * @param int[] $failOnHttpStatusCodes
      * @param array<string,string|bool|float|int|array<string>> $metadata
@@ -178,6 +188,7 @@ it(
         string|null $waitDelay = null,
         string|null $waitForExpression = null,
         string|null $emulatedMediaType = null,
+        array $cookies = [],
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         bool $failOnConsoleExceptions = false,
@@ -208,6 +219,7 @@ it(
             $waitDelay,
             $waitForExpression,
             $emulatedMediaType,
+            $cookies,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
@@ -246,6 +258,7 @@ it(
             $waitDelay,
             $waitForExpression,
             $emulatedMediaType,
+            $cookies,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
@@ -279,6 +292,10 @@ it(
         "window.status === 'ready'",
         'screen',
         [
+            new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
+            new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
+        ],
+        [
             'My-Http-Header' => 'Http Header content',
             'My-Second-Http-Header' => 'Second Http Header content',
         ],
@@ -297,6 +314,7 @@ it(
 it(
     'creates a valid request for the "/forms/chromium/convert/markdown" endpoint',
     /**
+     * @param ChromiumCookie[] $cookies
      * @param array<string,string> $extraHttpHeaders
      * @param int[] $failOnHttpStatusCodes
      * @param Stream[] $markdowns
@@ -324,6 +342,7 @@ it(
         string|null $waitDelay = null,
         string|null $waitForExpression = null,
         string|null $emulatedMediaType = null,
+        array $cookies = [],
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         bool $failOnConsoleExceptions = false,
@@ -354,6 +373,7 @@ it(
             $waitDelay,
             $waitForExpression,
             $emulatedMediaType,
+            $cookies,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
@@ -397,6 +417,7 @@ it(
             $waitDelay,
             $waitForExpression,
             $emulatedMediaType,
+            $cookies,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
@@ -439,6 +460,10 @@ it(
         "window.status === 'ready'",
         'screen',
         [
+            new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
+            new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
+        ],
+        [
             'My-Http-Header' => 'Http Header content',
             'My-Second-Http-Header' => 'Second Http Header content',
         ],
@@ -455,6 +480,7 @@ it(
 ]);
 
 /**
+ * @param ChromiumCookie[]                                  $cookies
  * @param array<string,string>                              $extraHttpHeaders
  * @param int[]                                             $failOnHttpStatusCodes
  * @param array<string,string|bool|float|int|array<string>> $metadata
@@ -480,6 +506,7 @@ function hydrateChromiumPdfFormData(
     string|null $waitDelay = null,
     string|null $waitForExpression = null,
     string|null $emulatedMediaType = null,
+    array $cookies = [],
     array $extraHttpHeaders = [],
     array $failOnHttpStatusCodes = [],
     bool $failOnConsoleExceptions = false,
@@ -549,6 +576,10 @@ function hydrateChromiumPdfFormData(
         $chromium->emulateScreenMediaType();
     }
 
+    if (count($cookies) > 0) {
+        $chromium->cookies($cookies);
+    }
+
     if (count($extraHttpHeaders) > 0) {
         $chromium->extraHttpHeaders($extraHttpHeaders);
     }
@@ -585,6 +616,7 @@ function hydrateChromiumPdfFormData(
 }
 
 /**
+ * @param ChromiumCookie[]                                  $cookies
  * @param array<string,string>                              $extraHttpHeaders
  * @param int[]                                             $failOnHttpStatusCodes
  * @param array<string,string|bool|float|int|array<string>> $metadata
@@ -610,6 +642,7 @@ function expectChromiumPdfOptions(
     string|null $waitDelay,
     string|null $waitForExpression,
     string|null $emulatedMediaType,
+    array $cookies,
     array $extraHttpHeaders,
     array $failOnHttpStatusCodes,
     bool $failOnConsoleExceptions,
@@ -655,6 +688,15 @@ function expectChromiumPdfOptions(
     expect($body)->unless($waitDelay === null, fn ($body) => $body->toContainFormValue('waitDelay', $waitDelay));
     expect($body)->unless($waitForExpression === null, fn ($body) => $body->toContainFormValue('waitForExpression', $waitForExpression));
     expect($body)->unless($emulatedMediaType === null, fn ($body) => $body->toContainFormValue('emulatedMediaType', $emulatedMediaType));
+
+    if (count($cookies) > 0) {
+        $json = json_encode($cookies);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        expect($body)->toContainFormValue('cookies', $json);
+    }
 
     if (count($extraHttpHeaders) > 0) {
         $json = json_encode($extraHttpHeaders);
