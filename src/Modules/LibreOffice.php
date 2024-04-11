@@ -66,6 +66,16 @@ class LibreOffice
     }
 
     /**
+     * Set whether to render the entire spreadsheet as a single page.
+     */
+    public function singlePageSheets(): self
+    {
+        $this->formValue('singlePageSheets', true);
+
+        return $this;
+    }
+
+    /**
      * Sets the PDF/A format of the resulting PDF.
      */
     public function pdfa(string $format): self

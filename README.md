@@ -780,6 +780,19 @@ $request = Gotenberg::libreOffice($apiUrl)
     ->convert(Stream::path('/path/to/my.docx'));
 ```
 
+#### Single page sheets
+
+You may set whether to render the entire spreadsheet as a single page:
+
+```php
+use Gotenberg\Gotenberg;
+use Gotenberg\Stream;
+
+$request = Gotenberg::libreOffice($apiUrl)
+    ->singlePageSheets()
+    ->convert(Stream::path('/path/to/my.xlsx'));
+```
+
 #### PDF/A & PDF/UA
 
 See https://gotenberg.dev/docs/routes#pdfa-libreoffice.
