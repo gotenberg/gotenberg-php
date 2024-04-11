@@ -555,6 +555,7 @@ $request = Gotenberg::chromium($apiUrl)
 You may add ccookies to store in the Chromium cookie jar:
 
 ```php
+use Gotenberg\Modules\ChromiumCookie;
 use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
