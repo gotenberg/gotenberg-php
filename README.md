@@ -666,6 +666,9 @@ use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
     ->screenshot()
+    ->width(1280)
+    ->height(800)
+    ->clip()
     ->png()
     ->optimizeForSpeed()
     ->url('https://my.url');

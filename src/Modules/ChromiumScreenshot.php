@@ -13,6 +13,37 @@ class ChromiumScreenshot
     use ChromiumMultipartFormDataModule;
 
     /**
+     * The device screen width in pixels.
+     */
+    public function width(int $width): self
+    {
+        $this->formValue('width', $width);
+
+        return $this;
+    }
+
+    /**
+     * The device screen height in pixels.
+     */
+    public function height(int $height): self
+    {
+        $this->formValue('height', $height);
+
+        return $this;
+    }
+
+    /**
+     * Defines whether to clip the screenshot according to the device
+     * dimensions.
+     */
+    public function clip(): self
+    {
+        $this->formValue('clip', true);
+
+        return $this;
+    }
+
+    /**
      * PNG as image compression format.
      */
     public function png(): self

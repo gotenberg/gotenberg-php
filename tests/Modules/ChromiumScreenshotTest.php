@@ -18,6 +18,9 @@ it(
      */
     function (
         string $url,
+        int|null $width = null,
+        int|null $height = null,
+        bool $clip = false,
         string|null $format = null,
         int|null $quality = null,
         bool $optimizeForSpeed = false,
@@ -35,6 +38,9 @@ it(
         $chromium = Gotenberg::chromium('')->screenshot();
         $chromium = hydrateChromiumScreenshotFormData(
             $chromium,
+            $width,
+            $height,
+            $clip,
             $format,
             $quality,
             $optimizeForSpeed,
@@ -58,6 +64,9 @@ it(
 
         expectChromiumScreenshotOptions(
             $body,
+            $width,
+            $height,
+            $clip,
             $format,
             $quality,
             $optimizeForSpeed,
@@ -77,6 +86,9 @@ it(
     ['https://my.url'],
     [
         'https://my.url',
+        1280,
+        800,
+        true,
         'png',
         100,
         true,
@@ -111,6 +123,9 @@ it(
      */
     function (
         Stream $index,
+        int|null $width = null,
+        int|null $height = null,
+        bool $clip = false,
         string|null $format = null,
         int|null $quality = null,
         bool $optimizeForSpeed = false,
@@ -128,6 +143,9 @@ it(
         $chromium = Gotenberg::chromium('')->screenshot();
         $chromium = hydrateChromiumScreenshotFormData(
             $chromium,
+            $width,
+            $height,
+            $clip,
             $format,
             $quality,
             $optimizeForSpeed,
@@ -153,6 +171,9 @@ it(
 
         expectChromiumScreenshotOptions(
             $body,
+            $width,
+            $height,
+            $clip,
             $format,
             $quality,
             $optimizeForSpeed,
@@ -172,6 +193,9 @@ it(
     [Stream::string('my.html', 'HTML content')],
     [
         Stream::string('my.html', 'HTML content'),
+        1280,
+        800,
+        true,
         'jpeg',
         100,
         true,
@@ -208,6 +232,9 @@ it(
     function (
         Stream $index,
         array $markdowns,
+        int|null $width = null,
+        int|null $height = null,
+        bool $clip = false,
         string|null $format = null,
         int|null $quality = null,
         bool $optimizeForSpeed = false,
@@ -225,6 +252,9 @@ it(
         $chromium = Gotenberg::chromium('')->screenshot();
         $chromium = hydrateChromiumScreenshotFormData(
             $chromium,
+            $width,
+            $height,
+            $clip,
             $format,
             $quality,
             $optimizeForSpeed,
@@ -255,6 +285,9 @@ it(
 
         expectChromiumScreenshotOptions(
             $body,
+            $width,
+            $height,
+            $clip,
             $format,
             $quality,
             $optimizeForSpeed,
@@ -283,6 +316,9 @@ it(
             Stream::string('my.md', 'Markdown content'),
             Stream::string('my_second.md', 'Second Markdown content'),
         ],
+        1280,
+        800,
+        true,
         'webp',
         100,
         true,
@@ -315,6 +351,9 @@ it(
  */
 function hydrateChromiumScreenshotFormData(
     ChromiumScreenshot $chromium,
+    int|null $width,
+    int|null $height,
+    bool $clip,
     string|null $format = null,
     int|null $quality = null,
     bool $optimizeForSpeed = false,
@@ -329,6 +368,18 @@ function hydrateChromiumScreenshotFormData(
     bool $skipNetworkIdleEvent = false,
     array $assets = [],
 ): ChromiumScreenshot {
+    if ($width !== null) {
+        $chromium->width($width);
+    }
+
+    if ($height !== null) {
+        $chromium->height($height);
+    }
+
+    if ($clip) {
+        $chromium->clip();
+    }
+
     if ($format === 'png') {
         $chromium->png();
     }
@@ -404,6 +455,9 @@ function hydrateChromiumScreenshotFormData(
  */
 function expectChromiumScreenshotOptions(
     string $body,
+    int|null $width,
+    int|null $height,
+    bool $clip,
     string|null $format,
     int|null $quality,
     bool $optimizeForSpeed,
@@ -418,6 +472,9 @@ function expectChromiumScreenshotOptions(
     bool $skipNetworkIdleEvent,
     array $assets,
 ): void {
+    expect($body)->unless($width === null, fn ($body) => $body->toContainFormValue('width', $width . ''));
+    expect($body)->unless($height === null, fn ($body) => $body->toContainFormValue('height', $height . ''));
+    expect($body)->unless($clip === false, fn ($body) => $body->toContainFormValue('clip', '1'));
     expect($body)->unless($format === null, fn ($body) => $body->toContainFormValue('format', $format));
     expect($body)->unless($quality === null, fn ($body) => $body->toContainFormValue('quality', $quality . ''));
     expect($body)->unless($optimizeForSpeed === false, fn ($body) => $body->toContainFormValue('optimizeForSpeed', '1'));
