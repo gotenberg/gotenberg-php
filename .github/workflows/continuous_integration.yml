@@ -47,6 +47,9 @@ jobs:
       - name: Install PHP dependencies
         run: composer install --no-interaction --no-progress
       - name: Run tests
-        run: |
-          composer tests
-          bash <(curl -s https://codecov.io/bash)
+        run: composer tests
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
