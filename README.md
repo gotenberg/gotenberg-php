@@ -576,10 +576,7 @@ use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
     ->pdf()
-    ->extraHttpHeaders([
-        'My-Header-1' => 'My value',
-        'My-Header-2' => 'My value'
-    ])
+    ->userAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)')
     ->url('https://my.url');
 ```
 
@@ -592,7 +589,10 @@ use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
     ->pdf()
-    ->userAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)')
+    ->extraHttpHeaders([
+        'My-Header-1' => 'My value',
+        'My-Header-2' => 'My value'
+    ])
     ->url('https://my.url');
 ```
 
