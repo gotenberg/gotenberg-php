@@ -74,12 +74,9 @@ class PdfEngines
      *
      * Note: the merging order is determined by the order of the arguments.
      */
-    public function merge(Stream $pdf1, Stream $pdf2, Stream ...$pdfs): RequestInterface
+    public function merge(Stream ...$pdfs): RequestInterface
     {
         $index = $this->index ?? new HrtimeIndex();
-
-        $this->formFile($index->create() . '_' . $pdf1->getFilename(), $pdf1->getStream());
-        $this->formFile($index->create() . '_' . $pdf2->getFilename(), $pdf2->getStream());
 
         foreach ($pdfs as $pdf) {
             $this->formFile($index->create() . '_' . $pdf->getFilename(), $pdf->getStream());
