@@ -19,6 +19,8 @@ it(
         string|null $nativePageRanges = null,
         bool|null $exportFormFields = null,
         bool $singlePageSheets = false,
+        bool $losslessImageCompression = false,
+        bool|null $reduceImageResolution = true,
         string|null $pdfa = null,
         bool $pdfua = false,
         array $metadata = [],
@@ -40,6 +42,14 @@ it(
 
         if ($singlePageSheets) {
             $libreOffice->singlePageSheets();
+        }
+
+        if ($losslessImageCompression) {
+            $libreOffice->losslessImageCompression();
+        }
+
+        if ($reduceImageResolution !== null) {
+            $libreOffice->reduceImageResolution($reduceImageResolution);
         }
 
         if ($pdfa !== null) {
@@ -68,6 +78,8 @@ it(
         expect($body)->unless($nativePageRanges === null, fn ($body) => $body->toContainFormValue('nativePageRanges', $nativePageRanges));
         expect($body)->unless($exportFormFields === null, fn ($body) => $body->toContainFormValue('exportFormFields', $exportFormFields === true ? '1' : '0'));
         expect($body)->unless($singlePageSheets === false, fn ($body) => $body->toContainFormValue('singlePageSheets', '1'));
+        expect($body)->unless($losslessImageCompression === false, fn ($body) => $body->toContainFormValue('losslessImageCompression', '1'));
+        expect($body)->unless($reduceImageResolution === null, fn ($body) => $body->toContainFormValue('reduceImageResolution', $reduceImageResolution === true ? '1' : '0'));
         expect($body)->unless($merge === false, fn ($body) => $body->toContainFormValue('merge', '1'));
 
         if (count($metadata) > 0) {
@@ -101,6 +113,8 @@ it(
         '1-2',
         false,
         true,
+        true,
+        false,
         'PDF/A-1a',
         true,
         [ 'Producer' => 'Gotenberg' ],
