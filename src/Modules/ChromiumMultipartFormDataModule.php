@@ -89,6 +89,16 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
+     * Overrides the default 'User-Agent' HTTP header.
+     */
+    public function userAgent(string $userAgent): self
+    {
+        $this->formValue('userAgent', $userAgent);
+
+        return $this;
+    }
+
+    /**
      * Sets extra HTTP headers that Chromium will send when loading the HTML
      * document.
      *

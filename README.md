@@ -567,9 +567,9 @@ $request = Gotenberg::chromium($apiUrl)
     ->url('https://my.url');
 ```
 
-#### Extra HTTP headers
+#### User Agent
 
-You may add HTTP headers that Chromium will send when loading the HTML document:
+You may overridethe default *User-Agent* HTTP header with:
 
 ```php
 use Gotenberg\Gotenberg;
@@ -580,6 +580,19 @@ $request = Gotenberg::chromium($apiUrl)
         'My-Header-1' => 'My value',
         'My-Header-2' => 'My value'
     ])
+    ->url('https://my.url');
+```
+
+#### Extra HTTP headers
+
+You may add HTTP headers that Chromium will send when loading the HTML document:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->pdf()
+    ->userAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)')
     ->url('https://my.url');
 ```
 
@@ -659,7 +672,7 @@ $request = Gotenberg::chromium($apiUrl)
 
 #### Screenshots
 
-You can capture full-page screenshots using the following three routes, which function similarly to their PDF equivalents:
+You can capture screenshots using the following three routes, which function similarly to their PDF equivalents:
 
 ```php
 use Gotenberg\Gotenberg;

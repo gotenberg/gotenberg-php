@@ -38,6 +38,7 @@ it(
         string|null $waitForExpression = null,
         string|null $emulatedMediaType = null,
         array $cookies = [],
+        string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         bool $failOnConsoleExceptions = false,
@@ -69,6 +70,7 @@ it(
             $waitForExpression,
             $emulatedMediaType,
             $cookies,
+            $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
@@ -106,6 +108,7 @@ it(
             $waitForExpression,
             $emulatedMediaType,
             $cookies,
+            $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
@@ -143,6 +146,7 @@ it(
             new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
             new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
         ],
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)',
         [
             'My-Http-Header' => 'HTTP Header content',
             'My-Second-Http-Header' => 'Second HTTP Header content',
@@ -189,6 +193,7 @@ it(
         string|null $waitForExpression = null,
         string|null $emulatedMediaType = null,
         array $cookies = [],
+        string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         bool $failOnConsoleExceptions = false,
@@ -220,6 +225,7 @@ it(
             $waitForExpression,
             $emulatedMediaType,
             $cookies,
+            $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
@@ -259,6 +265,7 @@ it(
             $waitForExpression,
             $emulatedMediaType,
             $cookies,
+            $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
@@ -295,6 +302,7 @@ it(
             new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
             new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
         ],
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)',
         [
             'My-Http-Header' => 'Http Header content',
             'My-Second-Http-Header' => 'Second Http Header content',
@@ -343,6 +351,7 @@ it(
         string|null $waitForExpression = null,
         string|null $emulatedMediaType = null,
         array $cookies = [],
+        string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         bool $failOnConsoleExceptions = false,
@@ -374,6 +383,7 @@ it(
             $waitForExpression,
             $emulatedMediaType,
             $cookies,
+            $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
@@ -418,6 +428,7 @@ it(
             $waitForExpression,
             $emulatedMediaType,
             $cookies,
+            $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnConsoleExceptions,
@@ -463,6 +474,7 @@ it(
             new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
             new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
         ],
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)',
         [
             'My-Http-Header' => 'Http Header content',
             'My-Second-Http-Header' => 'Second Http Header content',
@@ -507,6 +519,7 @@ function hydrateChromiumPdfFormData(
     string|null $waitForExpression = null,
     string|null $emulatedMediaType = null,
     array $cookies = [],
+    string|null $userAgent = null,
     array $extraHttpHeaders = [],
     array $failOnHttpStatusCodes = [],
     bool $failOnConsoleExceptions = false,
@@ -580,6 +593,10 @@ function hydrateChromiumPdfFormData(
         $chromium->cookies($cookies);
     }
 
+    if ($userAgent !== null) {
+        $chromium->userAgent($userAgent);
+    }
+
     if (count($extraHttpHeaders) > 0) {
         $chromium->extraHttpHeaders($extraHttpHeaders);
     }
@@ -643,6 +660,7 @@ function expectChromiumPdfOptions(
     string|null $waitForExpression,
     string|null $emulatedMediaType,
     array $cookies,
+    string|null $userAgent,
     array $extraHttpHeaders,
     array $failOnHttpStatusCodes,
     bool $failOnConsoleExceptions,
@@ -697,6 +715,8 @@ function expectChromiumPdfOptions(
 
         expect($body)->toContainFormValue('cookies', $json);
     }
+
+    expect($body)->unless($userAgent === null, fn ($body) => $body->toContainFormValue('userAgent', $userAgent));
 
     if (count($extraHttpHeaders) > 0) {
         $json = json_encode($extraHttpHeaders);
