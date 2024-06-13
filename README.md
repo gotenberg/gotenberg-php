@@ -826,6 +826,20 @@ $request = Gotenberg::libreOffice($apiUrl)
     ->convert(Stream::path('/path/to/my.xlsx'));
 ```
 
+#### Images
+
+You may tweak image conversion performance with:
+
+```php
+use Gotenberg\Gotenberg;
+use Gotenberg\Stream;
+
+$request = Gotenberg::libreOffice($apiUrl)
+    ->losslessImageCompression()
+    ->reduceImageResolution(false)
+    ->convert(Stream::path('/path/to/my.docx'));
+```
+
 #### PDF/A & PDF/UA
 
 See https://gotenberg.dev/docs/routes#pdfa-libreoffice.

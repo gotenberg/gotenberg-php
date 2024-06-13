@@ -42,7 +42,7 @@ class LibreOffice
     }
 
     /**
-     * Set the page ranges to print, e.g., "1-4"'.
+     * Sets the page ranges to print, e.g., "1-4"'.
      * Empty means all pages.
      *
      * Note: the page ranges are applied to all files independently.
@@ -55,7 +55,7 @@ class LibreOffice
     }
 
     /**
-     * Set whether to export the form fields or to use the inputted/selected
+     * Sets whether to export the form fields or to use the inputted/selected
      * content of the fields.
      */
     public function exportFormFields(bool $export = true): self
@@ -66,11 +66,31 @@ class LibreOffice
     }
 
     /**
-     * Set whether to render the entire spreadsheet as a single page.
+     * Sets whether to render the entire spreadsheet as a single page.
      */
     public function singlePageSheets(): self
     {
         $this->formValue('singlePageSheets', true);
+
+        return $this;
+    }
+
+    /**
+     * Turns on lossless compression to tweak image conversion performance.
+     */
+    public function losslessImageCompression(): self
+    {
+        $this->formValue('losslessImageCompression', true);
+
+        return $this;
+    }
+
+    /**
+     * Turns on or off image resolution reduction to tweak image conversion performance.
+     */
+    public function reduceImageResolution(bool $reduce = true): self
+    {
+        $this->formValue('reduceImageResolution', $reduce ?: '0');
 
         return $this;
     }
