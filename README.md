@@ -3,8 +3,8 @@
     <h3 align="center">Gotenberg PHP</h3>
     <p align="center">A PHP client for interacting with Gotenberg</p>
     <p align="center">
-        <a href="https://packagist.org/packages/gotenberg/gotenberg-php"><img alt="Latest Version" src="http://poser.pugx.org/gotenberg/gotenberg-php/v" /></a>
-        <a href="https://packagist.org/packages/gotenberg/gotenberg-php"><img alt="Total Downloads" src="http://poser.pugx.org/gotenberg/gotenberg-php/downloads" /></a>
+        <a href="https://packagist.org/packages/gotenberg/gotenberg-php"><img alt="Latest Version" src="https://poser.pugx.org/gotenberg/gotenberg-php/v" /></a>
+        <a href="https://packagist.org/packages/gotenberg/gotenberg-php"><img alt="Total Downloads" src="https://poser.pugx.org/gotenberg/gotenberg-php/downloads" /></a>
         <a href="https://github.com/gotenberg/gotenberg-php/actions/workflows/continuous_integration.yml"><img alt="Continuous Integration" src="https://github.com/gotenberg/gotenberg-php/actions/workflows/continuous_integration.yml/badge.svg" /></a>
         <a href="https://codecov.io/gh/gotenberg/gotenberg-php"><img alt="https://codecov.io/gh/gotenberg/gotenberg" src="https://codecov.io/gh/gotenberg/gotenberg-php/branch/main/graph/badge.svg" /></a>
     </p>
