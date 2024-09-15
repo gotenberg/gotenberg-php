@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Gotenberg\DownloadFrom;
 use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Test\DummyMultipartFormDataModule;
 
@@ -11,6 +12,10 @@ it(
         $dummy   = new DummyMultipartFormDataModule('https://my.url/');
         $request = $dummy
             ->outputFilename('my_filename')
+            ->downloadFrom([
+                new DownloadFrom('https://my.url/my_filename'),
+                new DownloadFrom('https://my.url/my_filename_2', ['X-Header' => 'value']),
+            ])
             ->webhook('https://my.webhook.url', 'https://my.webhook.error.url')
             ->webhookMethod('POST')
             ->webhookErrorMethod('PUT')
@@ -21,6 +26,9 @@ it(
             ->build();
 
         expect($request->getHeader('Gotenberg-Output-Filename'))->toMatchArray(['my_filename']);
+
+        expect(sanitize($request->getBody()->getContents()))->toContainFormValue('downloadFrom', '[{"url":"https:\/\/my.url\/my_filename"},{"url":"https:\/\/my.url\/my_filename_2","extraHttpHeaders":{"X-Header":"value"}}]');
+
         expect($request->getHeader('Gotenberg-Webhook-Url'))->toMatchArray(['https://my.webhook.url']);
         expect($request->getHeader('Gotenberg-Webhook-Error-Url'))->toMatchArray(['https://my.webhook.error.url']);
         expect($request->getHeader('Gotenberg-Webhook-Method'))->toMatchArray(['POST']);

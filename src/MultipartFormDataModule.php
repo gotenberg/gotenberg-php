@@ -32,6 +32,25 @@ trait MultipartFormDataModule
     }
 
     /**
+     * Sets the URLs to download files from.
+     *
+     * @param DownloadFrom[] $downloadFrom
+     *
+     * @throws NativeFunctionErrored
+     */
+    public function downloadFrom(array $downloadFrom): self
+    {
+        $json = json_encode($downloadFrom);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        $this->formValue('downloadFrom', $json);
+
+        return $this;
+    }
+
+    /**
      * Sets the callback and error callback that Gotenberg will use to send
      * respectively the output file and the error response.
      */
