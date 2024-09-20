@@ -32,6 +32,16 @@ class LibreOffice
     }
 
     /**
+     * Sets the password for opening the source file.
+     */
+    public function password(string $password): self
+    {
+        $this->formValue('password', $password);
+
+        return $this;
+    }
+
+    /**
      * Sets the paper orientation to landscape.
      */
     public function landscape(): self

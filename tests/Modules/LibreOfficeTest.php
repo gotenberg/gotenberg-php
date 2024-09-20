@@ -15,6 +15,7 @@ it(
      */
     function (
         array $files,
+        string|null $password = null,
         bool $landscape = false,
         string|null $nativePageRanges = null,
         bool|null $exportFormFields = null,
@@ -42,6 +43,10 @@ it(
         bool $merge = false,
     ): void {
         $libreOffice = Gotenberg::libreOffice('');
+
+        if ($password !== null) {
+            $libreOffice->password($password);
+        }
 
         if ($landscape) {
             $libreOffice->landscape();
@@ -149,6 +154,7 @@ it(
         $body    = sanitize($request->getBody()->getContents());
 
         expect($request->getUri()->getPath())->toBe('/forms/libreoffice/convert');
+        expect($body)->unless($password === null, fn ($body) => $body->toContainFormValue('password', $password));
         expect($body)->unless($landscape === false, fn ($body) => $body->toContainFormValue('landscape', '1'));
         expect($body)->unless($nativePageRanges === null, fn ($body) => $body->toContainFormValue('nativePageRanges', $nativePageRanges));
         expect($body)->unless($exportFormFields === null, fn ($body) => $body->toContainFormValue('exportFormFields', $exportFormFields === true ? '1' : '0'));
@@ -201,6 +207,7 @@ it(
             Stream::string('my.docx', 'Word content'),
             Stream::string('my_second.docx', 'Second Word content'),
         ],
+        'foo',
         true,
         '1-2',
         false,
