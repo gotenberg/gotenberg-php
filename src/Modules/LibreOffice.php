@@ -331,12 +331,9 @@ class LibreOffice
      * Note: if you requested a merge, the merging order is determined by the
      * order of the arguments.
      */
-    public function convert(Stream $file, Stream ...$files): RequestInterface
+    public function convert(Stream ...$files): RequestInterface
     {
-        $index    = $this->index ?? new HrtimeIndex();
-        $filename = $this->merge ? $index->create() . '_' . $file->getFilename() : $file->getFilename();
-        $this->formFile($filename, $file->getStream());
-
+        $index = $this->index ?? new HrtimeIndex();
         foreach ($files as $file) {
             $filename = $this->merge ? $index->create() . '_' . $file->getFilename() : $file->getFilename();
             $this->formFile($filename, $file->getStream());

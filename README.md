@@ -16,9 +16,9 @@ This package is a PHP client for [Gotenberg](https://gotenberg.dev), a developer
 tools like Chromium and LibreOffice for converting numerous document formats (HTML, Markdown, Word, Excel, etc.) into 
 PDF files, and more!
 
-| Gotenberg version | Client                                                                                            |
-|-------------------|---------------------------------------------------------------------------------------------------|
-| `8.x`               | `v2.x` **(current)**                                                                              |
+| Gotenberg version   | Client                                                                                            |
+|---------------------|---------------------------------------------------------------------------------------------------|
+| `8.x` **(current)** | `v2.x` **(current)**                                                                              |
 | `7.x`               | `v1.x`                                                                                            |
 | `6.x`               | [thecodingmachine/gotenberg-php-client](https://github.com/thecodingmachine/gotenberg-php-client) |
 
@@ -112,6 +112,7 @@ Gotenberg::chromium($apiUrl)
 If the route requires form files, use the `Stream` class to create them:
 
 ```php
+use Gotenberg\DownloadFrom;
 use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 
@@ -126,6 +127,13 @@ Gotenberg::chromium($apiUrl)
 // Or create your stream from scratch.
 Gotenberg::libreOffice($apiUrl)
     ->convert(new Stream('document.docx', $stream));
+
+// Or even tell Gotenberg to download the files for you.
+Gotenberg::libreOffice($apiUrl)
+    ->downloadFrom([
+        new DownloadFrom('https://url.to.document.docx', ['MyHeader' => 'MyValue'])
+    ])
+    ->convert();
 ```
 
 ## Send a request to the API

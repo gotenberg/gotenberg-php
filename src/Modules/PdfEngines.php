@@ -91,10 +91,9 @@ class PdfEngines
      * Converts PDF(s) to a specific PDF/A format.
      * Gotenberg will return the PDF or a ZIP archive with the PDFs.
      */
-    public function convert(string $pdfa, Stream $pdf, Stream ...$pdfs): RequestInterface
+    public function convert(string $pdfa, Stream ...$pdfs): RequestInterface
     {
         $this->pdfa($pdfa);
-        $this->formFile($pdf->getFilename(), $pdf->getStream());
 
         foreach ($pdfs as $pdf) {
             $this->formFile($pdf->getFilename(), $pdf->getStream());
@@ -109,10 +108,8 @@ class PdfEngines
      * Retrieves the metadata of specified PDFs, returning a JSON formatted
      * response with the structure filename => metadata.
      */
-    public function readMetadata(Stream $pdf, Stream ...$pdfs): RequestInterface
+    public function readMetadata(Stream ...$pdfs): RequestInterface
     {
-        $this->formFile($pdf->getFilename(), $pdf->getStream());
-
         foreach ($pdfs as $pdf) {
             $this->formFile($pdf->getFilename(), $pdf->getStream());
         }
@@ -129,10 +126,9 @@ class PdfEngines
      *
      * @throws NativeFunctionErrored
      */
-    public function writeMetadata(array $metadata, Stream $pdf, Stream ...$pdfs): RequestInterface
+    public function writeMetadata(array $metadata, Stream ...$pdfs): RequestInterface
     {
         $this->metadata($metadata);
-        $this->formFile($pdf->getFilename(), $pdf->getStream());
 
         foreach ($pdfs as $pdf) {
             $this->formFile($pdf->getFilename(), $pdf->getStream());

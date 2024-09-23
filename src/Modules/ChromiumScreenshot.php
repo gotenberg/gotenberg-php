@@ -113,9 +113,12 @@ class ChromiumScreenshot
      * Note: it automatically sets the index filename to "index.html", as
      * required by Gotenberg.
      */
-    public function html(Stream $index): RequestInterface
+    public function html(Stream|null $index): RequestInterface
     {
-        $this->formFile('index.html', $index->getStream());
+        if ($index !== null) {
+            $this->formFile('index.html', $index->getStream());
+        }
+
         $this->endpoint = '/forms/chromium/screenshot/html';
 
         return $this->request();
@@ -127,10 +130,11 @@ class ChromiumScreenshot
      * Note: it automatically sets the index filename to "index.html", as
      * required by Gotenberg.
      */
-    public function markdown(Stream $index, Stream $markdown, Stream ...$markdowns): RequestInterface
+    public function markdown(Stream|null $index, Stream ...$markdowns): RequestInterface
     {
-        $this->formFile('index.html', $index->getStream());
-        $this->formFile($markdown->getFilename(), $markdown->getStream());
+        if ($index !== null) {
+            $this->formFile('index.html', $index->getStream());
+        }
 
         foreach ($markdowns as $markdown) {
             $this->formFile($markdown->getFilename(), $markdown->getStream());
