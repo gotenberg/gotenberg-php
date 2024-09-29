@@ -33,7 +33,7 @@ it(
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         bool $failOnConsoleExceptions = false,
-        bool $skipNetworkIdleEvent = false,
+        bool|null $skipNetworkIdleEvent = null,
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->screenshot();
@@ -142,7 +142,7 @@ it(
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         bool $failOnConsoleExceptions = false,
-        bool $skipNetworkIdleEvent = false,
+        bool|null $skipNetworkIdleEvent = null,
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->screenshot();
@@ -255,7 +255,7 @@ it(
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         bool $failOnConsoleExceptions = false,
-        bool $skipNetworkIdleEvent = false,
+        bool|null $skipNetworkIdleEvent = null,
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->screenshot();
@@ -378,7 +378,7 @@ function hydrateChromiumScreenshotFormData(
     array $extraHttpHeaders = [],
     array $failOnHttpStatusCodes = [],
     bool $failOnConsoleExceptions = false,
-    bool $skipNetworkIdleEvent = false,
+    bool|null $skipNetworkIdleEvent = null,
     array $assets = [],
 ): ChromiumScreenshot {
     if ($width !== null) {
@@ -453,8 +453,8 @@ function hydrateChromiumScreenshotFormData(
         $chromium->failOnConsoleExceptions();
     }
 
-    if ($skipNetworkIdleEvent) {
-        $chromium->skipNetworkIdleEvent();
+    if ($skipNetworkIdleEvent !== null) {
+        $chromium->skipNetworkIdleEvent($skipNetworkIdleEvent);
     }
 
     if (count($assets) > 0) {
@@ -487,7 +487,7 @@ function expectChromiumScreenshotOptions(
     array $extraHttpHeaders,
     array $failOnHttpStatusCodes,
     bool $failOnConsoleExceptions,
-    bool $skipNetworkIdleEvent,
+    bool|null $skipNetworkIdleEvent,
     array $assets,
 ): void {
     expect($body)->unless($width === null, fn ($body) => $body->toContainFormValue('width', $width . ''));
@@ -531,7 +531,7 @@ function expectChromiumScreenshotOptions(
     }
 
     expect($body)->unless($failOnConsoleExceptions === false, fn ($body) => $body->toContainFormValue('failOnConsoleExceptions', '1'));
-    expect($body)->unless($skipNetworkIdleEvent === false, fn ($body) => $body->toContainFormValue('skipNetworkIdleEvent', '1'));
+    expect($body)->unless($skipNetworkIdleEvent === null, fn ($body) => $body->toContainFormValue('skipNetworkIdleEvent', $skipNetworkIdleEvent === true ? '1' : '0'));
 
     if (count($assets) <= 0) {
         return;
