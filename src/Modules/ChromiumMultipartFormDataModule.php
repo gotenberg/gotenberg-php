@@ -150,11 +150,12 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
-     * Tells Chromium to not wait for its network to be idle.
+     * Specifies whether Chromium have to wait or not for its network to be
+     * idle.
      */
-    public function skipNetworkIdleEvent(): self
+    public function skipNetworkIdleEvent(bool $skip = true): self
     {
-        $this->formValue('skipNetworkIdleEvent', true);
+        $this->formValue('skipNetworkIdleEvent', $skip);
 
         return $this;
     }
