@@ -29,6 +29,8 @@ it(
         string|null $waitForExpression = null,
         string|null $emulatedMediaType = null,
         array $cookies = [],
+        string|null $basicAuthenticationUsername = null,
+        string|null $basicAuthenticationPassword = null,
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
@@ -50,6 +52,8 @@ it(
             $waitForExpression,
             $emulatedMediaType,
             $cookies,
+            $basicAuthenticationUsername,
+            $basicAuthenticationPassword,
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
@@ -77,6 +81,8 @@ it(
             $waitForExpression,
             $emulatedMediaType,
             $cookies,
+            $basicAuthenticationUsername,
+            $basicAuthenticationPassword,
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
@@ -103,6 +109,8 @@ it(
             new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
             new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
         ],
+        'username',
+        'password',
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)',
         [
             'My-Http-Header' => 'HTTP Header content',
@@ -138,6 +146,8 @@ it(
         string|null $waitForExpression = null,
         string|null $emulatedMediaType = null,
         array $cookies = [],
+        string|null $basicAuthenticationUsername = null,
+        string|null $basicAuthenticationPassword = null,
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
@@ -159,6 +169,8 @@ it(
             $waitForExpression,
             $emulatedMediaType,
             $cookies,
+            $basicAuthenticationUsername,
+            $basicAuthenticationPassword,
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
@@ -188,6 +200,8 @@ it(
             $waitForExpression,
             $emulatedMediaType,
             $cookies,
+            $basicAuthenticationUsername,
+            $basicAuthenticationPassword,
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
@@ -214,6 +228,8 @@ it(
             new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
             new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
         ],
+        'username',
+        'password',
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)',
         [
             'My-Http-Header' => 'Http Header content',
@@ -251,6 +267,8 @@ it(
         string|null $waitForExpression = null,
         string|null $emulatedMediaType = null,
         array $cookies = [],
+        string|null $basicAuthenticationUsername = null,
+        string|null $basicAuthenticationPassword = null,
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
@@ -272,6 +290,8 @@ it(
             $waitForExpression,
             $emulatedMediaType,
             $cookies,
+            $basicAuthenticationUsername,
+            $basicAuthenticationPassword,
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
@@ -306,6 +326,8 @@ it(
             $waitForExpression,
             $emulatedMediaType,
             $cookies,
+            $basicAuthenticationUsername,
+            $basicAuthenticationPassword,
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
@@ -341,6 +363,8 @@ it(
             new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
             new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
         ],
+        'username',
+        'password',
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)',
         [
             'My-Http-Header' => 'Http Header content',
@@ -374,6 +398,8 @@ function hydrateChromiumScreenshotFormData(
     string|null $waitForExpression = null,
     string|null $emulatedMediaType = null,
     array $cookies = [],
+    string|null $basicAuthenticationUsername = null,
+    string|null $basicAuthenticationPassword = null,
     string|null $userAgent = null,
     array $extraHttpHeaders = [],
     array $failOnHttpStatusCodes = [],
@@ -437,6 +463,10 @@ function hydrateChromiumScreenshotFormData(
         $chromium->cookies($cookies);
     }
 
+    if ($basicAuthenticationUsername !== null && $basicAuthenticationPassword !== null) {
+        $chromium->basicAuthentication($basicAuthenticationUsername, $basicAuthenticationPassword);
+    }
+
     if ($userAgent !== null) {
         $chromium->userAgent($userAgent);
     }
@@ -483,6 +513,8 @@ function expectChromiumScreenshotOptions(
     string|null $waitForExpression,
     string|null $emulatedMediaType,
     array $cookies,
+    string|null $basicAuthenticationUsername,
+    string|null $basicAuthenticationPassword,
     string|null $userAgent,
     array $extraHttpHeaders,
     array $failOnHttpStatusCodes,
@@ -510,6 +542,10 @@ function expectChromiumScreenshotOptions(
         expect($body)->toContainFormValue('cookies', $json);
     }
 
+    expect($body)->unless($basicAuthenticationUsername === null && $basicAuthenticationPassword === null, fn ($body) => [
+        $body->toContainFormValue('basicAuthenticationUsername', $basicAuthenticationUsername),
+        $body->toContainFormValue('basicAuthenticationPassword', $basicAuthenticationPassword),
+    ]);
     expect($body)->unless($userAgent === null, fn ($body) => $body->toContainFormValue('userAgent', $userAgent));
 
     if (count($extraHttpHeaders) > 0) {

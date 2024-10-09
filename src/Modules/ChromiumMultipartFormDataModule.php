@@ -89,6 +89,17 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
+     * Specify the username and password used for Basic HTTP Authentication.
+     */
+    public function basicAuthentication(string $username, string $password): self
+    {
+        $this->formValue('basicAuthenticationUsername', $username);
+        $this->formValue('basicAuthenticationPassword', $password);
+
+        return $this;
+    }
+
+    /**
      * Overrides the default 'User-Agent' HTTP header.
      */
     public function userAgent(string $userAgent): self
@@ -99,8 +110,8 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
-     * Sets extra HTTP headers that Chromium will send when loading the HTML
-     * document.
+     * Sets extra HTTP headers that Chromium will send for all frontend
+     * requests.
      *
      * @param array<string,string> $headers
      *
