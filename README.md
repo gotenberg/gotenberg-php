@@ -122,7 +122,7 @@ Gotenberg::libreOffice($apiUrl)
 // Alternatively, you may also set the content directly.
 Gotenberg::chromium($apiUrl)
     ->pdf()
-    ->html(Stream::string('<html><body><p>Hello, world!</p></body></html>'));
+    ->html(Stream::string('index.html', '<html><body><p>Hello, world!</p></body></html>'));
 
 // Or create your stream from scratch.
 Gotenberg::libreOffice($apiUrl)
