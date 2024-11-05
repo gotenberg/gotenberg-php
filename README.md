@@ -102,7 +102,6 @@ use Gotenberg\Gotenberg;
 Gotenberg::chromium($apiUrl)
     ->pdf()                  // Or screenshot().
     ->singlePage()           // Optional.
-    ->skipNetworkIdleEvent() // Optional.
     ->url('https://my.url'));
 ```
 
@@ -122,7 +121,8 @@ Gotenberg::libreOffice($apiUrl)
 // Alternatively, you may also set the content directly.
 Gotenberg::chromium($apiUrl)
     ->pdf()
-    ->html(Stream::string('index.html', '<html><body><p>Hello, world!</p></body></html>'));
+    ->assets(Stream::string('style.css', 'body{font-family: Arial, Helvetica, sans-serif;}'))
+    ->html(Stream::string('index.html', '<html><head><link rel="stylesheet" type="text/css" href="style.css"></head><body><p>Hello, world!</p></body></html>'));
 
 // Or create your stream from scratch.
 Gotenberg::libreOffice($apiUrl)
