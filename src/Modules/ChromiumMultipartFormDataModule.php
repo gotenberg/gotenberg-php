@@ -140,7 +140,7 @@ trait ChromiumMultipartFormDataModule
 
     /**
      * Forces Gotenberg to return a 409 Conflict response if the HTTP status
-     * code at least one resource is not acceptable.
+     * code from at least one resource is not acceptable.
      *
      * @param int[] $statusCodes
      *
