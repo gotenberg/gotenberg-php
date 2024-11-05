@@ -139,6 +139,37 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
+     * Forces Gotenberg to return a 409 Conflict response if the HTTP status
+     * code at least one resource is not acceptable.
+     *
+     * @param int[] $statusCodes
+     *
+     * @throws NativeFunctionErrored
+     */
+    public function failOnResourceHttpStatusCodes(array $statusCodes): self
+    {
+        $json = json_encode($statusCodes);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        $this->formValue('failOnResourceHttpStatusCodes', $json);
+
+        return $this;
+    }
+
+    /**
+     * Forces Gotenberg to return a 409 Conflict if Chromium fails to load at
+     * least one resource.
+     */
+    public function failOnResourceLoadingFailed(): self
+    {
+        $this->formValue('failOnResourceLoadingFailed', true);
+
+        return $this;
+    }
+
+    /**
      * Forces Gotenberg to return a 409 Conflict response if there are
      * exceptions in the Chromium console.
      */

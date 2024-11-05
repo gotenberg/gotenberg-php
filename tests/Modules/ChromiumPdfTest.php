@@ -14,6 +14,7 @@ it(
      * @param ChromiumCookie[] $cookies
      * @param array<string,string> $extraHttpHeaders
      * @param int[] $failOnHttpStatusCodes
+     * @param int[] $failOnResourceHttpStatusCodes
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[] $assets
      */
@@ -41,6 +42,8 @@ it(
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
+        array $failOnResourceHttpStatusCodes = [],
+        bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
         string|null $pdfa = null,
@@ -73,6 +76,8 @@ it(
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
+            $failOnResourceHttpStatusCodes,
+            $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
             $pdfa,
@@ -111,6 +116,8 @@ it(
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
+            $failOnResourceHttpStatusCodes,
+            $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
             $pdfa,
@@ -152,6 +159,8 @@ it(
             'My-Second-Http-Header' => 'Second HTTP Header content',
         ],
         [ 499, 599 ],
+        [ 499, 599 ],
+        true,
         true,
         true,
         'PDF/A-1a',
@@ -169,6 +178,7 @@ it(
      * @param ChromiumCookie[] $cookies
      * @param array<string,string> $extraHttpHeaders
      * @param int[] $failOnHttpStatusCodes
+     * @param int[] $failOnResourceHttpStatusCodes
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[] $assets
      */
@@ -196,6 +206,8 @@ it(
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
+        array $failOnResourceHttpStatusCodes = [],
+        bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
         string|null $pdfa = null,
@@ -228,6 +240,8 @@ it(
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
+            $failOnResourceHttpStatusCodes,
+            $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
             $pdfa,
@@ -268,6 +282,8 @@ it(
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
+            $failOnResourceHttpStatusCodes,
+            $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
             $pdfa,
@@ -308,6 +324,8 @@ it(
             'My-Second-Http-Header' => 'Second Http Header content',
         ],
         [ 499, 599 ],
+        [ 499, 599 ],
+        true,
         true,
         true,
         'PDF/A-1a',
@@ -325,6 +343,7 @@ it(
      * @param ChromiumCookie[] $cookies
      * @param array<string,string> $extraHttpHeaders
      * @param int[] $failOnHttpStatusCodes
+     * @param int[] $failOnResourceHttpStatusCodes
      * @param Stream[] $markdowns
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[] $assets
@@ -354,6 +373,8 @@ it(
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
+        array $failOnResourceHttpStatusCodes = [],
+        bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
         string|null $pdfa = null,
@@ -386,6 +407,8 @@ it(
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
+            $failOnResourceHttpStatusCodes,
+            $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
             $pdfa,
@@ -431,6 +454,8 @@ it(
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
+            $failOnResourceHttpStatusCodes,
+            $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
             $pdfa,
@@ -480,6 +505,8 @@ it(
             'My-Second-Http-Header' => 'Second Http Header content',
         ],
         [ 499, 599 ],
+        [ 499, 599 ],
+        true,
         true,
         true,
         'PDF/A-1a',
@@ -495,6 +522,7 @@ it(
  * @param ChromiumCookie[]                                  $cookies
  * @param array<string,string>                              $extraHttpHeaders
  * @param int[]                                             $failOnHttpStatusCodes
+ * @param int[]                                             $failOnResourceHttpStatusCodes
  * @param array<string,string|bool|float|int|array<string>> $metadata
  * @param Stream[]                                          $assets
  */
@@ -522,6 +550,8 @@ function hydrateChromiumPdfFormData(
     string|null $userAgent = null,
     array $extraHttpHeaders = [],
     array $failOnHttpStatusCodes = [],
+    array $failOnResourceHttpStatusCodes = [],
+    bool $failOnResourceLoadingFailed = false,
     bool $failOnConsoleExceptions = false,
     bool|null $skipNetworkIdleEvent = null,
     string|null $pdfa = null,
@@ -605,6 +635,14 @@ function hydrateChromiumPdfFormData(
         $chromium->failOnHttpStatusCodes($failOnHttpStatusCodes);
     }
 
+    if (count($failOnResourceHttpStatusCodes) > 0) {
+        $chromium->failOnResourceHttpStatusCodes($failOnResourceHttpStatusCodes);
+    }
+
+    if ($failOnResourceLoadingFailed) {
+        $chromium->failOnResourceLoadingFailed();
+    }
+
     if ($failOnConsoleExceptions) {
         $chromium->failOnConsoleExceptions();
     }
@@ -636,6 +674,7 @@ function hydrateChromiumPdfFormData(
  * @param ChromiumCookie[]                                  $cookies
  * @param array<string,string>                              $extraHttpHeaders
  * @param int[]                                             $failOnHttpStatusCodes
+ * @param int[]                                             $failOnResourceHttpStatusCodes
  * @param array<string,string|bool|float|int|array<string>> $metadata
  * @param Stream[]                                          $assets
  */
@@ -663,6 +702,8 @@ function expectChromiumPdfOptions(
     string|null $userAgent,
     array $extraHttpHeaders,
     array $failOnHttpStatusCodes,
+    array $failOnResourceHttpStatusCodes,
+    bool $failOnResourceLoadingFailed,
     bool $failOnConsoleExceptions,
     bool|null $skipNetworkIdleEvent,
     string|null $pdfa,
@@ -736,6 +777,16 @@ function expectChromiumPdfOptions(
         expect($body)->toContainFormValue('failOnHttpStatusCodes', $json);
     }
 
+    if (count($failOnResourceHttpStatusCodes) > 0) {
+        $json = json_encode($failOnResourceHttpStatusCodes);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        expect($body)->toContainFormValue('failOnResourceHttpStatusCodes', $json);
+    }
+
+    expect($body)->unless($failOnResourceLoadingFailed === false, fn ($body) => $body->toContainFormValue('failOnResourceLoadingFailed', '1'));
     expect($body)->unless($failOnConsoleExceptions === false, fn ($body) => $body->toContainFormValue('failOnConsoleExceptions', '1'));
     expect($body)->unless($skipNetworkIdleEvent === null, fn ($body) => $body->toContainFormValue('skipNetworkIdleEvent', $skipNetworkIdleEvent === true ? '1' : '0'));
     expect($body)->unless($pdfa === null, fn ($body) => $body->toContainFormValue('pdfa', $pdfa));
