@@ -28,6 +28,7 @@ it(
         float|string $marginLeft = 0,
         float|string $marginRight = 0,
         bool $preferCssPageSize = false,
+        bool $generateDocumentOutline = false,
         bool $printBackground = false,
         bool $omitBackground = false,
         bool $landscape = false,
@@ -62,6 +63,7 @@ it(
             $marginLeft,
             $marginRight,
             $preferCssPageSize,
+            $generateDocumentOutline,
             $printBackground,
             $omitBackground,
             $landscape,
@@ -102,6 +104,7 @@ it(
             $marginLeft,
             $marginRight,
             $preferCssPageSize,
+            $generateDocumentOutline,
             $printBackground,
             $omitBackground,
             $landscape,
@@ -138,6 +141,7 @@ it(
         2,
         2,
         2,
+        true,
         true,
         true,
         true,
@@ -192,6 +196,7 @@ it(
         float|string $marginLeft = 0,
         float|string $marginRight = 0,
         bool $preferCssPageSize = false,
+        bool $generateDocumentOutline = false,
         bool $printBackground = false,
         bool $omitBackground = false,
         bool $landscape = false,
@@ -226,6 +231,7 @@ it(
             $marginLeft,
             $marginRight,
             $preferCssPageSize,
+            $generateDocumentOutline,
             $printBackground,
             $omitBackground,
             $landscape,
@@ -268,6 +274,7 @@ it(
             $marginLeft,
             $marginRight,
             $preferCssPageSize,
+            $generateDocumentOutline,
             $printBackground,
             $omitBackground,
             $landscape,
@@ -303,6 +310,7 @@ it(
         2,
         2,
         2,
+        true,
         true,
         true,
         true,
@@ -359,6 +367,7 @@ it(
         float|string $marginLeft = 0,
         float|string $marginRight = 0,
         bool $preferCssPageSize = false,
+        bool $generateDocumentOutline = false,
         bool $printBackground = false,
         bool $omitBackground = false,
         bool $landscape = false,
@@ -393,6 +402,7 @@ it(
             $marginLeft,
             $marginRight,
             $preferCssPageSize,
+            $generateDocumentOutline,
             $printBackground,
             $omitBackground,
             $landscape,
@@ -440,6 +450,7 @@ it(
             $marginLeft,
             $marginRight,
             $preferCssPageSize,
+            $generateDocumentOutline,
             $printBackground,
             $omitBackground,
             $landscape,
@@ -484,6 +495,7 @@ it(
         2,
         2,
         2,
+        true,
         true,
         true,
         true,
@@ -536,6 +548,7 @@ function hydrateChromiumPdfFormData(
     float|string $marginLeft = 0,
     float|string $marginRight = 0,
     bool $preferCssPageSize = false,
+    bool $generateDocumentOutline = false,
     bool $printBackground = false,
     bool $omitBackground = false,
     bool $landscape = false,
@@ -573,6 +586,10 @@ function hydrateChromiumPdfFormData(
 
     if ($preferCssPageSize) {
         $chromium->preferCssPageSize();
+    }
+
+    if ($generateDocumentOutline) {
+        $chromium->generateDocumentOutline();
     }
 
     if ($printBackground) {
@@ -688,6 +705,7 @@ function expectChromiumPdfOptions(
     float|string $marginLeft,
     float|string $marginRight,
     bool $preferCssPageSize,
+    bool $generateDocumentOutline,
     bool $printBackground,
     bool $omitBackground,
     bool $landscape,
@@ -728,6 +746,7 @@ function expectChromiumPdfOptions(
     }
 
     expect($body)->unless($preferCssPageSize === false, fn ($body) => $body->toContainFormValue('preferCssPageSize', '1'));
+    expect($body)->unless($generateDocumentOutline === false, fn ($body) => $body->toContainFormValue('generateDocumentOutline', '1'));
     expect($body)->unless($printBackground === false, fn ($body) => $body->toContainFormValue('printBackground', '1'));
     expect($body)->unless($omitBackground === false, fn ($body) => $body->toContainFormValue('omitBackground', '1'));
     expect($body)->unless($landscape === false, fn ($body) => $body->toContainFormValue('landscape', '1'));

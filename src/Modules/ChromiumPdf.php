@@ -77,6 +77,16 @@ class ChromiumPdf
     }
 
     /**
+     * Embeds the document outline into the PDF.
+     */
+    public function generateDocumentOutline(): self
+    {
+        $this->formValue('generateDocumentOutline', true);
+
+        return $this;
+    }
+
+    /**
      * Prints the background graphics.
      */
     public function printBackground(): self
