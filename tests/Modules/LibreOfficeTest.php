@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
+use Gotenberg\SplitMode;
 use Gotenberg\Stream;
 use Gotenberg\Test\DummyIndex;
 
@@ -37,6 +38,7 @@ it(
         int|null $quality = null,
         bool $reduceImageResolution = false,
         int|null $maxImageResolution = null,
+        SplitMode|null $splitMode = null,
         string|null $pdfa = null,
         bool $pdfua = false,
         array $metadata = [],
@@ -136,6 +138,10 @@ it(
             $libreOffice->pdfa($pdfa);
         }
 
+        if ($splitMode !== null) {
+            $libreOffice->split($splitMode);
+        }
+
         if ($pdfua) {
             $libreOffice->pdfua();
         }
@@ -176,6 +182,13 @@ it(
         expect($body)->unless($quality === null, fn ($body) => $body->toContainFormValue('quality', $quality));
         expect($body)->unless($reduceImageResolution === false, fn ($body) => $body->toContainFormValue('reduceImageResolution', '1'));
         expect($body)->unless($maxImageResolution === null, fn ($body) => $body->toContainFormValue('maxImageResolution', $maxImageResolution));
+
+        if ($splitMode !== null) {
+            expect($body)->toContainFormValue('splitMode', $splitMode->mode);
+            expect($body)->toContainFormValue('splitSpan', $splitMode->span);
+            expect($body)->toContainFormValue('splitUnify', $splitMode->unify ? '1' : '0');
+        }
+
         expect($body)->unless($pdfa === null, fn ($body) => $body->toContainFormValue('pdfa', $pdfa));
         expect($body)->unless($pdfua === false, fn ($body) => $body->toContainFormValue('pdfua', '1'));
         expect($body)->unless($merge === false, fn ($body) => $body->toContainFormValue('merge', '1'));
@@ -229,6 +242,7 @@ it(
         100,
         true,
         150,
+        SplitMode::intervals(1),
         'PDF/A-1a',
         true,
         [ 'Producer' => 'Gotenberg' ],

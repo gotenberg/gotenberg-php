@@ -6,6 +6,7 @@ use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
 use Gotenberg\Modules\ChromiumCookie;
 use Gotenberg\Modules\ChromiumPdf;
+use Gotenberg\SplitMode;
 use Gotenberg\Stream;
 
 it(
@@ -47,6 +48,7 @@ it(
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
+        SplitMode|null $splitMode = null,
         string|null $pdfa = null,
         bool $pdfua = false,
         array $metadata = [],
@@ -82,6 +84,7 @@ it(
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $splitMode,
             $pdfa,
             $pdfua,
             $metadata,
@@ -123,6 +126,7 @@ it(
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $splitMode,
             $pdfa,
             $pdfua,
             $metadata,
@@ -167,6 +171,7 @@ it(
         true,
         true,
         true,
+        SplitMode::intervals(1),
         'PDF/A-1a',
         true,
         [ 'Producer' => 'Gotenberg' ],
@@ -215,6 +220,7 @@ it(
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
+        SplitMode|null $splitMode = null,
         string|null $pdfa = null,
         bool $pdfua = false,
         array $metadata = [],
@@ -250,6 +256,7 @@ it(
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $splitMode,
             $pdfa,
             $pdfua,
             $metadata,
@@ -293,6 +300,7 @@ it(
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $splitMode,
             $pdfa,
             $pdfua,
             $metadata,
@@ -336,6 +344,7 @@ it(
         true,
         true,
         true,
+        SplitMode::intervals(1),
         'PDF/A-1a',
         true,
         [ 'Producer' => 'Gotenberg' ],
@@ -386,6 +395,7 @@ it(
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
+        SplitMode|null $splitMode = null,
         string|null $pdfa = null,
         bool $pdfua = false,
         array $metadata = [],
@@ -421,6 +431,7 @@ it(
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $splitMode,
             $pdfa,
             $pdfua,
             $metadata,
@@ -469,6 +480,7 @@ it(
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $splitMode,
             $pdfa,
             $pdfua,
             $metadata,
@@ -521,6 +533,7 @@ it(
         true,
         true,
         true,
+        SplitMode::intervals(1),
         'PDF/A-1a',
         true,
         [ 'Producer' => 'Gotenberg' ],
@@ -567,6 +580,7 @@ function hydrateChromiumPdfFormData(
     bool $failOnResourceLoadingFailed = false,
     bool $failOnConsoleExceptions = false,
     bool|null $skipNetworkIdleEvent = null,
+    SplitMode|null $splitMode = null,
     string|null $pdfa = null,
     bool $pdfua = false,
     array $metadata = [],
@@ -668,6 +682,10 @@ function hydrateChromiumPdfFormData(
         $chromium->skipNetworkIdleEvent($skipNetworkIdleEvent);
     }
 
+    if ($splitMode !== null) {
+        $chromium->split($splitMode);
+    }
+
     if ($pdfa !== null) {
         $chromium->pdfa($pdfa);
     }
@@ -724,6 +742,7 @@ function expectChromiumPdfOptions(
     bool $failOnResourceLoadingFailed,
     bool $failOnConsoleExceptions,
     bool|null $skipNetworkIdleEvent,
+    SplitMode|null $splitMode,
     string|null $pdfa,
     bool $pdfua,
     array $metadata,
@@ -808,6 +827,13 @@ function expectChromiumPdfOptions(
     expect($body)->unless($failOnResourceLoadingFailed === false, fn ($body) => $body->toContainFormValue('failOnResourceLoadingFailed', '1'));
     expect($body)->unless($failOnConsoleExceptions === false, fn ($body) => $body->toContainFormValue('failOnConsoleExceptions', '1'));
     expect($body)->unless($skipNetworkIdleEvent === null, fn ($body) => $body->toContainFormValue('skipNetworkIdleEvent', $skipNetworkIdleEvent === true ? '1' : '0'));
+
+    if ($splitMode !== null) {
+        expect($body)->toContainFormValue('splitMode', $splitMode->mode);
+        expect($body)->toContainFormValue('splitSpan', $splitMode->span);
+        expect($body)->toContainFormValue('splitUnify', $splitMode->unify ? '1' : '0');
+    }
+
     expect($body)->unless($pdfa === null, fn ($body) => $body->toContainFormValue('pdfa', $pdfa));
     expect($body)->unless($pdfua === false, fn ($body) => $body->toContainFormValue('pdfua', '1'));
 

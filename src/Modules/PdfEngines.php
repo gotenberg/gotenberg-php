@@ -8,6 +8,7 @@ use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\HrtimeIndex;
 use Gotenberg\Index;
 use Gotenberg\MultipartFormDataModule;
+use Gotenberg\SplitMode;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
 
@@ -83,6 +84,26 @@ class PdfEngines
         }
 
         $this->endpoint = '/forms/pdfengines/merge';
+
+        return $this->request();
+    }
+
+    /**
+     * Splits PDFs.
+     */
+    public function split(SplitMode $mode, Stream ...$pdfs): RequestInterface
+    {
+        $this->formValue('splitMode', $mode->mode);
+        $this->formValue('splitSpan', $mode->span);
+        $this->formValue('splitUnify', $mode->unify ?: '0');
+
+        $index = $this->index ?? new HrtimeIndex();
+
+        foreach ($pdfs as $pdf) {
+            $this->formFile($index->create() . '_' . $pdf->getFilename(), $pdf->getStream());
+        }
+
+        $this->endpoint = '/forms/pdfengines/split';
 
         return $this->request();
     }

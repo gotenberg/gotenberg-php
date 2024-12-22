@@ -8,6 +8,7 @@ use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\HrtimeIndex;
 use Gotenberg\Index;
 use Gotenberg\MultipartFormDataModule;
+use Gotenberg\SplitMode;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
 
@@ -320,6 +321,18 @@ class LibreOffice
     {
         $this->merge = true;
         $this->formValue('merge', true);
+
+        return $this;
+    }
+
+    /**
+     * Splits the resulting PDFs.
+     */
+    public function split(SplitMode $mode): self
+    {
+        $this->formValue('splitMode', $mode->mode);
+        $this->formValue('splitSpan', $mode->span);
+        $this->formValue('splitUnify', $mode->unify ?: '0');
 
         return $this;
     }

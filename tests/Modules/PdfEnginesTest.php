@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
+use Gotenberg\SplitMode;
 use Gotenberg\Stream;
 use Gotenberg\Test\DummyIndex;
 
@@ -65,6 +66,42 @@ it(
         'PDF/A-1a',
         true,
         [ 'Producer' => 'Gotenberg' ],
+    ],
+]);
+
+it(
+    'creates a valid request for the "/forms/pdfengines/split" endpoint',
+    /** @param Stream[] $pdfs */
+    function (array $pdfs, SplitMode $mode): void {
+        $pdfEngines = Gotenberg::pdfEngines('')->index(new DummyIndex());
+
+        $request = $pdfEngines->split($mode, ...$pdfs);
+        $body    = sanitize($request->getBody()->getContents());
+
+        expect($request->getUri()->getPath())->toBe('/forms/pdfengines/split');
+        expect($body)->toContainFormValue('splitMode', $mode->mode);
+        expect($body)->toContainFormValue('splitSpan', $mode->span);
+        expect($body)->toContainFormValue('splitUnify', $mode->unify ? '1' : '0');
+
+        foreach ($pdfs as $pdf) {
+            $pdf->getStream()->rewind();
+            expect($body)->toContainFormFile('foo_' . $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
+        }
+    },
+)->with([
+    [
+        [
+            Stream::string('my.pdf', 'PDF content'),
+        ],
+        SplitMode::intervals(1),
+    ],
+    [
+        [
+            Stream::string('my.pdf', 'PDF content'),
+            Stream::string('my_second.pdf', 'Second PDF content'),
+            Stream::string('my_third.pdf', 'Third PDF content'),
+        ],
+        SplitMode::pages('1-2', true),
     ],
 ]);
 
