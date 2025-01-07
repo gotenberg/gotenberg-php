@@ -22,6 +22,9 @@ PDF files, and more!
 | `7.x`               | `v1.x`                                                                                            |
 | `6.x`               | [thecodingmachine/gotenberg-php-client](https://github.com/thecodingmachine/gotenberg-php-client) |
 
+> [!TIP]
+> An experimental [Symfony Bundle](https://github.com/sensiolabs/GotenbergBundle) is also available!
+
 ## Quick Examples
 
 You may convert a target URL to PDF and save it to a given directory:
