@@ -255,7 +255,7 @@ $request = Gotenberg::chromium($apiUrl)
 Please note that it should be the same value as defined by the `--api-trace-header` Gotenberg's property.
 
 The response from Gotenberg will also contain the trace header. In case of error, both the `Gotenberg::send` and 
-`Gotenberg::save` methods throw a `GotenbergApiErroed` exception that provides the following method for retrieving the 
+`Gotenberg::save` methods throw a `GotenbergApiErrored` exception that provides the following method for retrieving the 
 trace:
 
 ```php
