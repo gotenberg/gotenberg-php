@@ -63,7 +63,12 @@
       "phpstan analyse -l max src tests"
     ],
     "lint:fix": "phpcbf",
-    "tests": "XDEBUG_MODE=coverage pest --coverage --coverage-html coverage_html --coverage-clover coverage.xml"
+    "tests": "XDEBUG_MODE=coverage pest --coverage --coverage-html coverage_html --coverage-clover coverage.xml",
+    "all": [
+      "@composer run lint:fix",
+      "@composer run lint",
+      "@composer run tests"
+    ]
   },
   "config": {
     "sort-packages": true,

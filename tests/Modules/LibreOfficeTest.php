@@ -43,6 +43,7 @@ it(
         bool $pdfua = false,
         array $metadata = [],
         bool $merge = false,
+        bool $flatten = false,
     ): void {
         $libreOffice = Gotenberg::libreOffice('');
 
@@ -156,6 +157,10 @@ it(
                 ->merge();
         }
 
+        if ($flatten) {
+            $libreOffice->flatten();
+        }
+
         $request = $libreOffice->convert(...$files);
         $body    = sanitize($request->getBody()->getContents());
 
@@ -192,6 +197,7 @@ it(
         expect($body)->unless($pdfa === null, fn ($body) => $body->toContainFormValue('pdfa', $pdfa));
         expect($body)->unless($pdfua === false, fn ($body) => $body->toContainFormValue('pdfua', '1'));
         expect($body)->unless($merge === false, fn ($body) => $body->toContainFormValue('merge', '1'));
+        expect($body)->unless($flatten === false, fn ($body) => $body->toContainFormValue('flatten', '1'));
 
         if (count($metadata) > 0) {
             $json = json_encode($metadata);
@@ -246,6 +252,7 @@ it(
         'PDF/A-1a',
         true,
         [ 'Producer' => 'Gotenberg' ],
+        true,
         true,
     ],
 ]);

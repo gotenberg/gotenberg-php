@@ -71,6 +71,17 @@ class PdfEngines
     }
 
     /**
+     * Defines whether the resulting PDF should be flattened.
+     * Prefer the flatten method if you only want to flatten one or more PDFs.
+     */
+    public function flattening(): self
+    {
+        $this->formValue('flatten', true);
+
+        return $this;
+    }
+
+    /**
      * Merges PDFs into a unique PDF.
      *
      * Note: the merging order is determined by the order of the arguments.
@@ -89,7 +100,8 @@ class PdfEngines
     }
 
     /**
-     * Splits PDFs.
+     * Splits PDF(s).
+     * Gotenberg will return the PDF or a ZIP archive with the PDFs.
      */
     public function split(SplitMode $mode, Stream ...$pdfs): RequestInterface
     {
@@ -97,13 +109,28 @@ class PdfEngines
         $this->formValue('splitSpan', $mode->span);
         $this->formValue('splitUnify', $mode->unify ?: '0');
 
-        $index = $this->index ?? new HrtimeIndex();
-
         foreach ($pdfs as $pdf) {
-            $this->formFile($index->create() . '_' . $pdf->getFilename(), $pdf->getStream());
+            $this->formFile($pdf->getFilename(), $pdf->getStream());
         }
 
         $this->endpoint = '/forms/pdfengines/split';
+
+        return $this->request();
+    }
+
+    /**
+     * Flatten PDF(s).
+     * Gotenberg will return the PDF or a ZIP archive with the PDFs.
+     */
+    public function flatten(Stream ...$pdfs): RequestInterface
+    {
+        $this->formValue('flatten', true);
+
+        foreach ($pdfs as $pdf) {
+            $this->formFile($pdf->getFilename(), $pdf->getStream());
+        }
+
+        $this->endpoint = '/forms/pdfengines/flatten';
 
         return $this->request();
     }

@@ -338,6 +338,16 @@ class LibreOffice
     }
 
     /**
+     * Defines whether the resulting PDF should be flattened.
+     */
+    public function flatten(): self
+    {
+        $this->formValue('flatten', true);
+
+        return $this;
+    }
+
+    /**
      * Converts the given document(s) to PDF(s). Gotenberg will return either
      * a unique PDF if you request a merge or a ZIP archive with the PDFs.
      *
