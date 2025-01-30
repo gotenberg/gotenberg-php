@@ -5,6 +5,7 @@
     <p align="center">
         <a href="https://packagist.org/packages/gotenberg/gotenberg-php"><img alt="Latest Version" src="https://poser.pugx.org/gotenberg/gotenberg-php/v" /></a>
         <a href="https://packagist.org/packages/gotenberg/gotenberg-php"><img alt="Total Downloads" src="https://poser.pugx.org/gotenberg/gotenberg-php/downloads" /></a>
+        <a href="https://packagist.org/packages/gotenberg/gotenberg-php"><img alt="Monthly Downloads" src="https://poser.pugx.org/gotenberg/gotenberg-php/d/monthly" /></a>
         <a href="https://github.com/gotenberg/gotenberg-php/actions/workflows/continuous_integration.yml"><img alt="Continuous Integration" src="https://github.com/gotenberg/gotenberg-php/actions/workflows/continuous_integration.yml/badge.svg" /></a>
         <a href="https://codecov.io/gh/gotenberg/gotenberg-php"><img alt="https://codecov.io/gh/gotenberg/gotenberg" src="https://codecov.io/gh/gotenberg/gotenberg-php/branch/main/graph/badge.svg" /></a>
     </p>
