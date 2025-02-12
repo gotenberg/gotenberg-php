@@ -186,7 +186,7 @@ trait ChromiumMultipartFormDataModule
      */
     public function skipNetworkIdleEvent(bool $skip = true): self
     {
-        $this->formValue('skipNetworkIdleEvent', $skip);
+        $this->formValue('skipNetworkIdleEvent', $skip ?: '0');
 
         return $this;
     }
