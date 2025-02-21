@@ -58,7 +58,7 @@ $response = Gotenberg::send(
 
 ## Requirement
 
-This packages requires [Gotenberg](https://gotenberg.dev), a Docker-powered stateless API for PDF files.
+This packages requires [Gotenberg](https://gotenberg.dev), a containerized API for seamless PDF conversion.
 
 See the [installation guide](https://gotenberg.dev/docs/getting-started/installation) for more information.
 
