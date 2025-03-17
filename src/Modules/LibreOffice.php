@@ -66,8 +66,8 @@ class LibreOffice
     }
 
     /**
-     * Specifies whether to update the indexes before conversion or not, with
-     * the risk of disabling links in documents.
+     * Specifies whether to update the indexes before conversion, keeping in
+     * mind that doing so might result in missing links in the final PDF.
      */
     public function updateIndexes(bool $update = true): self
     {
