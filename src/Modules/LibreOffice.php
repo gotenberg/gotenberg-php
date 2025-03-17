@@ -66,6 +66,17 @@ class LibreOffice
     }
 
     /**
+     * Specifies whether to update the indexes before conversion or not, with
+     * the risk of disabling links in documents.
+     */
+    public function updateIndexes(bool $update = true): self
+    {
+        $this->formValue('updateIndexes', $update ?: '0');
+
+        return $this;
+    }
+
+    /**
      * Specifies whether form fields are exported as widgets or only their fixed
      * print representation is exported.
      */

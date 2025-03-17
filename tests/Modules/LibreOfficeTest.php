@@ -19,6 +19,7 @@ it(
         string|null $password = null,
         bool $landscape = false,
         string|null $nativePageRanges = null,
+        bool|null $updateIndexes = null,
         bool|null $exportFormFields = null,
         bool $allowDuplicateFieldNames = false,
         bool|null $exportBookmarks = null,
@@ -57,6 +58,10 @@ it(
 
         if ($nativePageRanges !== null) {
             $libreOffice->nativePageRanges($nativePageRanges);
+        }
+
+        if ($updateIndexes !== null) {
+            $libreOffice->updateIndexes($updateIndexes);
         }
 
         if ($exportFormFields !== null) {
@@ -168,6 +173,7 @@ it(
         expect($body)->unless($password === null, fn ($body) => $body->toContainFormValue('password', $password));
         expect($body)->unless($landscape === false, fn ($body) => $body->toContainFormValue('landscape', '1'));
         expect($body)->unless($nativePageRanges === null, fn ($body) => $body->toContainFormValue('nativePageRanges', $nativePageRanges));
+        expect($body)->unless($updateIndexes === null, fn ($body) => $body->toContainFormValue('updateIndexes', $updateIndexes === true ? '1' : '0'));
         expect($body)->unless($exportFormFields === null, fn ($body) => $body->toContainFormValue('exportFormFields', $exportFormFields === true ? '1' : '0'));
         expect($body)->unless($allowDuplicateFieldNames === false, fn ($body) => $body->toContainFormValue('allowDuplicateFieldNames', '1'));
         expect($body)->unless($exportBookmarks === null, fn ($body) => $body->toContainFormValue('exportBookmarks', $exportBookmarks === true ? '1' : '0'));
@@ -229,6 +235,7 @@ it(
         'foo',
         true,
         '1-2',
+        false,
         false,
         true,
         false,
