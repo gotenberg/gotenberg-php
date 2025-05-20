@@ -88,6 +88,16 @@ class ChromiumPdf
     }
 
     /**
+     * Generates tagged (accessible) PDF.
+     */
+    public function generateTaggedPdf(): self
+    {
+        $this->formValue('generateTaggedPdf', true);
+
+        return $this;
+    }
+
+    /**
      * Prints the background graphics.
      */
     public function printBackground(): self

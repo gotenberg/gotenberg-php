@@ -30,6 +30,7 @@ it(
         float|string $marginRight = 0,
         bool $preferCssPageSize = false,
         bool $generateDocumentOutline = false,
+        bool $generateTaggedPdf = false,
         bool $printBackground = false,
         bool $omitBackground = false,
         bool $landscape = false,
@@ -66,6 +67,7 @@ it(
             $marginRight,
             $preferCssPageSize,
             $generateDocumentOutline,
+            $generateTaggedPdf,
             $printBackground,
             $omitBackground,
             $landscape,
@@ -108,6 +110,7 @@ it(
             $marginRight,
             $preferCssPageSize,
             $generateDocumentOutline,
+            $generateTaggedPdf,
             $printBackground,
             $omitBackground,
             $landscape,
@@ -145,6 +148,7 @@ it(
         2,
         2,
         2,
+        true,
         true,
         true,
         true,
@@ -202,6 +206,7 @@ it(
         float|string $marginRight = 0,
         bool $preferCssPageSize = false,
         bool $generateDocumentOutline = false,
+        bool $generateTaggedPdf = false,
         bool $printBackground = false,
         bool $omitBackground = false,
         bool $landscape = false,
@@ -238,6 +243,7 @@ it(
             $marginRight,
             $preferCssPageSize,
             $generateDocumentOutline,
+            $generateTaggedPdf,
             $printBackground,
             $omitBackground,
             $landscape,
@@ -282,6 +288,7 @@ it(
             $marginRight,
             $preferCssPageSize,
             $generateDocumentOutline,
+            $generateTaggedPdf,
             $printBackground,
             $omitBackground,
             $landscape,
@@ -318,6 +325,7 @@ it(
         2,
         2,
         2,
+        true,
         true,
         true,
         true,
@@ -377,6 +385,7 @@ it(
         float|string $marginRight = 0,
         bool $preferCssPageSize = false,
         bool $generateDocumentOutline = false,
+        bool $generateTaggedPdf = false,
         bool $printBackground = false,
         bool $omitBackground = false,
         bool $landscape = false,
@@ -413,6 +422,7 @@ it(
             $marginRight,
             $preferCssPageSize,
             $generateDocumentOutline,
+            $generateTaggedPdf,
             $printBackground,
             $omitBackground,
             $landscape,
@@ -462,6 +472,7 @@ it(
             $marginRight,
             $preferCssPageSize,
             $generateDocumentOutline,
+            $generateTaggedPdf,
             $printBackground,
             $omitBackground,
             $landscape,
@@ -507,6 +518,7 @@ it(
         2,
         2,
         2,
+        true,
         true,
         true,
         true,
@@ -562,6 +574,7 @@ function hydrateChromiumPdfFormData(
     float|string $marginRight = 0,
     bool $preferCssPageSize = false,
     bool $generateDocumentOutline = false,
+    bool $generateTaggedPdf = false,
     bool $printBackground = false,
     bool $omitBackground = false,
     bool $landscape = false,
@@ -604,6 +617,10 @@ function hydrateChromiumPdfFormData(
 
     if ($generateDocumentOutline) {
         $chromium->generateDocumentOutline();
+    }
+
+    if ($generateTaggedPdf) {
+        $chromium->generateTaggedPdf();
     }
 
     if ($printBackground) {
@@ -724,6 +741,7 @@ function expectChromiumPdfOptions(
     float|string $marginRight,
     bool $preferCssPageSize,
     bool $generateDocumentOutline,
+    bool $generateTaggedPdf,
     bool $printBackground,
     bool $omitBackground,
     bool $landscape,
@@ -766,6 +784,7 @@ function expectChromiumPdfOptions(
 
     expect($body)->unless($preferCssPageSize === false, fn ($body) => $body->toContainFormValue('preferCssPageSize', '1'));
     expect($body)->unless($generateDocumentOutline === false, fn ($body) => $body->toContainFormValue('generateDocumentOutline', '1'));
+    expect($body)->unless($generateTaggedPdf === false, fn ($body) => $body->toContainFormValue('generateTaggedPdf', '1'));
     expect($body)->unless($printBackground === false, fn ($body) => $body->toContainFormValue('printBackground', '1'));
     expect($body)->unless($omitBackground === false, fn ($body) => $body->toContainFormValue('omitBackground', '1'));
     expect($body)->unless($landscape === false, fn ($body) => $body->toContainFormValue('landscape', '1'));
