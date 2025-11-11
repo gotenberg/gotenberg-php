@@ -53,6 +53,9 @@ it(
         string|null $pdfa = null,
         bool $pdfua = false,
         array $metadata = [],
+        bool $flatten = false,
+        string $userPassword = '',
+        string $ownerPassword = '',
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
@@ -90,6 +93,9 @@ it(
             $pdfa,
             $pdfua,
             $metadata,
+            $flatten,
+            $userPassword,
+            $ownerPassword,
             $assets,
         );
 
@@ -133,6 +139,9 @@ it(
             $pdfa,
             $pdfua,
             $metadata,
+            $flatten,
+            $userPassword,
+            $ownerPassword,
             $assets,
         );
     },
@@ -179,6 +188,9 @@ it(
         'PDF/A-1a',
         true,
         [ 'Producer' => 'Gotenberg' ],
+        true,
+        'my_user_password',
+        'my_owner_password',
         [
             Stream::string('my.jpg', 'Image content'),
         ],
@@ -229,6 +241,9 @@ it(
         string|null $pdfa = null,
         bool $pdfua = false,
         array $metadata = [],
+        bool $flatten = false,
+        string $userPassword = '',
+        string $ownerPassword = '',
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
@@ -266,6 +281,9 @@ it(
             $pdfa,
             $pdfua,
             $metadata,
+            $flatten,
+            $userPassword,
+            $ownerPassword,
             $assets,
         );
 
@@ -311,6 +329,9 @@ it(
             $pdfa,
             $pdfua,
             $metadata,
+            $flatten,
+            $userPassword,
+            $ownerPassword,
             $assets,
         );
     },
@@ -356,6 +377,9 @@ it(
         'PDF/A-1a',
         true,
         [ 'Producer' => 'Gotenberg' ],
+        true,
+        'my_user_password',
+        'my_owner_password',
         [
             Stream::string('my.jpg', 'Image content'),
         ],
@@ -408,6 +432,9 @@ it(
         string|null $pdfa = null,
         bool $pdfua = false,
         array $metadata = [],
+        bool $flatten = false,
+        string $userPassword = '',
+        string $ownerPassword = '',
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
@@ -445,6 +472,9 @@ it(
             $pdfa,
             $pdfua,
             $metadata,
+            $flatten,
+            $userPassword,
+            $ownerPassword,
             $assets,
         );
 
@@ -495,6 +525,9 @@ it(
             $pdfa,
             $pdfua,
             $metadata,
+            $flatten,
+            $userPassword,
+            $ownerPassword,
             $assets,
         );
     },
@@ -549,6 +582,9 @@ it(
         'PDF/A-1a',
         true,
         [ 'Producer' => 'Gotenberg' ],
+        true,
+        'my_user_password',
+        'my_owner_password',
         [
             Stream::string('my.jpg', 'Image content'),
         ],
@@ -597,6 +633,9 @@ function hydrateChromiumPdfFormData(
     string|null $pdfa = null,
     bool $pdfua = false,
     array $metadata = [],
+    bool $flatten = false,
+    string $userPassword = '',
+    string $ownerPassword = '',
     array $assets = [],
 ): ChromiumPdf {
     if ($singlePage) {
@@ -715,6 +754,14 @@ function hydrateChromiumPdfFormData(
         $chromium->metadata($metadata);
     }
 
+    if ($flatten) {
+        $chromium->flatten();
+    }
+
+    if ($userPassword !== '') {
+        $chromium->encrypt($userPassword, $ownerPassword);
+    }
+
     if (count($assets) > 0) {
         $chromium->assets(...$assets);
     }
@@ -764,6 +811,9 @@ function expectChromiumPdfOptions(
     string|null $pdfa,
     bool $pdfua,
     array $metadata,
+    bool $flatten,
+    string $userPassword,
+    string $ownerPassword,
     array $assets,
 ): void {
     expect($body)->unless($singlePage === false, fn ($body) => $body->toContainFormValue('singlePage', '1'));
@@ -864,6 +914,10 @@ function expectChromiumPdfOptions(
 
         expect($body)->toContainFormValue('metadata', $json);
     }
+
+    expect($body)->unless($flatten === false, fn ($body) => $body->toContainFormValue('flatten', '1'));
+    expect($body)->unless($userPassword === '', fn ($body) => $body->toContainFormValue('userPassword', $userPassword));
+    expect($body)->unless($userPassword === '', fn ($body) => $body->toContainFormValue('ownerPassword', $ownerPassword));
 
     if (count($assets) <= 0) {
         return;
