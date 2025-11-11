@@ -45,6 +45,8 @@ it(
         array $metadata = [],
         bool $merge = false,
         bool $flatten = false,
+        string $userPassword = '',
+        string $ownerPassword = '',
     ): void {
         $libreOffice = Gotenberg::libreOffice('');
 
@@ -166,6 +168,10 @@ it(
             $libreOffice->flatten();
         }
 
+        if ($userPassword !== '') {
+            $libreOffice->encrypt($userPassword, $ownerPassword);
+        }
+
         $request = $libreOffice->convert(...$files);
         $body    = sanitize($request->getBody()->getContents());
 
@@ -204,6 +210,8 @@ it(
         expect($body)->unless($pdfua === false, fn ($body) => $body->toContainFormValue('pdfua', '1'));
         expect($body)->unless($merge === false, fn ($body) => $body->toContainFormValue('merge', '1'));
         expect($body)->unless($flatten === false, fn ($body) => $body->toContainFormValue('flatten', '1'));
+        expect($body)->unless($userPassword === '', fn ($body) => $body->toContainFormValue('userPassword', $userPassword));
+        expect($body)->unless($userPassword === '', fn ($body) => $body->toContainFormValue('ownerPassword', $ownerPassword));
 
         if (count($metadata) > 0) {
             $json = json_encode($metadata);
@@ -261,5 +269,7 @@ it(
         [ 'Producer' => 'Gotenberg' ],
         true,
         true,
+        'my_user_password',
+        'my_owner_password',
     ],
 ]);

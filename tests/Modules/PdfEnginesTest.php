@@ -14,7 +14,7 @@ it(
      * @param Stream[] $pdfs
      * @param array<string,string|bool|float|int|array<string>> $metadata
      */
-    function (array $pdfs, string|null $pdfa = null, bool $pdfua = false, array $metadata = [], bool $flatten = false): void {
+    function (array $pdfs, string|null $pdfa = null, bool $pdfua = false, array $metadata = [], bool $flatten = false, string $userPassword = '', string $ownerPassword = ''): void {
         $pdfEngines = Gotenberg::pdfEngines('')->index(new DummyIndex());
 
         if ($pdfa !== null) {
@@ -31,6 +31,10 @@ it(
 
         if ($flatten) {
             $pdfEngines->flattening();
+        }
+
+        if ($userPassword !== '') {
+            $pdfEngines->encrypting($userPassword, $ownerPassword);
         }
 
         $request = $pdfEngines->merge(...$pdfs);
@@ -50,6 +54,8 @@ it(
         }
 
         expect($body)->unless($flatten === false, fn ($body) => $body->toContainFormValue('flatten', '1'));
+        expect($body)->unless($userPassword === '', fn ($body) => $body->toContainFormValue('userPassword', $userPassword));
+        expect($body)->unless($userPassword === '', fn ($body) => $body->toContainFormValue('ownerPassword', $ownerPassword));
 
         foreach ($pdfs as $pdf) {
             $pdf->getStream()->rewind();
@@ -73,13 +79,15 @@ it(
         true,
         [ 'Producer' => 'Gotenberg' ],
         true,
+        'my_user_password',
+        'my_owner_password',
     ],
 ]);
 
 it(
     'creates a valid request for the "/forms/pdfengines/split" endpoint',
     /** @param Stream[] $pdfs */
-    function (array $pdfs, SplitMode $mode, string|null $pdfa = null, bool $pdfua = false, array $metadata = [], bool $flatten = false): void {
+    function (array $pdfs, SplitMode $mode, string|null $pdfa = null, bool $pdfua = false, array $metadata = [], bool $flatten = false, string $userPassword = '', string $ownerPassword = ''): void {
         $pdfEngines = Gotenberg::pdfEngines('');
 
         if ($pdfa !== null) {
@@ -96,6 +104,10 @@ it(
 
         if ($flatten) {
             $pdfEngines->flattening();
+        }
+
+        if ($userPassword !== '') {
+            $pdfEngines->encrypting($userPassword, $ownerPassword);
         }
 
         $request = $pdfEngines->split($mode, ...$pdfs);
@@ -118,6 +130,8 @@ it(
         }
 
         expect($body)->unless($flatten === false, fn ($body) => $body->toContainFormValue('flatten', '1'));
+        expect($body)->unless($userPassword === '', fn ($body) => $body->toContainFormValue('userPassword', $userPassword));
+        expect($body)->unless($userPassword === '', fn ($body) => $body->toContainFormValue('ownerPassword', $ownerPassword));
 
         foreach ($pdfs as $pdf) {
             $pdf->getStream()->rewind();
@@ -142,6 +156,8 @@ it(
         true,
         [ 'Producer' => 'Gotenberg' ],
         true,
+        'my_user_password',
+        'my_owner_password',
     ],
 ]);
 
@@ -260,6 +276,35 @@ it(
 )->with([
     [
         [ 'Producer' => 'Gotenberg' ],
+        [
+            Stream::string('my.pdf', 'PDF content'),
+            Stream::string('my_second.pdf', 'Second PDF content'),
+        ],
+    ],
+]);
+
+it(
+    'creates a valid request for the "/forms/pdfengines/encrypt" endpoint',
+    /** @param Stream[] $pdfs */
+    function (string $userPassword, string $ownerPassword, array $pdfs): void {
+        $pdfEngines = Gotenberg::pdfEngines('');
+
+        $request = $pdfEngines->encrypt($userPassword, $ownerPassword, ...$pdfs);
+        $body    = sanitize($request->getBody()->getContents());
+
+        expect($request->getUri()->getPath())->toBe('/forms/pdfengines/encrypt');
+        expect($body)->toContainFormValue('userPassword', $userPassword);
+        expect($body)->toContainFormValue('ownerPassword', $ownerPassword);
+
+        foreach ($pdfs as $pdf) {
+            $pdf->getStream()->rewind();
+            expect($body)->toContainFormFile($pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
+        }
+    },
+)->with([
+    [
+        'my_user_password',
+        'my_owner_password',
         [
             Stream::string('my.pdf', 'PDF content'),
             Stream::string('my_second.pdf', 'Second PDF content'),

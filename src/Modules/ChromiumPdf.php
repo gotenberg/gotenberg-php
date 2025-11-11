@@ -216,6 +216,27 @@ class ChromiumPdf
     }
 
     /**
+     * Defines whether the resulting PDF should be flattened.
+     */
+    public function flatten(): self
+    {
+        $this->formValue('flatten', true);
+
+        return $this;
+    }
+
+    /**
+     * Defines whether the resulting PDF should be encrypted.
+     */
+    public function encrypt(string $userPassword, string $ownerPassword = ''): self
+    {
+        $this->formValue('userPassword', $userPassword);
+        $this->formValue('ownerPassword', $ownerPassword);
+
+        return $this;
+    }
+
+    /**
      * Converts a target URL to PDF.
      *
      * @throws NativeFunctionErrored
