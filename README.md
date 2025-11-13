@@ -204,7 +204,7 @@ $filename = Gotenberg::save($request, '/path/to/saving/directory');
 ```
 
 It returns the filename of the resulting file. By default, Gotenberg creates a *UUID* filename (i.e., 
-`95cd9945-484f-4f89-8bdb-23dbdd0bdea9`) with either a `.zip` or a `.pdf` file extension.
+`95cd9945-484f-4f89-8bdb-23dbdd0bdea9`) with either a `.zip` or a `.pdf` file extension (or image formats for screenshots).
 
 You may also explicitly set the HTTP client:
 
