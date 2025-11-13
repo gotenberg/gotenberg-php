@@ -118,10 +118,10 @@ trait MultipartFormDataModule
         return $this;
     }
 
-    protected function formFile(string $filename, StreamInterface $stream): void
+    protected function formFile(string $filename, StreamInterface $stream, string $name = 'files'): void
     {
         $this->multipartFormData[] = [
-            'name' => 'files',
+            'name' => $name,
             'filename' => $filename,
             'contents' => $stream,
         ];

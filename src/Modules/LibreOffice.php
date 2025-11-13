@@ -370,6 +370,18 @@ class LibreOffice
     }
 
     /**
+     * Sets the file to embed in the resulting PDF.
+     */
+    public function embeds(Stream ...$embeds): self
+    {
+        foreach ($embeds as $embed) {
+            $this->formFile($embed->getFilename(), $embed->getStream(), 'embeds');
+        }
+
+        return $this;
+    }
+
+    /**
      * Converts the given document(s) to PDF(s). Gotenberg will return either
      * a unique PDF if you request a merge or a ZIP archive with the PDFs.
      *

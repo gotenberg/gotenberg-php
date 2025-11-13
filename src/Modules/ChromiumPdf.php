@@ -237,6 +237,18 @@ class ChromiumPdf
     }
 
     /**
+     * Sets the file to embed in the resulting PDF.
+     */
+    public function embeds(Stream ...$embeds): self
+    {
+        foreach ($embeds as $embed) {
+            $this->formFile($embed->getFilename(), $embed->getStream(), 'embeds');
+        }
+
+        return $this;
+    }
+
+    /**
      * Converts a target URL to PDF.
      *
      * @throws NativeFunctionErrored

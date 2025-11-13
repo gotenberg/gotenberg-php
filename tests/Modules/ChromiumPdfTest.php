@@ -17,6 +17,7 @@ it(
      * @param int[] $failOnHttpStatusCodes
      * @param int[] $failOnResourceHttpStatusCodes
      * @param array<string,string|bool|float|int|array<string>> $metadata
+     * @param Stream[] $embeds
      * @param Stream[] $assets
      */
     function (
@@ -56,6 +57,7 @@ it(
         bool $flatten = false,
         string $userPassword = '',
         string $ownerPassword = '',
+        array $embeds = [],
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
@@ -96,6 +98,7 @@ it(
             $flatten,
             $userPassword,
             $ownerPassword,
+            $embeds,
             $assets,
         );
 
@@ -142,6 +145,7 @@ it(
             $flatten,
             $userPassword,
             $ownerPassword,
+            $embeds,
             $assets,
         );
     },
@@ -192,6 +196,10 @@ it(
         'my_user_password',
         'my_owner_password',
         [
+            Stream::string('my.xml', 'XML content'),
+            Stream::string('my_second.xml', 'Second XML content'),
+        ],
+        [
             Stream::string('my.jpg', 'Image content'),
         ],
     ],
@@ -205,6 +213,7 @@ it(
      * @param int[] $failOnHttpStatusCodes
      * @param int[] $failOnResourceHttpStatusCodes
      * @param array<string,string|bool|float|int|array<string>> $metadata
+     * @param Stream[] $embeds
      * @param Stream[] $assets
      */
     function (
@@ -244,6 +253,7 @@ it(
         bool $flatten = false,
         string $userPassword = '',
         string $ownerPassword = '',
+        array $embeds = [],
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
@@ -284,6 +294,7 @@ it(
             $flatten,
             $userPassword,
             $ownerPassword,
+            $embeds,
             $assets,
         );
 
@@ -332,6 +343,7 @@ it(
             $flatten,
             $userPassword,
             $ownerPassword,
+            $embeds,
             $assets,
         );
     },
@@ -381,6 +393,10 @@ it(
         'my_user_password',
         'my_owner_password',
         [
+            Stream::string('my.xml', 'XML content'),
+            Stream::string('my_second.xml', 'Second XML content'),
+        ],
+        [
             Stream::string('my.jpg', 'Image content'),
         ],
     ],
@@ -395,6 +411,7 @@ it(
      * @param int[] $failOnResourceHttpStatusCodes
      * @param Stream[] $markdowns
      * @param array<string,string|bool|float|int|array<string>> $metadata
+     * @param Stream[] $embeds
      * @param Stream[] $assets
      */
     function (
@@ -435,6 +452,7 @@ it(
         bool $flatten = false,
         string $userPassword = '',
         string $ownerPassword = '',
+        array $embeds = [],
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
@@ -475,6 +493,7 @@ it(
             $flatten,
             $userPassword,
             $ownerPassword,
+            $embeds,
             $assets,
         );
 
@@ -528,6 +547,7 @@ it(
             $flatten,
             $userPassword,
             $ownerPassword,
+            $embeds,
             $assets,
         );
     },
@@ -586,6 +606,10 @@ it(
         'my_user_password',
         'my_owner_password',
         [
+            Stream::string('my.xml', 'XML content'),
+            Stream::string('my_second.xml', 'Second XML content'),
+        ],
+        [
             Stream::string('my.jpg', 'Image content'),
         ],
     ],
@@ -597,6 +621,7 @@ it(
  * @param int[]                                             $failOnHttpStatusCodes
  * @param int[]                                             $failOnResourceHttpStatusCodes
  * @param array<string,string|bool|float|int|array<string>> $metadata
+ * @param Stream[]                                          $embeds
  * @param Stream[]                                          $assets
  */
 function hydrateChromiumPdfFormData(
@@ -636,6 +661,7 @@ function hydrateChromiumPdfFormData(
     bool $flatten = false,
     string $userPassword = '',
     string $ownerPassword = '',
+    array $embeds = [],
     array $assets = [],
 ): ChromiumPdf {
     if ($singlePage) {
@@ -762,6 +788,10 @@ function hydrateChromiumPdfFormData(
         $chromium->encrypt($userPassword, $ownerPassword);
     }
 
+    if (count($embeds) > 0) {
+        $chromium->embeds(...$embeds);
+    }
+
     if (count($assets) > 0) {
         $chromium->assets(...$assets);
     }
@@ -775,6 +805,7 @@ function hydrateChromiumPdfFormData(
  * @param int[]                                             $failOnHttpStatusCodes
  * @param int[]                                             $failOnResourceHttpStatusCodes
  * @param array<string,string|bool|float|int|array<string>> $metadata
+ * @param Stream[]                                          $embeds
  * @param Stream[]                                          $assets
  */
 function expectChromiumPdfOptions(
@@ -814,6 +845,7 @@ function expectChromiumPdfOptions(
     bool $flatten,
     string $userPassword,
     string $ownerPassword,
+    array $embeds,
     array $assets,
 ): void {
     expect($body)->unless($singlePage === false, fn ($body) => $body->toContainFormValue('singlePage', '1'));
@@ -918,6 +950,11 @@ function expectChromiumPdfOptions(
     expect($body)->unless($flatten === false, fn ($body) => $body->toContainFormValue('flatten', '1'));
     expect($body)->unless($userPassword === '', fn ($body) => $body->toContainFormValue('userPassword', $userPassword));
     expect($body)->unless($userPassword === '', fn ($body) => $body->toContainFormValue('ownerPassword', $ownerPassword));
+
+    foreach ($embeds as $embed) {
+        $embed->getStream()->rewind();
+        expect($body)->toContainFormFile($embed->getFilename(), $embed->getStream()->getContents(), 'application/xml', 'embeds');
+    }
 
     if (count($assets) <= 0) {
         return;
