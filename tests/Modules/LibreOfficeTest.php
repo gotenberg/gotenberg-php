@@ -13,6 +13,7 @@ it(
     /**
      * @param Stream[] $files
      * @param array<string,string|bool|float|int|array<string>> $metadata
+     * @param Stream[] $embeds
      */
     function (
         array $files,
@@ -47,6 +48,7 @@ it(
         bool $flatten = false,
         string $userPassword = '',
         string $ownerPassword = '',
+        array $embeds = [],
     ): void {
         $libreOffice = Gotenberg::libreOffice('');
 
@@ -172,6 +174,10 @@ it(
             $libreOffice->encrypt($userPassword, $ownerPassword);
         }
 
+        if (count($embeds) > 0) {
+            $libreOffice->embeds(...$embeds);
+        }
+
         $request = $libreOffice->convert(...$files);
         $body    = sanitize($request->getBody()->getContents());
 
@@ -228,6 +234,11 @@ it(
 
             expect($body)->toContainFormFile($filename, $file->getStream()->getContents(), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
         }
+
+        foreach ($embeds as $embed) {
+            $embed->getStream()->rewind();
+            expect($body)->toContainFormFile($embed->getFilename(), $embed->getStream()->getContents(), 'application/xml', 'embeds');
+        }
     },
 )->with([
     [
@@ -271,5 +282,9 @@ it(
         true,
         'my_user_password',
         'my_owner_password',
+        [
+            Stream::string('my.xml', 'XML content'),
+            Stream::string('my_second.xml', 'Second XML content'),
+        ],
     ],
 ]);

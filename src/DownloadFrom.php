@@ -12,14 +12,16 @@ class DownloadFrom implements JsonSerializable
     public function __construct(
         public readonly string $url,
         public readonly array|null $extraHttpHeaders = null,
+        public readonly bool $embedded = false,
     ) {
     }
 
-    /** @return array<string,string|array<string,string>> */
+    /** @return array<string, array<string,string>|bool|string> */
     public function jsonSerialize(): array
     {
         $serialized = [
             'url' => $this->url,
+            'embedded' => $this->embedded,
         ];
 
         if (! empty($this->extraHttpHeaders)) {

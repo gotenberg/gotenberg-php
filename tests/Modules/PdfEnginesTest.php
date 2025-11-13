@@ -13,8 +13,9 @@ it(
     /**
      * @param Stream[] $pdfs
      * @param array<string,string|bool|float|int|array<string>> $metadata
+     * @param Stream[] $embeds
      */
-    function (array $pdfs, string|null $pdfa = null, bool $pdfua = false, array $metadata = [], bool $flatten = false, string $userPassword = '', string $ownerPassword = ''): void {
+    function (array $pdfs, string|null $pdfa = null, bool $pdfua = false, array $metadata = [], bool $flatten = false, string $userPassword = '', string $ownerPassword = '', array $embeds = []): void {
         $pdfEngines = Gotenberg::pdfEngines('')->index(new DummyIndex());
 
         if ($pdfa !== null) {
@@ -35,6 +36,10 @@ it(
 
         if ($userPassword !== '') {
             $pdfEngines->encrypting($userPassword, $ownerPassword);
+        }
+
+        if (count($embeds) > 0) {
+            $pdfEngines->embeds(...$embeds);
         }
 
         $request = $pdfEngines->merge(...$pdfs);
@@ -61,6 +66,11 @@ it(
             $pdf->getStream()->rewind();
             expect($body)->toContainFormFile('foo_' . $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
         }
+
+        foreach ($embeds as $embed) {
+            $embed->getStream()->rewind();
+            expect($body)->toContainFormFile($embed->getFilename(), $embed->getStream()->getContents(), 'application/xml', 'embeds');
+        }
     },
 )->with([
     [
@@ -81,13 +91,20 @@ it(
         true,
         'my_user_password',
         'my_owner_password',
+        [
+            Stream::string('my.xml', 'XML content'),
+            Stream::string('my_second.xml', 'Second XML content'),
+        ],
     ],
 ]);
 
 it(
     'creates a valid request for the "/forms/pdfengines/split" endpoint',
-    /** @param Stream[] $pdfs */
-    function (array $pdfs, SplitMode $mode, string|null $pdfa = null, bool $pdfua = false, array $metadata = [], bool $flatten = false, string $userPassword = '', string $ownerPassword = ''): void {
+    /**
+     * @param Stream[] $pdfs
+     * @param Stream[] $embeds
+     */
+    function (array $pdfs, SplitMode $mode, string|null $pdfa = null, bool $pdfua = false, array $metadata = [], bool $flatten = false, string $userPassword = '', string $ownerPassword = '', array $embeds = []): void {
         $pdfEngines = Gotenberg::pdfEngines('');
 
         if ($pdfa !== null) {
@@ -108,6 +125,10 @@ it(
 
         if ($userPassword !== '') {
             $pdfEngines->encrypting($userPassword, $ownerPassword);
+        }
+
+        if (count($embeds) > 0) {
+            $pdfEngines->embeds(...$embeds);
         }
 
         $request = $pdfEngines->split($mode, ...$pdfs);
@@ -137,6 +158,11 @@ it(
             $pdf->getStream()->rewind();
             expect($body)->toContainFormFile($pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
         }
+
+        foreach ($embeds as $embed) {
+            $embed->getStream()->rewind();
+            expect($body)->toContainFormFile($embed->getFilename(), $embed->getStream()->getContents(), 'application/xml', 'embeds');
+        }
     },
 )->with([
     [
@@ -158,6 +184,10 @@ it(
         true,
         'my_user_password',
         'my_owner_password',
+        [
+            Stream::string('my.xml', 'XML content'),
+            Stream::string('my_second.xml', 'Second XML content'),
+        ],
     ],
 ]);
 
@@ -305,6 +335,43 @@ it(
     [
         'my_user_password',
         'my_owner_password',
+        [
+            Stream::string('my.pdf', 'PDF content'),
+            Stream::string('my_second.pdf', 'Second PDF content'),
+        ],
+    ],
+]);
+
+it(
+    'creates a valid request for the "/forms/pdfengines/embed" endpoint',
+    /**
+     * @param Stream[] $pdfs
+     * @param Stream[] $embeds
+     */
+    function (array $embeds, array $pdfs): void {
+        $pdfEngines = Gotenberg::pdfEngines('');
+
+        $request = $pdfEngines->embed($embeds, ...$pdfs);
+        $body    = sanitize($request->getBody()->getContents());
+
+        expect($request->getUri()->getPath())->toBe('/forms/pdfengines/embed');
+
+        foreach ($pdfs as $pdf) {
+            $pdf->getStream()->rewind();
+            expect($body)->toContainFormFile($pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
+        }
+
+        foreach ($embeds as $embed) {
+            $embed->getStream()->rewind();
+            expect($body)->toContainFormFile($embed->getFilename(), $embed->getStream()->getContents(), 'application/xml', 'embeds');
+        }
+    },
+)->with([
+    [
+        [
+            Stream::string('my.xml', 'XML content'),
+            Stream::string('my_second.xml', 'Second XML content'),
+        ],
         [
             Stream::string('my.pdf', 'PDF content'),
             Stream::string('my_second.pdf', 'Second PDF content'),

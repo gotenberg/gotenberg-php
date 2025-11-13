@@ -22,10 +22,10 @@ expect()->extend('toContainFormValue', function (string $name, string $value) {
     );
 });
 
-expect()->extend('toContainFormFile', function (string $filename, string $content, string|null $contentType = null) {
+expect()->extend('toContainFormFile', function (string $filename, string $content, string|null $contentType = null, string $fieldName = 'files') {
     $length = mb_strlen($content);
 
-    $needle =  'Content-Disposition: form-data; name="files"; filename="' . $filename . '" Content-Length: ' . $length;
+    $needle =  'Content-Disposition: form-data; name="' . $fieldName . '"; filename="' . $filename . '" Content-Length: ' . $length;
     if ($contentType !== null) {
         $needle .= ' Content-Type: ' . $contentType;
     }

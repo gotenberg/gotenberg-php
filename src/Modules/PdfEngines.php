@@ -94,6 +94,18 @@ class PdfEngines
     }
 
     /**
+     * Sets the file to embed in the resulting PDF.
+     */
+    public function embeds(Stream ...$embeds): self
+    {
+        foreach ($embeds as $embed) {
+            $this->formFile($embed->getFilename(), $embed->getStream(), 'embeds');
+        }
+
+        return $this;
+    }
+
+    /**
      * Merges PDFs into a unique PDF.
      *
      * Note: the merging order is determined by the order of the arguments.
@@ -213,6 +225,26 @@ class PdfEngines
         }
 
         $this->endpoint = '/forms/pdfengines/encrypt';
+
+        return $this->request();
+    }
+
+    /**
+     * Allows embedding one or more files to one or more PDF.
+     *
+     * @param Stream[] $embeds
+     *
+     * @throws NativeFunctionErrored
+     */
+    public function embed(array $embeds, Stream ...$pdfs): RequestInterface
+    {
+        foreach ($pdfs as $pdf) {
+            $this->formFile($pdf->getFilename(), $pdf->getStream());
+        }
+
+        $this->embeds(...$embeds);
+
+        $this->endpoint = '/forms/pdfengines/embed';
 
         return $this->request();
     }
