@@ -2,20 +2,30 @@
 
 declare(strict_types=1);
 
+namespace Gotenberg\Test\Modules;
+
 use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
 use Gotenberg\SplitMode;
 use Gotenberg\Stream;
-use Gotenberg\Test\DummyIndex;
+use Gotenberg\Test\Helpers\Dummies\DummyIndex;
+use Gotenberg\Test\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
-it(
-    'creates a valid request for the "/forms/libreoffice/convert" endpoint',
+use function count;
+use function json_encode;
+
+final class LibreOfficeTest extends TestCase
+{
     /**
-     * @param Stream[] $files
+     * @param Stream[]                                          $files
      * @param array<string,string|bool|float|int|array<string>> $metadata
-     * @param Stream[] $embeds
+     * @param Stream[]                                          $embeds
      */
-    function (
+    #[Test]
+    #[DataProvider('provideConvertData')]
+    public function it_creates_a_valid_request_for_the_forms_libreoffice_convert_endpoint(
         array $files,
         string|null $password = null,
         bool $landscape = false,
@@ -179,45 +189,128 @@ it(
         }
 
         $request = $libreOffice->convert(...$files);
-        $body    = sanitize($request->getBody()->getContents());
+        $body    = $this->sanitize($request->getBody()->getContents());
 
-        expect($request->getUri()->getPath())->toBe('/forms/libreoffice/convert');
-        expect($body)->unless($password === null, fn ($body) => $body->toContainFormValue('password', $password));
-        expect($body)->unless($landscape === false, fn ($body) => $body->toContainFormValue('landscape', '1'));
-        expect($body)->unless($nativePageRanges === null, fn ($body) => $body->toContainFormValue('nativePageRanges', $nativePageRanges));
-        expect($body)->unless($updateIndexes === null, fn ($body) => $body->toContainFormValue('updateIndexes', $updateIndexes === true ? '1' : '0'));
-        expect($body)->unless($exportFormFields === null, fn ($body) => $body->toContainFormValue('exportFormFields', $exportFormFields === true ? '1' : '0'));
-        expect($body)->unless($allowDuplicateFieldNames === false, fn ($body) => $body->toContainFormValue('allowDuplicateFieldNames', '1'));
-        expect($body)->unless($exportBookmarks === null, fn ($body) => $body->toContainFormValue('exportBookmarks', $exportBookmarks === true ? '1' : '0'));
-        expect($body)->unless($exportBookmarksToPdfDestination === false, fn ($body) => $body->toContainFormValue('exportBookmarksToPdfDestination', '1'));
-        expect($body)->unless($exportPlaceholders === false, fn ($body) => $body->toContainFormValue('exportPlaceholders', '1'));
-        expect($body)->unless($exportNotes === false, fn ($body) => $body->toContainFormValue('exportNotes', '1'));
-        expect($body)->unless($exportNotesPages === false, fn ($body) => $body->toContainFormValue('exportNotesPages', '1'));
-        expect($body)->unless($exportOnlyNotesPages === false, fn ($body) => $body->toContainFormValue('exportOnlyNotesPages', '1'));
-        expect($body)->unless($exportNotesInMargin === false, fn ($body) => $body->toContainFormValue('exportNotesInMargin', '1'));
-        expect($body)->unless($convertOooTargetToPdfTarget === false, fn ($body) => $body->toContainFormValue('convertOooTargetToPdfTarget', '1'));
-        expect($body)->unless($exportLinksRelativeFsys === false, fn ($body) => $body->toContainFormValue('exportLinksRelativeFsys', '1'));
-        expect($body)->unless($exportHiddenSlides === false, fn ($body) => $body->toContainFormValue('exportHiddenSlides', '1'));
-        expect($body)->unless($skipEmptyPages === false, fn ($body) => $body->toContainFormValue('skipEmptyPages', '1'));
-        expect($body)->unless($addOriginalDocumentAsStream === false, fn ($body) => $body->toContainFormValue('addOriginalDocumentAsStream', '1'));
-        expect($body)->unless($singlePageSheets === false, fn ($body) => $body->toContainFormValue('singlePageSheets', '1'));
-        expect($body)->unless($losslessImageCompression === false, fn ($body) => $body->toContainFormValue('losslessImageCompression', '1'));
-        expect($body)->unless($quality === null, fn ($body) => $body->toContainFormValue('quality', $quality));
-        expect($body)->unless($reduceImageResolution === false, fn ($body) => $body->toContainFormValue('reduceImageResolution', '1'));
-        expect($body)->unless($maxImageResolution === null, fn ($body) => $body->toContainFormValue('maxImageResolution', $maxImageResolution));
+        $this->assertSame('/forms/libreoffice/convert', $request->getUri()->getPath());
 
-        if ($splitMode !== null) {
-            expect($body)->toContainFormValue('splitMode', $splitMode->mode);
-            expect($body)->toContainFormValue('splitSpan', $splitMode->span);
-            expect($body)->toContainFormValue('splitUnify', $splitMode->unify ? '1' : '0');
+        if ($password !== null) {
+            $this->assertContainsFormValue($body, 'password', $password);
         }
 
-        expect($body)->unless($pdfa === null, fn ($body) => $body->toContainFormValue('pdfa', $pdfa));
-        expect($body)->unless($pdfua === false, fn ($body) => $body->toContainFormValue('pdfua', '1'));
-        expect($body)->unless($merge === false, fn ($body) => $body->toContainFormValue('merge', '1'));
-        expect($body)->unless($flatten === false, fn ($body) => $body->toContainFormValue('flatten', '1'));
-        expect($body)->unless($userPassword === '', fn ($body) => $body->toContainFormValue('userPassword', $userPassword));
-        expect($body)->unless($userPassword === '', fn ($body) => $body->toContainFormValue('ownerPassword', $ownerPassword));
+        if ($landscape) {
+            $this->assertContainsFormValue($body, 'landscape', '1');
+        }
+
+        if ($nativePageRanges !== null) {
+            $this->assertContainsFormValue($body, 'nativePageRanges', $nativePageRanges);
+        }
+
+        if ($updateIndexes !== null) {
+            $this->assertContainsFormValue($body, 'updateIndexes', $updateIndexes ? '1' : '0');
+        }
+
+        if ($exportFormFields !== null) {
+            $this->assertContainsFormValue($body, 'exportFormFields', $exportFormFields ? '1' : '0');
+        }
+
+        if ($allowDuplicateFieldNames) {
+            $this->assertContainsFormValue($body, 'allowDuplicateFieldNames', '1');
+        }
+
+        if ($exportBookmarks !== null) {
+            $this->assertContainsFormValue($body, 'exportBookmarks', $exportBookmarks ? '1' : '0');
+        }
+
+        if ($exportBookmarksToPdfDestination) {
+            $this->assertContainsFormValue($body, 'exportBookmarksToPdfDestination', '1');
+        }
+
+        if ($exportPlaceholders) {
+            $this->assertContainsFormValue($body, 'exportPlaceholders', '1');
+        }
+
+        if ($exportNotes) {
+            $this->assertContainsFormValue($body, 'exportNotes', '1');
+        }
+
+        if ($exportNotesPages) {
+            $this->assertContainsFormValue($body, 'exportNotesPages', '1');
+        }
+
+        if ($exportOnlyNotesPages) {
+            $this->assertContainsFormValue($body, 'exportOnlyNotesPages', '1');
+        }
+
+        if ($exportNotesInMargin) {
+            $this->assertContainsFormValue($body, 'exportNotesInMargin', '1');
+        }
+
+        if ($convertOooTargetToPdfTarget) {
+            $this->assertContainsFormValue($body, 'convertOooTargetToPdfTarget', '1');
+        }
+
+        if ($exportLinksRelativeFsys) {
+            $this->assertContainsFormValue($body, 'exportLinksRelativeFsys', '1');
+        }
+
+        if ($exportHiddenSlides) {
+            $this->assertContainsFormValue($body, 'exportHiddenSlides', '1');
+        }
+
+        if ($skipEmptyPages) {
+            $this->assertContainsFormValue($body, 'skipEmptyPages', '1');
+        }
+
+        if ($addOriginalDocumentAsStream) {
+            $this->assertContainsFormValue($body, 'addOriginalDocumentAsStream', '1');
+        }
+
+        if ($singlePageSheets) {
+            $this->assertContainsFormValue($body, 'singlePageSheets', '1');
+        }
+
+        if ($losslessImageCompression) {
+            $this->assertContainsFormValue($body, 'losslessImageCompression', '1');
+        }
+
+        if ($quality !== null) {
+            $this->assertContainsFormValue($body, 'quality', (string) $quality);
+        }
+
+        if ($reduceImageResolution) {
+            $this->assertContainsFormValue($body, 'reduceImageResolution', '1');
+        }
+
+        if ($maxImageResolution !== null) {
+            $this->assertContainsFormValue($body, 'maxImageResolution', (string) $maxImageResolution);
+        }
+
+        if ($splitMode !== null) {
+            $this->assertContainsFormValue($body, 'splitMode', $splitMode->mode);
+            $this->assertContainsFormValue($body, 'splitSpan', $splitMode->span);
+            $this->assertContainsFormValue($body, 'splitUnify', $splitMode->unify ? '1' : '0');
+        }
+
+        if ($pdfa !== null) {
+            $this->assertContainsFormValue($body, 'pdfa', $pdfa);
+        }
+
+        if ($pdfua) {
+            $this->assertContainsFormValue($body, 'pdfua', '1');
+        }
+
+        if ($merge) {
+            $this->assertContainsFormValue($body, 'merge', '1');
+        }
+
+        if ($flatten) {
+            $this->assertContainsFormValue($body, 'flatten', '1');
+        }
+
+        if ($userPassword !== '') {
+            $this->assertContainsFormValue($body, 'userPassword', $userPassword);
+            $this->assertContainsFormValue($body, 'ownerPassword', $ownerPassword);
+        }
 
         if (count($metadata) > 0) {
             $json = json_encode($metadata);
@@ -225,66 +318,119 @@ it(
                 throw NativeFunctionErrored::createFromLastPhpError();
             }
 
-            expect($body)->toContainFormValue('metadata', $json);
+            $this->assertContainsFormValue($body, 'metadata', $json);
         }
 
         foreach ($files as $file) {
             $filename = $merge ? 'foo_' . $file->getFilename() : $file->getFilename();
             $file->getStream()->rewind();
 
-            expect($body)->toContainFormFile($filename, $file->getStream()->getContents(), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+            $this->assertContainsFormFile(
+                $body,
+                $filename,
+                $file->getStream()->getContents(),
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            );
         }
 
         foreach ($embeds as $embed) {
             $embed->getStream()->rewind();
-            expect($body)->toContainFormFile($embed->getFilename(), $embed->getStream()->getContents(), 'application/xml', 'embeds');
+            $this->assertContainsFormFile(
+                $body,
+                $embed->getFilename(),
+                $embed->getStream()->getContents(),
+                'application/xml',
+                'embeds',
+            );
         }
-    },
-)->with([
-    [
-        [
-            Stream::string('my.docx', 'Word content'),
-        ],
-    ],
-    [
-        [
-            Stream::string('my.docx', 'Word content'),
-            Stream::string('my_second.docx', 'Second Word content'),
-        ],
-        'foo',
-        true,
-        '1-2',
-        false,
-        false,
-        true,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        100,
-        true,
-        150,
-        SplitMode::intervals(1),
-        'PDF/A-1a',
-        true,
-        [ 'Producer' => 'Gotenberg' ],
-        true,
-        true,
-        'my_user_password',
-        'my_owner_password',
-        [
-            Stream::string('my.xml', 'XML content'),
-            Stream::string('my_second.xml', 'Second XML content'),
-        ],
-    ],
-]);
+    }
+
+    /**
+     * @return array<string, array{
+     * files: array<int, Stream>,
+     * password?: string|null,
+     * landscape?: bool,
+     * nativePageRanges?: string|null,
+     * updateIndexes?: bool|null,
+     * exportFormFields?: bool|null,
+     * allowDuplicateFieldNames?: bool,
+     * exportBookmarks?: bool|null,
+     * exportBookmarksToPdfDestination?: bool,
+     * exportPlaceholders?: bool,
+     * exportNotes?: bool,
+     * exportNotesPages?: bool,
+     * exportOnlyNotesPages?: bool,
+     * exportNotesInMargin?: bool,
+     * convertOooTargetToPdfTarget?: bool,
+     * exportLinksRelativeFsys?: bool,
+     * exportHiddenSlides?: bool,
+     * skipEmptyPages?: bool,
+     * addOriginalDocumentAsStream?: bool,
+     * singlePageSheets?: bool,
+     * losslessImageCompression?: bool,
+     * quality?: int|null,
+     * reduceImageResolution?: bool,
+     * maxImageResolution?: int|null,
+     * splitMode?: SplitMode|null,
+     * pdfa?: string|null,
+     * pdfua?: bool,
+     * metadata?: array<string, string|bool|float|int|array<string>>,
+     * merge?: bool,
+     * flatten?: bool,
+     * userPassword?: string,
+     * ownerPassword?: string,
+     * embeds?: array<int, Stream>
+     * }>
+     */
+    public static function provideConvertData(): array
+    {
+        return [
+            'minimal' => [
+                'files' => [
+                    Stream::string('my.docx', 'Word content'),
+                ],
+            ],
+            'full_options' => [
+                'files' => [
+                    Stream::string('my.docx', 'Word content'),
+                    Stream::string('my_second.docx', 'Second Word content'),
+                ],
+                'password' => 'foo',
+                'landscape' => true,
+                'nativePageRanges' => '1-2',
+                'updateIndexes' => false,
+                'exportFormFields' => false,
+                'allowDuplicateFieldNames' => true,
+                'exportBookmarks' => false,
+                'exportBookmarksToPdfDestination' => true,
+                'exportPlaceholders' => true,
+                'exportNotes' => true,
+                'exportNotesPages' => true,
+                'exportOnlyNotesPages' => true,
+                'exportNotesInMargin' => true,
+                'convertOooTargetToPdfTarget' => true,
+                'exportLinksRelativeFsys' => true,
+                'exportHiddenSlides' => true,
+                'skipEmptyPages' => true,
+                'addOriginalDocumentAsStream' => true,
+                'singlePageSheets' => true,
+                'losslessImageCompression' => true,
+                'quality' => 100,
+                'reduceImageResolution' => true,
+                'maxImageResolution' => 150,
+                'splitMode' => SplitMode::intervals(1),
+                'pdfa' => 'PDF/A-1a',
+                'pdfua' => true,
+                'metadata' => ['Producer' => 'Gotenberg'],
+                'merge' => true,
+                'flatten' => true,
+                'userPassword' => 'my_user_password',
+                'ownerPassword' => 'my_owner_password',
+                'embeds' => [
+                    Stream::string('my.xml', 'XML content'),
+                    Stream::string('my_second.xml', 'Second XML content'),
+                ],
+            ],
+        ];
+    }
+}

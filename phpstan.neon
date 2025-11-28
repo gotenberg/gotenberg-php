@@ -1,11 +1,30 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#Call to an undefined method Pest\\Expectation<string\|null>::toContainFormValue\(\).#'
+			message: '#Method Gotenberg\\Test\\Modules\\ChromiumPdfTest::provideUrlData\(\) should return array#'
 			path: tests/*
 		-
-			message: '#Call to an undefined method Pest\\Expectation<string\|null>::toContainFormFile\(\).#'
+			message: '#Method Gotenberg\\Test\\Modules\\ChromiumPdfTest::provideHtmlData\(\) should return array#'
 			path: tests/*
 		-
-			message: '#Undefined variable: \$this#'
+			message: '#Method Gotenberg\\Test\\Modules\\ChromiumPdfTest::provideMarkdownData\(\) should return array#'
+			path: tests/*
+		-
+			message: '#Method Gotenberg\\Test\\Modules\\ChromiumScreenshotTest::provideUrlData\(\) should return array#'
+			path: tests/*
+		-
+			message: '#Method Gotenberg\\Test\\Modules\\ChromiumScreenshotTest::provideHtmlData\(\) should return array#'
+			path: tests/*
+		-
+			message: '#Method Gotenberg\\Test\\Modules\\ChromiumScreenshotTest::provideMarkdownData\(\) should return array#'
+			path: tests/*
+
+		-
+			message: '#Method Gotenberg\\Test\\Modules\\PdfEnginesTest::provideMergeData\(\) should return array#'
+			path: tests/*
+		-
+			message: '#Method Gotenberg\\Test\\Modules\\PdfEnginesTest::provideSplitData\(\) should return array#'
+			path: tests/*
+		-
+			message: '#Method Gotenberg\\Test\\Modules\\PdfEnginesTest::provideConvertData\(\) should return array#'
 			path: tests/*

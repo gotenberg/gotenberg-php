@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gotenberg\Test;
+namespace Gotenberg\Test\Helpers\Dummies;
 
 use Gotenberg\ApiModule;
 use Psr\Http\Message\RequestInterface;

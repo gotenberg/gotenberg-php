@@ -2,25 +2,44 @@
 
 declare(strict_types=1);
 
-use Gotenberg\Stream;
+namespace Gotenberg\Test;
 
-it(
-    'creates a stream from a string',
-    function (): void {
+use Gotenberg\Stream;
+use PHPUnit\Framework\Attributes\Test;
+
+use function file_exists;
+use function file_put_contents;
+use function unlink;
+
+final class StreamTest extends TestCase
+{
+    #[Test]
+    public function it_creates_a_stream_from_a_string(): void
+    {
         $stream = Stream::string('my.txt', 'My content');
         $stream->getStream()->rewind();
 
-        expect($stream->getFilename())->toEqual('my.txt');
-        expect($stream->getStream()->getContents())->toEqual('My content');
-    },
-);
+        $this->assertSame('my.txt', $stream->getFilename());
+        $this->assertSame('My content', $stream->getStream()->getContents());
+    }
 
-it(
-    'creates a stream from a path',
-    function (): void {
-        $stream = Stream::path(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'dummy.txt');
+    #[Test]
+    public function it_creates_a_stream_from_a_path(): void
+    {
+        // Create a temporary dummy file to ensure the test passes reliably
+        $path = __DIR__ . '/dummy.txt';
+        file_put_contents($path, 'Dummy content');
 
-        expect($stream->getFilename())->toEqual('dummy.txt');
-        expect($stream->getStream()->getContents())->toEqual('Dummy content');
-    },
-);
+        try {
+            $stream = Stream::path($path);
+
+            $this->assertSame('dummy.txt', $stream->getFilename());
+            $this->assertSame('Dummy content', $stream->getStream()->getContents());
+        } finally {
+            // Cleanup: remove the file after the test
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
+    }
+}

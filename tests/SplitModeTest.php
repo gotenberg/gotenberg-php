@@ -2,24 +2,30 @@
 
 declare(strict_types=1);
 
+namespace Gotenberg\Test;
+
 use Gotenberg\SplitMode;
+use PHPUnit\Framework\Attributes\Test;
 
-it(
-    'creates an intervals split mode',
-    function (): void {
+final class SplitModeTest extends TestCase
+{
+    #[Test]
+    public function it_creates_an_intervals_split_mode(): void
+    {
         $mode = SplitMode::intervals(1);
-        expect($mode->mode)->toBe('intervals');
-        expect($mode->span)->toBe('1');
-        expect($mode->unify)->toBeFalse();
-    },
-);
 
-it(
-    'creates a pages split mode',
-    function (): void {
+        $this->assertSame('intervals', $mode->mode);
+        $this->assertSame('1', $mode->span);
+        $this->assertFalse($mode->unify);
+    }
+
+    #[Test]
+    public function it_creates_a_pages_split_mode(): void
+    {
         $mode = SplitMode::pages('1-2', true);
-        expect($mode->mode)->toBe('pages');
-        expect($mode->span)->toBe('1-2');
-        expect($mode->unify)->toBeTrue();
-    },
-);
+
+        $this->assertSame('pages', $mode->mode);
+        $this->assertSame('1-2', $mode->span);
+        $this->assertTrue($mode->unify);
+    }
+}

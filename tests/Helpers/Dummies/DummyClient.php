@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Gotenberg\Test;
+namespace Gotenberg\Test\Helpers\Dummies;
 
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;

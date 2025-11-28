@@ -16,8 +16,8 @@
     <!-- Include full Doctrine Coding Standard -->
     <rule ref="Doctrine"/>
 
-    <!-- Remove this specific rule for tests as it causes troubles with Pest -->
-    <rule ref="SlevomatCodingStandard.Functions.StaticClosure.ClosureNotStatic">
+    <!-- We want to allow snake_case -->
+    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
         <exclude-pattern>tests/**</exclude-pattern>
     </rule>
 </ruleset>

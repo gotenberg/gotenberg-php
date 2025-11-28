@@ -2,17 +2,22 @@
 
 declare(strict_types=1);
 
-use Gotenberg\Test\DummyApiModule;
+namespace Gotenberg\Test;
 
-it(
-    'creates a valid request with a trace header',
-    function (): void {
+use Gotenberg\Test\Helpers\Dummies\DummyApiModule;
+use PHPUnit\Framework\Attributes\Test;
+
+final class ApiModuleTest extends TestCase
+{
+    #[Test]
+    public function it_creates_a_valid_request_with_a_trace_header(): void
+    {
         $dummy   = new DummyApiModule('https://my.url/');
         $request = $dummy
             ->trace('debug')
             ->build();
 
-        expect($dummy->getUrl())->toBe('https://my.url');
-        expect($request->getHeader('Gotenberg-Trace'))->toMatchArray(['debug']);
-    },
-);
+        $this->assertSame('https://my.url', $dummy->getUrl());
+        $this->assertSame(['debug'], $request->getHeader('Gotenberg-Trace'));
+    }
+}
