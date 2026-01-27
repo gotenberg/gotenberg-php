@@ -50,6 +50,17 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
+     * Sets the selector (e.g. '#id') to query before converting an HTML
+     * document into PDF until it matches a node.
+     */
+    public function waitForSelector(string $selector): self
+    {
+        $this->formValue('waitForSelector', $selector);
+
+        return $this;
+    }
+
+    /**
      * Forces Chromium to emulate the media type "print".
      */
     public function emulatePrintMediaType(): self
@@ -154,6 +165,26 @@ trait ChromiumMultipartFormDataModule
         }
 
         $this->formValue('failOnResourceHttpStatusCodes', $json);
+
+        return $this;
+    }
+
+     /**
+      * Excludes resources from "failOnResourceHttpStatusCodes" checks based on
+      * their hostname.
+      *
+      * @param string[] $domains
+      *
+      * @throws NativeFunctionErrored
+      */
+    public function ignoreResourceHttpStatusDomains(array $domains): self
+    {
+        $json = json_encode($domains);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        $this->formValue('ignoreResourceHttpStatusDomains', $json);
 
         return $this;
     }

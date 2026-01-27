@@ -23,6 +23,7 @@ final class ChromiumScreenshotTest extends TestCase
      * @param array<string,string> $extraHttpHeaders
      * @param int[]                $failOnHttpStatusCodes
      * @param int[]                $failOnResourceHttpStatusCodes
+     * @param string[]             $ignoreResourceHttpStatusDomains
      * @param Stream[]             $assets
      */
     #[Test]
@@ -38,12 +39,14 @@ final class ChromiumScreenshotTest extends TestCase
         bool $omitBackground = false,
         string|null $waitDelay = null,
         string|null $waitForExpression = null,
+        string|null $waitForSelector = null,
         string|null $emulatedMediaType = null,
         array $cookies = [],
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         array $failOnResourceHttpStatusCodes = [],
+        array $ignoreResourceHttpStatusDomains = [],
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
@@ -61,12 +64,14 @@ final class ChromiumScreenshotTest extends TestCase
             $omitBackground,
             $waitDelay,
             $waitForExpression,
+            $waitForSelector,
             $emulatedMediaType,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnResourceHttpStatusCodes,
+            $ignoreResourceHttpStatusDomains,
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
@@ -90,12 +95,14 @@ final class ChromiumScreenshotTest extends TestCase
             $omitBackground,
             $waitDelay,
             $waitForExpression,
+            $waitForSelector,
             $emulatedMediaType,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnResourceHttpStatusCodes,
+            $ignoreResourceHttpStatusDomains,
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
@@ -116,11 +123,13 @@ final class ChromiumScreenshotTest extends TestCase
      * string|null,
      * string|null,
      * string|null,
+     * string|null,
      * array<int, ChromiumCookie>,
      * string|null,
      * array<string, string>,
      * array<int, int>,
      * array<int, int>,
+     * array<int, string>,
      * bool,
      * bool,
      * bool|null,
@@ -142,6 +151,7 @@ final class ChromiumScreenshotTest extends TestCase
                 true,
                 '1s',
                 "window.status === 'ready'",
+                '#id',
                 'print',
                 [
                     new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
@@ -154,6 +164,7 @@ final class ChromiumScreenshotTest extends TestCase
                 ],
                 [499, 599],
                 [499, 599],
+                ['my.com'],
                 true,
                 true,
                 true,
@@ -169,6 +180,7 @@ final class ChromiumScreenshotTest extends TestCase
      * @param array<string,string> $extraHttpHeaders
      * @param int[]                $failOnHttpStatusCodes
      * @param int[]                $failOnResourceHttpStatusCodes
+     * @param string[]             $ignoreResourceHttpStatusDomains
      * @param Stream[]             $assets
      */
     #[Test]
@@ -184,12 +196,14 @@ final class ChromiumScreenshotTest extends TestCase
         bool $omitBackground = false,
         string|null $waitDelay = null,
         string|null $waitForExpression = null,
+        string|null $waitForSelector = null,
         string|null $emulatedMediaType = null,
         array $cookies = [],
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         array $failOnResourceHttpStatusCodes = [],
+        array $ignoreResourceHttpStatusDomains = [],
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
@@ -207,12 +221,14 @@ final class ChromiumScreenshotTest extends TestCase
             $omitBackground,
             $waitDelay,
             $waitForExpression,
+            $waitForSelector,
             $emulatedMediaType,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnResourceHttpStatusCodes,
+            $ignoreResourceHttpStatusDomains,
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
@@ -238,12 +254,14 @@ final class ChromiumScreenshotTest extends TestCase
             $omitBackground,
             $waitDelay,
             $waitForExpression,
+            $waitForSelector,
             $emulatedMediaType,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnResourceHttpStatusCodes,
+            $ignoreResourceHttpStatusDomains,
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
@@ -264,11 +282,13 @@ final class ChromiumScreenshotTest extends TestCase
      * string|null,
      * string|null,
      * string|null,
+     * string|null,
      * array<int, ChromiumCookie>,
      * string|null,
      * array<string, string>,
      * array<int, int>,
      * array<int, int>,
+     * array<int, string>,
      * bool,
      * bool,
      * bool|null,
@@ -290,6 +310,7 @@ final class ChromiumScreenshotTest extends TestCase
                 true,
                 '1s',
                 "window.status === 'ready'",
+                '#id',
                 'screen',
                 [
                     new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
@@ -302,6 +323,7 @@ final class ChromiumScreenshotTest extends TestCase
                 ],
                 [499, 599],
                 [499, 599],
+                ['my.com'],
                 true,
                 true,
                 true,
@@ -317,6 +339,7 @@ final class ChromiumScreenshotTest extends TestCase
      * @param array<string,string> $extraHttpHeaders
      * @param int[]                $failOnHttpStatusCodes
      * @param int[]                $failOnResourceHttpStatusCodes
+     * @param string[]             $ignoreResourceHttpStatusDomains,
      * @param Stream[]             $markdowns
      * @param Stream[]             $assets
      */
@@ -334,12 +357,14 @@ final class ChromiumScreenshotTest extends TestCase
         bool $omitBackground = false,
         string|null $waitDelay = null,
         string|null $waitForExpression = null,
+        string|null $waitForSelector = null,
         string|null $emulatedMediaType = null,
         array $cookies = [],
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         array $failOnResourceHttpStatusCodes = [],
+        array $ignoreResourceHttpStatusDomains = [],
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
@@ -357,12 +382,14 @@ final class ChromiumScreenshotTest extends TestCase
             $omitBackground,
             $waitDelay,
             $waitForExpression,
+            $waitForSelector,
             $emulatedMediaType,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnResourceHttpStatusCodes,
+            $ignoreResourceHttpStatusDomains,
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
@@ -393,12 +420,14 @@ final class ChromiumScreenshotTest extends TestCase
             $omitBackground,
             $waitDelay,
             $waitForExpression,
+            $waitForSelector,
             $emulatedMediaType,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
             $failOnHttpStatusCodes,
             $failOnResourceHttpStatusCodes,
+            $ignoreResourceHttpStatusDomains,
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
@@ -420,11 +449,13 @@ final class ChromiumScreenshotTest extends TestCase
      * string|null,
      * string|null,
      * string|null,
+     * string|null,
      * array<int, ChromiumCookie>,
      * string|null,
      * array<string, string>,
      * array<int, int>,
      * array<int, int>,
+     * array<int, string>,
      * bool,
      * bool,
      * bool|null,
@@ -455,6 +486,7 @@ final class ChromiumScreenshotTest extends TestCase
                 true,
                 '1s',
                 "window.status === 'ready'",
+                '#id',
                 'screen',
                 [
                     new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
@@ -467,6 +499,7 @@ final class ChromiumScreenshotTest extends TestCase
                 ],
                 [499, 599],
                 [499, 599],
+                ['my.com'],
                 true,
                 true,
                 true,
@@ -482,6 +515,7 @@ final class ChromiumScreenshotTest extends TestCase
      * @param array<string,string> $extraHttpHeaders
      * @param int[]                $failOnHttpStatusCodes
      * @param int[]                $failOnResourceHttpStatusCodes
+     * @param string[]             $ignoreResourceHttpStatusDomains
      * @param Stream[]             $assets
      */
     private function hydrateChromiumScreenshotFormData(
@@ -495,12 +529,14 @@ final class ChromiumScreenshotTest extends TestCase
         bool $omitBackground = false,
         string|null $waitDelay = null,
         string|null $waitForExpression = null,
+        string|null $waitForSelector = null,
         string|null $emulatedMediaType = null,
         array $cookies = [],
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
         array $failOnHttpStatusCodes = [],
         array $failOnResourceHttpStatusCodes = [],
+        array $ignoreResourceHttpStatusDomains = [],
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
@@ -550,6 +586,10 @@ final class ChromiumScreenshotTest extends TestCase
             $chromium->waitForExpression($waitForExpression);
         }
 
+        if ($waitForSelector !== null) {
+            $chromium->waitForSelector($waitForSelector);
+        }
+
         if ($emulatedMediaType === 'print') {
             $chromium->emulatePrintMediaType();
         }
@@ -578,6 +618,10 @@ final class ChromiumScreenshotTest extends TestCase
             $chromium->failOnResourceHttpStatusCodes($failOnResourceHttpStatusCodes);
         }
 
+        if (count($ignoreResourceHttpStatusDomains) > 0) {
+            $chromium->ignoreResourceHttpStatusDomains($ignoreResourceHttpStatusDomains);
+        }
+
         if ($failOnResourceLoadingFailed) {
             $chromium->failOnResourceLoadingFailed();
         }
@@ -602,6 +646,7 @@ final class ChromiumScreenshotTest extends TestCase
      * @param array<string,string> $extraHttpHeaders
      * @param int[]                $failOnHttpStatusCodes
      * @param int[]                $failOnResourceHttpStatusCodes
+     * @param string[]             $ignoreResourceHttpStatusDomains
      * @param Stream[]             $assets
      */
     private function assertChromiumScreenshotOptions(
@@ -615,12 +660,14 @@ final class ChromiumScreenshotTest extends TestCase
         bool $omitBackground,
         string|null $waitDelay,
         string|null $waitForExpression,
+        string|null $waitForSelector,
         string|null $emulatedMediaType,
         array $cookies,
         string|null $userAgent,
         array $extraHttpHeaders,
         array $failOnHttpStatusCodes,
         array $failOnResourceHttpStatusCodes,
+        array $ignoreResourceHttpStatusDomains,
         bool $failOnResourceLoadingFailed,
         bool $failOnConsoleExceptions,
         bool|null $skipNetworkIdleEvent,
@@ -660,6 +707,10 @@ final class ChromiumScreenshotTest extends TestCase
 
         if ($waitForExpression !== null) {
             $this->assertContainsFormValue($body, 'waitForExpression', $waitForExpression);
+        }
+
+        if ($waitForSelector !== null) {
+            $this->assertContainsFormValue($body, 'waitForSelector', $waitForSelector);
         }
 
         if ($emulatedMediaType !== null) {
@@ -704,6 +755,15 @@ final class ChromiumScreenshotTest extends TestCase
             }
 
             $this->assertContainsFormValue($body, 'failOnResourceHttpStatusCodes', $json);
+        }
+
+        if (count($ignoreResourceHttpStatusDomains) > 0) {
+            $json = json_encode($ignoreResourceHttpStatusDomains);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'ignoreResourceHttpStatusDomains', $json);
         }
 
         if ($failOnResourceLoadingFailed) {
