@@ -7,6 +7,7 @@ namespace Gotenberg\Test\Modules;
 use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
 use Gotenberg\Modules\ChromiumCookie;
+use Gotenberg\Modules\ChromiumEmulatedMediaFeatures;
 use Gotenberg\Modules\ChromiumScreenshot;
 use Gotenberg\Stream;
 use Gotenberg\Test\TestCase;
@@ -19,12 +20,13 @@ use function json_encode;
 final class ChromiumScreenshotTest extends TestCase
 {
     /**
-     * @param ChromiumCookie[]     $cookies
-     * @param array<string,string> $extraHttpHeaders
-     * @param int[]                $failOnHttpStatusCodes
-     * @param int[]                $failOnResourceHttpStatusCodes
-     * @param string[]             $ignoreResourceHttpStatusDomains
-     * @param Stream[]             $assets
+     * @param ChromiumEmulatedMediaFeatures[] $emulatedMediaFeatures
+     * @param ChromiumCookie[]                $cookies
+     * @param array<string,string>            $extraHttpHeaders
+     * @param int[]                           $failOnHttpStatusCodes
+     * @param int[]                           $failOnResourceHttpStatusCodes
+     * @param string[]                        $ignoreResourceHttpStatusDomains
+     * @param Stream[]                        $assets
      */
     #[Test]
     #[DataProvider('provideUrlData')]
@@ -41,6 +43,7 @@ final class ChromiumScreenshotTest extends TestCase
         string|null $waitForExpression = null,
         string|null $waitForSelector = null,
         string|null $emulatedMediaType = null,
+        array $emulatedMediaFeatures = [],
         array $cookies = [],
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
@@ -66,6 +69,7 @@ final class ChromiumScreenshotTest extends TestCase
             $waitForExpression,
             $waitForSelector,
             $emulatedMediaType,
+            $emulatedMediaFeatures,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
@@ -97,6 +101,7 @@ final class ChromiumScreenshotTest extends TestCase
             $waitForExpression,
             $waitForSelector,
             $emulatedMediaType,
+            $emulatedMediaFeatures,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
@@ -124,6 +129,7 @@ final class ChromiumScreenshotTest extends TestCase
      * string|null,
      * string|null,
      * string|null,
+     * array<int, ChromiumEmulatedMediaFeatures>,
      * array<int, ChromiumCookie>,
      * string|null,
      * array<string, string>,
@@ -154,6 +160,10 @@ final class ChromiumScreenshotTest extends TestCase
                 '#id',
                 'print',
                 [
+                    new ChromiumEmulatedMediaFeatures('prefers-color-scheme', 'dark'),
+                    new ChromiumEmulatedMediaFeatures('prefers-reduced-motion', 'reduce'),
+                ],
+                [
                     new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
                     new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
                 ],
@@ -176,12 +186,13 @@ final class ChromiumScreenshotTest extends TestCase
     }
 
     /**
-     * @param ChromiumCookie[]     $cookies
-     * @param array<string,string> $extraHttpHeaders
-     * @param int[]                $failOnHttpStatusCodes
-     * @param int[]                $failOnResourceHttpStatusCodes
-     * @param string[]             $ignoreResourceHttpStatusDomains
-     * @param Stream[]             $assets
+     * @param ChromiumEmulatedMediaFeatures[] $emulatedMediaFeatures
+     * @param ChromiumCookie[]                $cookies
+     * @param array<string,string>            $extraHttpHeaders
+     * @param int[]                           $failOnHttpStatusCodes
+     * @param int[]                           $failOnResourceHttpStatusCodes
+     * @param string[]                        $ignoreResourceHttpStatusDomains
+     * @param Stream[]                        $assets
      */
     #[Test]
     #[DataProvider('provideHtmlData')]
@@ -198,6 +209,7 @@ final class ChromiumScreenshotTest extends TestCase
         string|null $waitForExpression = null,
         string|null $waitForSelector = null,
         string|null $emulatedMediaType = null,
+        array $emulatedMediaFeatures = [],
         array $cookies = [],
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
@@ -223,6 +235,7 @@ final class ChromiumScreenshotTest extends TestCase
             $waitForExpression,
             $waitForSelector,
             $emulatedMediaType,
+            $emulatedMediaFeatures,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
@@ -256,6 +269,7 @@ final class ChromiumScreenshotTest extends TestCase
             $waitForExpression,
             $waitForSelector,
             $emulatedMediaType,
+            $emulatedMediaFeatures,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
@@ -283,6 +297,7 @@ final class ChromiumScreenshotTest extends TestCase
      * string|null,
      * string|null,
      * string|null,
+     * array<int, ChromiumEmulatedMediaFeatures>,
      * array<int, ChromiumCookie>,
      * string|null,
      * array<string, string>,
@@ -313,6 +328,10 @@ final class ChromiumScreenshotTest extends TestCase
                 '#id',
                 'screen',
                 [
+                    new ChromiumEmulatedMediaFeatures('prefers-color-scheme', 'light'),
+                    new ChromiumEmulatedMediaFeatures('forced-colors', 'none'),
+                ],
+                [
                     new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
                     new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
                 ],
@@ -335,13 +354,14 @@ final class ChromiumScreenshotTest extends TestCase
     }
 
     /**
-     * @param ChromiumCookie[]     $cookies
-     * @param array<string,string> $extraHttpHeaders
-     * @param int[]                $failOnHttpStatusCodes
-     * @param int[]                $failOnResourceHttpStatusCodes
-     * @param string[]             $ignoreResourceHttpStatusDomains,
-     * @param Stream[]             $markdowns
-     * @param Stream[]             $assets
+     * @param ChromiumEmulatedMediaFeatures[] $emulatedMediaFeatures
+     * @param ChromiumCookie[]                $cookies
+     * @param array<string,string>            $extraHttpHeaders
+     * @param int[]                           $failOnHttpStatusCodes
+     * @param int[]                           $failOnResourceHttpStatusCodes
+     * @param string[]                        $ignoreResourceHttpStatusDomains,
+     * @param Stream[]                        $markdowns
+     * @param Stream[]                        $assets
      */
     #[Test]
     #[DataProvider('provideMarkdownData')]
@@ -359,6 +379,7 @@ final class ChromiumScreenshotTest extends TestCase
         string|null $waitForExpression = null,
         string|null $waitForSelector = null,
         string|null $emulatedMediaType = null,
+        array $emulatedMediaFeatures = [],
         array $cookies = [],
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
@@ -384,6 +405,7 @@ final class ChromiumScreenshotTest extends TestCase
             $waitForExpression,
             $waitForSelector,
             $emulatedMediaType,
+            $emulatedMediaFeatures,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
@@ -422,6 +444,7 @@ final class ChromiumScreenshotTest extends TestCase
             $waitForExpression,
             $waitForSelector,
             $emulatedMediaType,
+            $emulatedMediaFeatures,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
@@ -450,6 +473,7 @@ final class ChromiumScreenshotTest extends TestCase
      * string|null,
      * string|null,
      * string|null,
+     * array<int, ChromiumEmulatedMediaFeatures>,
      * array<int, ChromiumCookie>,
      * string|null,
      * array<string, string>,
@@ -489,6 +513,9 @@ final class ChromiumScreenshotTest extends TestCase
                 '#id',
                 'screen',
                 [
+                    new ChromiumEmulatedMediaFeatures('prefers-reduced-motion', 'reduce'),
+                ],
+                [
                     new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
                     new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
                 ],
@@ -511,12 +538,13 @@ final class ChromiumScreenshotTest extends TestCase
     }
 
     /**
-     * @param ChromiumCookie[]     $cookies
-     * @param array<string,string> $extraHttpHeaders
-     * @param int[]                $failOnHttpStatusCodes
-     * @param int[]                $failOnResourceHttpStatusCodes
-     * @param string[]             $ignoreResourceHttpStatusDomains
-     * @param Stream[]             $assets
+     * @param ChromiumEmulatedMediaFeatures[] $emulatedMediaFeatures
+     * @param ChromiumCookie[]                $cookies
+     * @param array<string,string>            $extraHttpHeaders
+     * @param int[]                           $failOnHttpStatusCodes
+     * @param int[]                           $failOnResourceHttpStatusCodes
+     * @param string[]                        $ignoreResourceHttpStatusDomains
+     * @param Stream[]                        $assets
      */
     private function hydrateChromiumScreenshotFormData(
         ChromiumScreenshot $chromium,
@@ -531,6 +559,7 @@ final class ChromiumScreenshotTest extends TestCase
         string|null $waitForExpression = null,
         string|null $waitForSelector = null,
         string|null $emulatedMediaType = null,
+        array $emulatedMediaFeatures = [],
         array $cookies = [],
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
@@ -598,6 +627,10 @@ final class ChromiumScreenshotTest extends TestCase
             $chromium->emulateScreenMediaType();
         }
 
+        if (count($emulatedMediaFeatures) > 0) {
+            $chromium->emulatedMediaFeatures($emulatedMediaFeatures);
+        }
+
         if (count($cookies) > 0) {
             $chromium->cookies($cookies);
         }
@@ -642,12 +675,13 @@ final class ChromiumScreenshotTest extends TestCase
     }
 
     /**
-     * @param ChromiumCookie[]     $cookies
-     * @param array<string,string> $extraHttpHeaders
-     * @param int[]                $failOnHttpStatusCodes
-     * @param int[]                $failOnResourceHttpStatusCodes
-     * @param string[]             $ignoreResourceHttpStatusDomains
-     * @param Stream[]             $assets
+     * @param ChromiumEmulatedMediaFeatures[] $emulatedMediaFeatures
+     * @param ChromiumCookie[]                $cookies
+     * @param array<string,string>            $extraHttpHeaders
+     * @param int[]                           $failOnHttpStatusCodes
+     * @param int[]                           $failOnResourceHttpStatusCodes
+     * @param string[]                        $ignoreResourceHttpStatusDomains
+     * @param Stream[]                        $assets
      */
     private function assertChromiumScreenshotOptions(
         string $body,
@@ -662,6 +696,7 @@ final class ChromiumScreenshotTest extends TestCase
         string|null $waitForExpression,
         string|null $waitForSelector,
         string|null $emulatedMediaType,
+        array $emulatedMediaFeatures,
         array $cookies,
         string|null $userAgent,
         array $extraHttpHeaders,
@@ -715,6 +750,15 @@ final class ChromiumScreenshotTest extends TestCase
 
         if ($emulatedMediaType !== null) {
             $this->assertContainsFormValue($body, 'emulatedMediaType', $emulatedMediaType);
+        }
+
+        if (count($emulatedMediaFeatures) > 0) {
+            $json = json_encode($emulatedMediaFeatures);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'emulatedMediaFeatures', $json);
         }
 
         if (count($cookies) > 0) {

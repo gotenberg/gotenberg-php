@@ -81,6 +81,25 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
+     * Simulates specific browser conditions by overriding CSS media features
+     *
+     * @param ChromiumEmulatedMediaFeatures[] $features
+     *
+     * @throws NativeFunctionErrored
+     */
+    public function emulatedMediaFeatures(array $features): self
+    {
+        $json = json_encode($features);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        $this->formValue('emulatedMediaFeatures', $json);
+
+        return $this;
+    }
+
+    /**
      * Cookies to store in the Chromium cookie jar.
      *
      * @param ChromiumCookie[] $cookies

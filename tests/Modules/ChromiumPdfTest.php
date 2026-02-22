@@ -7,6 +7,7 @@ namespace Gotenberg\Test\Modules;
 use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
 use Gotenberg\Modules\ChromiumCookie;
+use Gotenberg\Modules\ChromiumEmulatedMediaFeatures;
 use Gotenberg\Modules\ChromiumPdf;
 use Gotenberg\SplitMode;
 use Gotenberg\Stream;
@@ -21,6 +22,7 @@ final class ChromiumPdfTest extends TestCase
 {
     /**
      * @param ChromiumCookie[]                                  $cookies
+     * @param ChromiumEmulatedMediaFeatures[]                   $emulatedMediaFeatures
      * @param array<string,string>                              $extraHttpHeaders
      * @param int[]                                             $failOnHttpStatusCodes
      * @param int[]                                             $failOnResourceHttpStatusCodes
@@ -54,6 +56,7 @@ final class ChromiumPdfTest extends TestCase
         string|null $waitForExpression = null,
         string|null $waitForSelector = null,
         string|null $emulatedMediaType = null,
+        array $emulatedMediaFeatures = [],
         array $cookies = [],
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
@@ -97,6 +100,7 @@ final class ChromiumPdfTest extends TestCase
             $waitForExpression,
             $waitForSelector,
             $emulatedMediaType,
+            $emulatedMediaFeatures,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
@@ -146,6 +150,7 @@ final class ChromiumPdfTest extends TestCase
             $waitForExpression,
             $waitForSelector,
             $emulatedMediaType,
+            $emulatedMediaFeatures,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
@@ -191,6 +196,7 @@ final class ChromiumPdfTest extends TestCase
      * string|null,
      * string|null,
      * string|null,
+     * array<int, ChromiumEmulatedMediaFeatures>,
      * array<int, ChromiumCookie>,
      * string|null,
      * array<string, string>,
@@ -239,6 +245,10 @@ final class ChromiumPdfTest extends TestCase
                 '#id',
                 'print',
                 [
+                    new ChromiumEmulatedMediaFeatures('prefers-color-scheme', 'dark'),
+                    new ChromiumEmulatedMediaFeatures('prefers-reduced-motion', 'reduce'),
+                ],
+                [
                     new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
                     new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
                 ],
@@ -273,6 +283,7 @@ final class ChromiumPdfTest extends TestCase
 
     /**
      * @param ChromiumCookie[]                                  $cookies
+     * @param ChromiumEmulatedMediaFeatures[]                   $emulatedMediaFeatures
      * @param array<string,string>                              $extraHttpHeaders
      * @param int[]                                             $failOnHttpStatusCodes
      * @param int[]                                             $failOnResourceHttpStatusCodes
@@ -306,6 +317,7 @@ final class ChromiumPdfTest extends TestCase
         string|null $waitForExpression = null,
         string|null $waitForSelector = null,
         string|null $emulatedMediaType = null,
+        array $emulatedMediaFeatures = [],
         array $cookies = [],
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
@@ -349,6 +361,7 @@ final class ChromiumPdfTest extends TestCase
             $waitForExpression,
             $waitForSelector,
             $emulatedMediaType,
+            $emulatedMediaFeatures,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
@@ -400,6 +413,7 @@ final class ChromiumPdfTest extends TestCase
             $waitForExpression,
             $waitForSelector,
             $emulatedMediaType,
+            $emulatedMediaFeatures,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
@@ -445,6 +459,7 @@ final class ChromiumPdfTest extends TestCase
      * string|null,
      * string|null,
      * string|null,
+     * array<int, ChromiumEmulatedMediaFeatures>,
      * array<int, ChromiumCookie>,
      * string|null,
      * array<string, string>,
@@ -493,6 +508,10 @@ final class ChromiumPdfTest extends TestCase
                 '#id',
                 'screen',
                 [
+                    new ChromiumEmulatedMediaFeatures('prefers-color-scheme', 'dark'),
+                    new ChromiumEmulatedMediaFeatures('prefers-reduced-motion', 'reduce'),
+                ],
+                [
                     new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
                     new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
                 ],
@@ -527,6 +546,7 @@ final class ChromiumPdfTest extends TestCase
 
     /**
      * @param ChromiumCookie[]                                  $cookies
+     * @param ChromiumEmulatedMediaFeatures[]                   $emulatedMediaFeatures
      * @param array<string,string>                              $extraHttpHeaders
      * @param int[]                                             $failOnHttpStatusCodes
      * @param int[]                                             $failOnResourceHttpStatusCodes
@@ -562,6 +582,7 @@ final class ChromiumPdfTest extends TestCase
         string|null $waitForExpression = null,
         string|null $waitForSelector = null,
         string|null $emulatedMediaType = null,
+        array $emulatedMediaFeatures = [],
         array $cookies = [],
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
@@ -605,6 +626,7 @@ final class ChromiumPdfTest extends TestCase
             $waitForExpression,
             $waitForSelector,
             $emulatedMediaType,
+            $emulatedMediaFeatures,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
@@ -661,6 +683,7 @@ final class ChromiumPdfTest extends TestCase
             $waitForExpression,
             $waitForSelector,
             $emulatedMediaType,
+            $emulatedMediaFeatures,
             $cookies,
             $userAgent,
             $extraHttpHeaders,
@@ -707,6 +730,7 @@ final class ChromiumPdfTest extends TestCase
      * string|null,
      * string|null,
      * string|null,
+     * array<int, ChromiumEmulatedMediaFeatures>,
      * array<int, ChromiumCookie>,
      * string|null,
      * array<string, string>,
@@ -764,6 +788,10 @@ final class ChromiumPdfTest extends TestCase
                 '#id',
                 'screen',
                 [
+                    new ChromiumEmulatedMediaFeatures('prefers-color-scheme', 'dark'),
+                    new ChromiumEmulatedMediaFeatures('prefers-reduced-motion', 'reduce'),
+                ],
+                [
                     new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com'),
                     new ChromiumCookie('vanilla_cookie', 'vanilla', 'theyummycookie.com', '/', true, true, 'Lax'),
                 ],
@@ -798,6 +826,7 @@ final class ChromiumPdfTest extends TestCase
 
     /**
      * @param ChromiumCookie[]                                  $cookies
+     * @param ChromiumEmulatedMediaFeatures[]                   $emulatedMediaFeatures
      * @param array<string,string>                              $extraHttpHeaders
      * @param int[]                                             $failOnHttpStatusCodes
      * @param int[]                                             $failOnResourceHttpStatusCodes
@@ -829,6 +858,7 @@ final class ChromiumPdfTest extends TestCase
         string|null $waitForExpression = null,
         string|null $waitForSelector = null,
         string|null $emulatedMediaType = null,
+        array $emulatedMediaFeatures = [],
         array $cookies = [],
         string|null $userAgent = null,
         array $extraHttpHeaders = [],
@@ -920,6 +950,10 @@ final class ChromiumPdfTest extends TestCase
             $chromium->emulateScreenMediaType();
         }
 
+        if (count($emulatedMediaFeatures) > 0) {
+            $chromium->emulatedMediaFeatures($emulatedMediaFeatures);
+        }
+
         if (count($cookies) > 0) {
             $chromium->cookies($cookies);
         }
@@ -993,6 +1027,7 @@ final class ChromiumPdfTest extends TestCase
 
     /**
      * @param ChromiumCookie[]                                  $cookies
+     * @param ChromiumEmulatedMediaFeatures[]                   $emulatedMediaFeatures
      * @param array<string,string>                              $extraHttpHeaders
      * @param int[]                                             $failOnHttpStatusCodes
      * @param int[]                                             $failOnResourceHttpStatusCodes
@@ -1024,6 +1059,7 @@ final class ChromiumPdfTest extends TestCase
         string|null $waitForExpression,
         string|null $waitForSelector,
         string|null $emulatedMediaType,
+        array $emulatedMediaFeatures,
         array $cookies,
         string|null $userAgent,
         array $extraHttpHeaders,
@@ -1115,6 +1151,15 @@ final class ChromiumPdfTest extends TestCase
 
         if ($emulatedMediaType !== null) {
             $this->assertContainsFormValue($body, 'emulatedMediaType', $emulatedMediaType);
+        }
+
+        if (count($emulatedMediaFeatures) > 0) {
+            $json = json_encode($emulatedMediaFeatures);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'emulatedMediaFeatures', $json);
         }
 
         if (count($cookies) > 0) {
