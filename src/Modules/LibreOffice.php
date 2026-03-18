@@ -287,6 +287,66 @@ class LibreOffice
     }
 
     /**
+     * Sets the native watermark text.
+     */
+    public function nativeWatermarkText(string $text): self
+    {
+        $this->formValue('nativeWatermarkText', $text);
+
+        return $this;
+    }
+
+    /**
+     * Sets the native watermark color.
+     */
+    public function nativeWatermarkColor(int $color): self
+    {
+        $this->formValue('nativeWatermarkColor', $color);
+
+        return $this;
+    }
+
+    /**
+     * Sets the native watermark font height.
+     */
+    public function nativeWatermarkFontHeight(int $height): self
+    {
+        $this->formValue('nativeWatermarkFontHeight', $height);
+
+        return $this;
+    }
+
+    /**
+     * Sets the native watermark rotate angle.
+     */
+    public function nativeWatermarkRotateAngle(int $angle): self
+    {
+        $this->formValue('nativeWatermarkRotateAngle', $angle);
+
+        return $this;
+    }
+
+    /**
+     * Sets the native watermark font name.
+     */
+    public function nativeWatermarkFontName(string $name): self
+    {
+        $this->formValue('nativeWatermarkFontName', $name);
+
+        return $this;
+    }
+
+    /**
+     * Sets the native tiled watermark text.
+     */
+    public function nativeTiledWatermarkText(string $text): self
+    {
+        $this->formValue('nativeTiledWatermarkText', $text);
+
+        return $this;
+    }
+
+    /**
      * Sets the PDF/A format of the resulting PDF.
      */
     public function pdfa(string $format): self

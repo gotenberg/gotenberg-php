@@ -34,6 +34,8 @@ final class PdfEnginesTest extends TestCase
         string $userPassword = '',
         string $ownerPassword = '',
         array $embeds = [],
+        string $bookmarks = '',
+        bool $autoIndexBookmarks = false,
     ): void {
         $pdfEngines = Gotenberg::pdfEngines('')->index(new DummyIndex());
 
@@ -59,6 +61,14 @@ final class PdfEnginesTest extends TestCase
 
         if (count($embeds) > 0) {
             $pdfEngines->embeds(...$embeds);
+        }
+
+        if ($bookmarks !== '') {
+            $pdfEngines->bookmarks($bookmarks);
+        }
+
+        if ($autoIndexBookmarks) {
+            $pdfEngines->autoIndexBookmarks();
         }
 
         $request = $pdfEngines->merge(...$pdfs);
@@ -92,6 +102,14 @@ final class PdfEnginesTest extends TestCase
             $this->assertContainsFormValue($body, 'ownerPassword', $ownerPassword);
         }
 
+        if ($bookmarks !== '') {
+            $this->assertContainsFormValue($body, 'bookmarks', $bookmarks);
+        }
+
+        if ($autoIndexBookmarks) {
+            $this->assertContainsFormValue($body, 'autoIndexBookmarks', '1');
+        }
+
         foreach ($pdfs as $pdf) {
             $pdf->getStream()->rewind();
             $this->assertContainsFormFile($body, 'foo_' . $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
@@ -103,7 +121,7 @@ final class PdfEnginesTest extends TestCase
         }
     }
 
-    /** @return array<string, array{array<int, Stream>, string|null, bool, array<string, array<string>|bool|float|int|string>, bool, string, string, array<int, Stream>}> */
+    /** @return array<string, array{array<int, Stream>, string|null, bool, array<string, array<string>|bool|float|int|string>, bool, string, string, array<int, Stream>, string, bool}> */
     public static function provideMergeData(): array
     {
         return [
@@ -129,6 +147,8 @@ final class PdfEnginesTest extends TestCase
                     Stream::string('my.xml', 'XML content'),
                     Stream::string('my_second.xml', 'Second XML content'),
                 ],
+                '[{"title":"Chapter 1","page":1}]',
+                true,
             ],
         ];
     }
@@ -137,6 +157,10 @@ final class PdfEnginesTest extends TestCase
      * @param Stream[]                                          $pdfs
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
+     * @param array<string,mixed>                               $watermarkOptions
+     * @param Stream[]                                          $watermarkFiles
+     * @param array<string,mixed>                               $stampOptions
+     * @param Stream[]                                          $stampFiles
      */
     #[Test]
     #[DataProvider('provideSplitData')]
@@ -150,6 +174,16 @@ final class PdfEnginesTest extends TestCase
         string $userPassword = '',
         string $ownerPassword = '',
         array $embeds = [],
+        string $watermarkSource = '',
+        string $watermarkExpression = '',
+        string $watermarkPages = '',
+        array $watermarkOptions = [],
+        array $watermarkFiles = [],
+        string $stampSource = '',
+        string $stampExpression = '',
+        string $stampPages = '',
+        array $stampOptions = [],
+        array $stampFiles = [],
     ): void {
         $pdfEngines = Gotenberg::pdfEngines('');
 
@@ -175,6 +209,22 @@ final class PdfEnginesTest extends TestCase
 
         if (count($embeds) > 0) {
             $pdfEngines->embeds(...$embeds);
+        }
+
+        if ($watermarkSource !== '') {
+            $pdfEngines->watermarking($watermarkSource, $watermarkExpression, $watermarkPages, $watermarkOptions);
+        }
+
+        if (count($watermarkFiles) > 0) {
+            $pdfEngines->watermarkFiles(...$watermarkFiles);
+        }
+
+        if ($stampSource !== '') {
+            $pdfEngines->stamping($stampSource, $stampExpression, $stampPages, $stampOptions);
+        }
+
+        if (count($stampFiles) > 0) {
+            $pdfEngines->stampFiles(...$stampFiles);
         }
 
         $request = $pdfEngines->split($mode, ...$pdfs);
@@ -211,6 +261,48 @@ final class PdfEnginesTest extends TestCase
             $this->assertContainsFormValue($body, 'ownerPassword', $ownerPassword);
         }
 
+        if ($watermarkSource !== '') {
+            $this->assertContainsFormValue($body, 'watermarkSource', $watermarkSource);
+        }
+
+        if ($watermarkExpression !== '') {
+            $this->assertContainsFormValue($body, 'watermarkExpression', $watermarkExpression);
+        }
+
+        if ($watermarkPages !== '') {
+            $this->assertContainsFormValue($body, 'watermarkPages', $watermarkPages);
+        }
+
+        if (count($watermarkOptions) > 0) {
+            $json = json_encode($watermarkOptions);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'watermarkOptions', $json);
+        }
+
+        if ($stampSource !== '') {
+            $this->assertContainsFormValue($body, 'stampSource', $stampSource);
+        }
+
+        if ($stampExpression !== '') {
+            $this->assertContainsFormValue($body, 'stampExpression', $stampExpression);
+        }
+
+        if ($stampPages !== '') {
+            $this->assertContainsFormValue($body, 'stampPages', $stampPages);
+        }
+
+        if (count($stampOptions) > 0) {
+            $json = json_encode($stampOptions);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'stampOptions', $json);
+        }
+
         foreach ($pdfs as $pdf) {
             $pdf->getStream()->rewind();
             $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
@@ -219,6 +311,16 @@ final class PdfEnginesTest extends TestCase
         foreach ($embeds as $embed) {
             $embed->getStream()->rewind();
             $this->assertContainsFormFile($body, $embed->getFilename(), $embed->getStream()->getContents(), 'application/xml', 'embeds');
+        }
+
+        foreach ($watermarkFiles as $watermarkFile) {
+            $watermarkFile->getStream()->rewind();
+            $this->assertContainsFormFile($body, $watermarkFile->getFilename(), $watermarkFile->getStream()->getContents(), 'application/pdf', 'watermarks');
+        }
+
+        foreach ($stampFiles as $stampFile) {
+            $stampFile->getStream()->rewind();
+            $this->assertContainsFormFile($body, $stampFile->getFilename(), $stampFile->getStream()->getContents(), 'application/pdf', 'stamps');
         }
     }
 
@@ -232,6 +334,16 @@ final class PdfEnginesTest extends TestCase
      * bool,
      * string,
      * string,
+     * array<int, Stream>,
+     * string,
+     * string,
+     * string,
+     * array<string, string>,
+     * array<int, Stream>,
+     * string,
+     * string,
+     * string,
+     * array<string, string>,
      * array<int, Stream>
      * }>
      */
@@ -260,6 +372,20 @@ final class PdfEnginesTest extends TestCase
                 [
                     Stream::string('my.xml', 'XML content'),
                     Stream::string('my_second.xml', 'Second XML content'),
+                ],
+                'my_watermark_source',
+                'my_watermark_expression',
+                '1-2',
+                ['key' => 'value'],
+                [
+                    Stream::string('my_watermark.pdf', 'Watermark content'),
+                ],
+                'my_stamp_source',
+                'my_stamp_expression',
+                '3-4',
+                ['key' => 'value'],
+                [
+                    Stream::string('my_stamp.pdf', 'Stamp content'),
                 ],
             ],
         ];
@@ -484,6 +610,240 @@ final class PdfEnginesTest extends TestCase
                     Stream::string('my.xml', 'XML content'),
                     Stream::string('my_second.xml', 'Second XML content'),
                 ],
+                [
+                    Stream::string('my.pdf', 'PDF content'),
+                    Stream::string('my_second.pdf', 'Second PDF content'),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param Stream[]            $pdfs
+     * @param array<string,mixed> $options
+     * @param Stream[]            $watermarkFiles
+     */
+    #[Test]
+    #[DataProvider('provideWatermarkData')]
+    public function it_creates_a_valid_request_for_the_forms_pdfengines_watermark_endpoint(
+        string $source,
+        array $pdfs,
+        string $expression = '',
+        string $pages = '',
+        array $options = [],
+        array $watermarkFiles = [],
+    ): void {
+        $pdfEngines = Gotenberg::pdfEngines('');
+
+        if ($expression !== '') {
+            $pdfEngines->watermarking($source, $expression, $pages, $options);
+        }
+
+        if (count($watermarkFiles) > 0) {
+            $pdfEngines->watermarkFiles(...$watermarkFiles);
+        }
+
+        $request = $pdfEngines->watermark($source, ...$pdfs);
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertSame('/forms/pdfengines/watermark', $request->getUri()->getPath());
+        $this->assertContainsFormValue($body, 'watermarkSource', $source);
+
+        if ($expression !== '') {
+            $this->assertContainsFormValue($body, 'watermarkExpression', $expression);
+        }
+
+        if ($pages !== '') {
+            $this->assertContainsFormValue($body, 'watermarkPages', $pages);
+        }
+
+        if (count($options) > 0) {
+            $json = json_encode($options);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'watermarkOptions', $json);
+        }
+
+        foreach ($pdfs as $pdf) {
+            $pdf->getStream()->rewind();
+            $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
+        }
+
+        foreach ($watermarkFiles as $watermarkFile) {
+            $watermarkFile->getStream()->rewind();
+            $this->assertContainsFormFile($body, $watermarkFile->getFilename(), $watermarkFile->getStream()->getContents(), 'application/pdf', 'watermarks');
+        }
+    }
+
+    /** @return array<string, array{0: string, 1: array<int, Stream>, 2?: string, 3?: string, 4?: array<string, string>, 5?: array<int, Stream>}> */
+    public static function provideWatermarkData(): array
+    {
+        return [
+            'basic' => [
+                'my_source',
+                [
+                    Stream::string('my.pdf', 'PDF content'),
+                ],
+            ],
+            'full_options' => [
+                'my_source',
+                [
+                    Stream::string('my.pdf', 'PDF content'),
+                    Stream::string('my_second.pdf', 'Second PDF content'),
+                ],
+                'my_expression',
+                '1-2',
+                ['key' => 'value'],
+                [
+                    Stream::string('my_watermark.pdf', 'Watermark content'),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param Stream[]            $pdfs
+     * @param array<string,mixed> $options
+     * @param Stream[]            $stampFiles
+     */
+    #[Test]
+    #[DataProvider('provideStampData')]
+    public function it_creates_a_valid_request_for_the_forms_pdfengines_stamp_endpoint(
+        string $source,
+        array $pdfs,
+        string $expression = '',
+        string $pages = '',
+        array $options = [],
+        array $stampFiles = [],
+    ): void {
+        $pdfEngines = Gotenberg::pdfEngines('');
+
+        if ($expression !== '') {
+            $pdfEngines->stamping($source, $expression, $pages, $options);
+        }
+
+        if (count($stampFiles) > 0) {
+            $pdfEngines->stampFiles(...$stampFiles);
+        }
+
+        $request = $pdfEngines->stamp($source, ...$pdfs);
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertSame('/forms/pdfengines/stamp', $request->getUri()->getPath());
+        $this->assertContainsFormValue($body, 'stampSource', $source);
+
+        if ($expression !== '') {
+            $this->assertContainsFormValue($body, 'stampExpression', $expression);
+        }
+
+        if ($pages !== '') {
+            $this->assertContainsFormValue($body, 'stampPages', $pages);
+        }
+
+        if (count($options) > 0) {
+            $json = json_encode($options);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'stampOptions', $json);
+        }
+
+        foreach ($pdfs as $pdf) {
+            $pdf->getStream()->rewind();
+            $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
+        }
+
+        foreach ($stampFiles as $stampFile) {
+            $stampFile->getStream()->rewind();
+            $this->assertContainsFormFile($body, $stampFile->getFilename(), $stampFile->getStream()->getContents(), 'application/pdf', 'stamps');
+        }
+    }
+
+    /** @return array<string, array{0: string, 1: array<int, Stream>, 2?: string, 3?: string, 4?: array<string, string>, 5?: array<int, Stream>}> */
+    public static function provideStampData(): array
+    {
+        return [
+            'basic' => [
+                'my_source',
+                [
+                    Stream::string('my.pdf', 'PDF content'),
+                ],
+            ],
+            'full_options' => [
+                'my_source',
+                [
+                    Stream::string('my.pdf', 'PDF content'),
+                    Stream::string('my_second.pdf', 'Second PDF content'),
+                ],
+                'my_expression',
+                '1-2',
+                ['key' => 'value'],
+                [
+                    Stream::string('my_stamp.pdf', 'Stamp content'),
+                ],
+            ],
+        ];
+    }
+
+    /** @param Stream[] $pdfs */
+    #[Test]
+    #[DataProvider('provideReadBookmarksData')]
+    public function it_creates_a_valid_request_for_the_forms_pdfengines_bookmarks_read_endpoint(array $pdfs): void
+    {
+        $pdfEngines = Gotenberg::pdfEngines('');
+
+        $request = $pdfEngines->readBookmarks(...$pdfs);
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertSame('/forms/pdfengines/bookmarks/read', $request->getUri()->getPath());
+
+        foreach ($pdfs as $pdf) {
+            $pdf->getStream()->rewind();
+            $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
+        }
+    }
+
+    /** @return array<string, array{array<int, Stream>}> */
+    public static function provideReadBookmarksData(): array
+    {
+        return [
+            'basic' => [
+                [
+                    Stream::string('my.pdf', 'PDF content'),
+                    Stream::string('my_second.pdf', 'Second PDF content'),
+                ],
+            ],
+        ];
+    }
+
+    /** @param Stream[] $pdfs */
+    #[Test]
+    #[DataProvider('provideWriteBookmarksData')]
+    public function it_creates_a_valid_request_for_the_forms_pdfengines_bookmarks_write_endpoint(string $bookmarks, array $pdfs): void
+    {
+        $pdfEngines = Gotenberg::pdfEngines('');
+
+        $request = $pdfEngines->writeBookmarks($bookmarks, ...$pdfs);
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertSame('/forms/pdfengines/bookmarks/write', $request->getUri()->getPath());
+        $this->assertContainsFormValue($body, 'bookmarks', $bookmarks);
+
+        foreach ($pdfs as $pdf) {
+            $pdf->getStream()->rewind();
+            $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
+        }
+    }
+
+    /** @return array<string, array{string, array<int, Stream>}> */
+    public static function provideWriteBookmarksData(): array
+    {
+        return [
+            'basic' => [
+                '[{"title":"Chapter 1","page":1}]',
                 [
                     Stream::string('my.pdf', 'PDF content'),
                     Stream::string('my_second.pdf', 'Second PDF content'),

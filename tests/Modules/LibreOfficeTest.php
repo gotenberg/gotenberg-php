@@ -22,6 +22,8 @@ final class LibreOfficeTest extends TestCase
      * @param Stream[]                                          $files
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
+     * @param array<string,mixed>                               $watermarkOptions
+     * @param array<string,mixed>                               $stampOptions
      */
     #[Test]
     #[DataProvider('provideConvertData')]
@@ -55,10 +57,24 @@ final class LibreOfficeTest extends TestCase
         bool $pdfua = false,
         array $metadata = [],
         bool $merge = false,
+        string|null $nativeWatermarkText = null,
+        int|null $nativeWatermarkColor = null,
+        int|null $nativeWatermarkFontHeight = null,
+        int|null $nativeWatermarkRotateAngle = null,
+        string|null $nativeWatermarkFontName = null,
+        string|null $nativeTiledWatermarkText = null,
         bool $flatten = false,
         string $userPassword = '',
         string $ownerPassword = '',
         array $embeds = [],
+        string $watermarkSource = '',
+        string $watermarkExpression = '',
+        string $watermarkPages = '',
+        array $watermarkOptions = [],
+        string $stampSource = '',
+        string $stampExpression = '',
+        string $stampPages = '',
+        array $stampOptions = [],
     ): void {
         $libreOffice = Gotenberg::libreOffice('');
 
@@ -154,6 +170,30 @@ final class LibreOfficeTest extends TestCase
             $libreOffice->maxImageResolution($maxImageResolution);
         }
 
+        if ($nativeWatermarkText !== null) {
+            $libreOffice->nativeWatermarkText($nativeWatermarkText);
+        }
+
+        if ($nativeWatermarkColor !== null) {
+            $libreOffice->nativeWatermarkColor($nativeWatermarkColor);
+        }
+
+        if ($nativeWatermarkFontHeight !== null) {
+            $libreOffice->nativeWatermarkFontHeight($nativeWatermarkFontHeight);
+        }
+
+        if ($nativeWatermarkRotateAngle !== null) {
+            $libreOffice->nativeWatermarkRotateAngle($nativeWatermarkRotateAngle);
+        }
+
+        if ($nativeWatermarkFontName !== null) {
+            $libreOffice->nativeWatermarkFontName($nativeWatermarkFontName);
+        }
+
+        if ($nativeTiledWatermarkText !== null) {
+            $libreOffice->nativeTiledWatermarkText($nativeTiledWatermarkText);
+        }
+
         if ($pdfa !== null) {
             $libreOffice->pdfa($pdfa);
         }
@@ -186,6 +226,14 @@ final class LibreOfficeTest extends TestCase
 
         if (count($embeds) > 0) {
             $libreOffice->embeds(...$embeds);
+        }
+
+        if ($watermarkSource !== '') {
+            $libreOffice->watermarking($watermarkSource, $watermarkExpression, $watermarkPages, $watermarkOptions);
+        }
+
+        if ($stampSource !== '') {
+            $libreOffice->stamping($stampSource, $stampExpression, $stampPages, $stampOptions);
         }
 
         $request = $libreOffice->convert(...$files);
@@ -285,6 +333,30 @@ final class LibreOfficeTest extends TestCase
             $this->assertContainsFormValue($body, 'maxImageResolution', (string) $maxImageResolution);
         }
 
+        if ($nativeWatermarkText !== null) {
+            $this->assertContainsFormValue($body, 'nativeWatermarkText', $nativeWatermarkText);
+        }
+
+        if ($nativeWatermarkColor !== null) {
+            $this->assertContainsFormValue($body, 'nativeWatermarkColor', (string) $nativeWatermarkColor);
+        }
+
+        if ($nativeWatermarkFontHeight !== null) {
+            $this->assertContainsFormValue($body, 'nativeWatermarkFontHeight', (string) $nativeWatermarkFontHeight);
+        }
+
+        if ($nativeWatermarkRotateAngle !== null) {
+            $this->assertContainsFormValue($body, 'nativeWatermarkRotateAngle', (string) $nativeWatermarkRotateAngle);
+        }
+
+        if ($nativeWatermarkFontName !== null) {
+            $this->assertContainsFormValue($body, 'nativeWatermarkFontName', $nativeWatermarkFontName);
+        }
+
+        if ($nativeTiledWatermarkText !== null) {
+            $this->assertContainsFormValue($body, 'nativeTiledWatermarkText', $nativeTiledWatermarkText);
+        }
+
         if ($splitMode !== null) {
             $this->assertContainsFormValue($body, 'splitMode', $splitMode->mode);
             $this->assertContainsFormValue($body, 'splitSpan', $splitMode->span);
@@ -343,6 +415,50 @@ final class LibreOfficeTest extends TestCase
                 'embeds',
             );
         }
+
+        if ($watermarkSource !== '') {
+            $this->assertContainsFormValue($body, 'watermarkSource', $watermarkSource);
+        }
+
+        if ($watermarkExpression !== '') {
+            $this->assertContainsFormValue($body, 'watermarkExpression', $watermarkExpression);
+        }
+
+        if ($watermarkPages !== '') {
+            $this->assertContainsFormValue($body, 'watermarkPages', $watermarkPages);
+        }
+
+        if (count($watermarkOptions) > 0) {
+            $json = json_encode($watermarkOptions);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'watermarkOptions', $json);
+        }
+
+        if ($stampSource !== '') {
+            $this->assertContainsFormValue($body, 'stampSource', $stampSource);
+        }
+
+        if ($stampExpression !== '') {
+            $this->assertContainsFormValue($body, 'stampExpression', $stampExpression);
+        }
+
+        if ($stampPages !== '') {
+            $this->assertContainsFormValue($body, 'stampPages', $stampPages);
+        }
+
+        if (count($stampOptions) === 0) {
+            return;
+        }
+
+        $json = json_encode($stampOptions);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        $this->assertContainsFormValue($body, 'stampOptions', $json);
     }
 
     /**
@@ -376,10 +492,24 @@ final class LibreOfficeTest extends TestCase
      * pdfua?: bool,
      * metadata?: array<string, string|bool|float|int|array<string>>,
      * merge?: bool,
+     * nativeWatermarkText?: string|null,
+     * nativeWatermarkColor?: int|null,
+     * nativeWatermarkFontHeight?: int|null,
+     * nativeWatermarkRotateAngle?: int|null,
+     * nativeWatermarkFontName?: string|null,
+     * nativeTiledWatermarkText?: string|null,
      * flatten?: bool,
      * userPassword?: string,
      * ownerPassword?: string,
-     * embeds?: array<int, Stream>
+     * embeds?: array<int, Stream>,
+     * watermarkSource?: string,
+     * watermarkExpression?: string,
+     * watermarkPages?: string,
+     * watermarkOptions?: array<string, string>,
+     * stampSource?: string,
+     * stampExpression?: string,
+     * stampPages?: string,
+     * stampOptions?: array<string, string>
      * }>
      */
     public static function provideConvertData(): array
@@ -423,6 +553,12 @@ final class LibreOfficeTest extends TestCase
                 'pdfua' => true,
                 'metadata' => ['Producer' => 'Gotenberg'],
                 'merge' => true,
+                'nativeWatermarkText' => 'DRAFT',
+                'nativeWatermarkColor' => 16711680,
+                'nativeWatermarkFontHeight' => 72,
+                'nativeWatermarkRotateAngle' => 45,
+                'nativeWatermarkFontName' => 'Arial',
+                'nativeTiledWatermarkText' => 'CONFIDENTIAL',
                 'flatten' => true,
                 'userPassword' => 'my_user_password',
                 'ownerPassword' => 'my_owner_password',
@@ -430,6 +566,14 @@ final class LibreOfficeTest extends TestCase
                     Stream::string('my.xml', 'XML content'),
                     Stream::string('my_second.xml', 'Second XML content'),
                 ],
+                'watermarkSource' => 'my_watermark_source',
+                'watermarkExpression' => 'my_watermark_expression',
+                'watermarkPages' => '1-2',
+                'watermarkOptions' => ['key' => 'value'],
+                'stampSource' => 'my_stamp_source',
+                'stampExpression' => 'my_stamp_expression',
+                'stampPages' => '3-4',
+                'stampOptions' => ['key' => 'value'],
             ],
         ];
     }

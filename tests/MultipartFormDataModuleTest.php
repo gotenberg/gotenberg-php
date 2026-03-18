@@ -6,6 +6,7 @@ namespace Gotenberg\Test;
 
 use Gotenberg\DownloadFrom;
 use Gotenberg\Exceptions\NativeFunctionErrored;
+use Gotenberg\Stream;
 use Gotenberg\Test\Helpers\Dummies\DummyMultipartFormDataModule;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -59,5 +60,67 @@ final class MultipartFormDataModuleTest extends TestCase
         }
 
         $this->assertSame([$json], $request->getHeader('Gotenberg-Webhook-Extra-Http-Headers'));
+    }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_watermarking(): void
+    {
+        $dummy   = new DummyMultipartFormDataModule('https://my.url/');
+        $request = $dummy
+            ->watermarking('my_source', 'my_expression', '1-2', ['key' => 'value'])
+            ->watermarkFiles(Stream::string('my_watermark.pdf', 'Watermark content'))
+            ->build();
+
+        $body = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertContainsFormValue($body, 'watermarkSource', 'my_source');
+        $this->assertContainsFormValue($body, 'watermarkExpression', 'my_expression');
+        $this->assertContainsFormValue($body, 'watermarkPages', '1-2');
+        $this->assertContainsFormValue($body, 'watermarkOptions', '{"key":"value"}');
+        $this->assertContainsFormFile($body, 'my_watermark.pdf', 'Watermark content', 'application/pdf', 'watermarks');
+    }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_watermarking_source_only(): void
+    {
+        $dummy   = new DummyMultipartFormDataModule('https://my.url/');
+        $request = $dummy
+            ->watermarking('my_source')
+            ->build();
+
+        $body = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertContainsFormValue($body, 'watermarkSource', 'my_source');
+    }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_stamping(): void
+    {
+        $dummy   = new DummyMultipartFormDataModule('https://my.url/');
+        $request = $dummy
+            ->stamping('my_source', 'my_expression', '1-2', ['key' => 'value'])
+            ->stampFiles(Stream::string('my_stamp.pdf', 'Stamp content'))
+            ->build();
+
+        $body = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertContainsFormValue($body, 'stampSource', 'my_source');
+        $this->assertContainsFormValue($body, 'stampExpression', 'my_expression');
+        $this->assertContainsFormValue($body, 'stampPages', '1-2');
+        $this->assertContainsFormValue($body, 'stampOptions', '{"key":"value"}');
+        $this->assertContainsFormFile($body, 'my_stamp.pdf', 'Stamp content', 'application/pdf', 'stamps');
+    }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_stamping_source_only(): void
+    {
+        $dummy   = new DummyMultipartFormDataModule('https://my.url/');
+        $request = $dummy
+            ->stamping('my_source')
+            ->build();
+
+        $body = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertContainsFormValue($body, 'stampSource', 'my_source');
     }
 }

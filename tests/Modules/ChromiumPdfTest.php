@@ -30,6 +30,8 @@ final class ChromiumPdfTest extends TestCase
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
      * @param Stream[]                                          $assets
+     * @param array<string,mixed>                               $watermarkOptions
+     * @param array<string,mixed>                               $stampOptions
      */
     #[Test]
     #[DataProvider('provideUrlData')]
@@ -75,6 +77,14 @@ final class ChromiumPdfTest extends TestCase
         string $ownerPassword = '',
         array $embeds = [],
         array $assets = [],
+        string $watermarkSource = '',
+        string $watermarkExpression = '',
+        string $watermarkPages = '',
+        array $watermarkOptions = [],
+        string $stampSource = '',
+        string $stampExpression = '',
+        string $stampPages = '',
+        array $stampOptions = [],
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
         $chromium = $this->hydrateChromiumPdfFormData(
@@ -119,6 +129,14 @@ final class ChromiumPdfTest extends TestCase
             $ownerPassword,
             $embeds,
             $assets,
+            $watermarkSource,
+            $watermarkExpression,
+            $watermarkPages,
+            $watermarkOptions,
+            $stampSource,
+            $stampExpression,
+            $stampPages,
+            $stampOptions,
         );
 
         $request = $chromium->url($url);
@@ -169,6 +187,14 @@ final class ChromiumPdfTest extends TestCase
             $ownerPassword,
             $embeds,
             $assets,
+            $watermarkSource,
+            $watermarkExpression,
+            $watermarkPages,
+            $watermarkOptions,
+            $stampSource,
+            $stampExpression,
+            $stampPages,
+            $stampOptions,
         );
     }
 
@@ -214,7 +240,15 @@ final class ChromiumPdfTest extends TestCase
      * string,
      * string,
      * array<int, Stream>,
-     * array<int, Stream>
+     * array<int, Stream>,
+     * string,
+     * string,
+     * string,
+     * array<string, string>,
+     * string,
+     * string,
+     * string,
+     * array<string, string>
      * }>
      */
     public static function provideUrlData(): array
@@ -277,6 +311,14 @@ final class ChromiumPdfTest extends TestCase
                 [
                     Stream::string('my.jpg', 'Image content'),
                 ],
+                'my_watermark_source',
+                'my_watermark_expression',
+                '1-2',
+                ['key' => 'value'],
+                'my_stamp_source',
+                'my_stamp_expression',
+                '3-4',
+                ['key' => 'value'],
             ],
         ];
     }
@@ -291,6 +333,8 @@ final class ChromiumPdfTest extends TestCase
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
      * @param Stream[]                                          $assets
+     * @param array<string,mixed>                               $watermarkOptions
+     * @param array<string,mixed>                               $stampOptions
      */
     #[Test]
     #[DataProvider('provideHtmlData')]
@@ -336,6 +380,14 @@ final class ChromiumPdfTest extends TestCase
         string $ownerPassword = '',
         array $embeds = [],
         array $assets = [],
+        string $watermarkSource = '',
+        string $watermarkExpression = '',
+        string $watermarkPages = '',
+        array $watermarkOptions = [],
+        string $stampSource = '',
+        string $stampExpression = '',
+        string $stampPages = '',
+        array $stampOptions = [],
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
         $chromium = $this->hydrateChromiumPdfFormData(
@@ -380,6 +432,14 @@ final class ChromiumPdfTest extends TestCase
             $ownerPassword,
             $embeds,
             $assets,
+            $watermarkSource,
+            $watermarkExpression,
+            $watermarkPages,
+            $watermarkOptions,
+            $stampSource,
+            $stampExpression,
+            $stampPages,
+            $stampOptions,
         );
 
         $request = $chromium->html($index);
@@ -432,6 +492,14 @@ final class ChromiumPdfTest extends TestCase
             $ownerPassword,
             $embeds,
             $assets,
+            $watermarkSource,
+            $watermarkExpression,
+            $watermarkPages,
+            $watermarkOptions,
+            $stampSource,
+            $stampExpression,
+            $stampPages,
+            $stampOptions,
         );
     }
 
@@ -477,7 +545,15 @@ final class ChromiumPdfTest extends TestCase
      * string,
      * string,
      * array<int, Stream>,
-     * array<int, Stream>
+     * array<int, Stream>,
+     * string,
+     * string,
+     * string,
+     * array<string, string>,
+     * string,
+     * string,
+     * string,
+     * array<string, string>
      * }>
      */
     public static function provideHtmlData(): array
@@ -540,6 +616,14 @@ final class ChromiumPdfTest extends TestCase
                 [
                     Stream::string('my.jpg', 'Image content'),
                 ],
+                'my_watermark_source',
+                'my_watermark_expression',
+                '1-2',
+                ['key' => 'value'],
+                'my_stamp_source',
+                'my_stamp_expression',
+                '3-4',
+                ['key' => 'value'],
             ],
         ];
     }
@@ -555,6 +639,8 @@ final class ChromiumPdfTest extends TestCase
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
      * @param Stream[]                                          $assets
+     * @param array<string,mixed>                               $watermarkOptions
+     * @param array<string,mixed>                               $stampOptions
      */
     #[Test]
     #[DataProvider('provideMarkdownData')]
@@ -601,6 +687,14 @@ final class ChromiumPdfTest extends TestCase
         string $ownerPassword = '',
         array $embeds = [],
         array $assets = [],
+        string $watermarkSource = '',
+        string $watermarkExpression = '',
+        string $watermarkPages = '',
+        array $watermarkOptions = [],
+        string $stampSource = '',
+        string $stampExpression = '',
+        string $stampPages = '',
+        array $stampOptions = [],
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
         $chromium = $this->hydrateChromiumPdfFormData(
@@ -645,6 +739,14 @@ final class ChromiumPdfTest extends TestCase
             $ownerPassword,
             $embeds,
             $assets,
+            $watermarkSource,
+            $watermarkExpression,
+            $watermarkPages,
+            $watermarkOptions,
+            $stampSource,
+            $stampExpression,
+            $stampPages,
+            $stampOptions,
         );
 
         $request = $chromium->markdown($index, ...$markdowns);
@@ -702,6 +804,14 @@ final class ChromiumPdfTest extends TestCase
             $ownerPassword,
             $embeds,
             $assets,
+            $watermarkSource,
+            $watermarkExpression,
+            $watermarkPages,
+            $watermarkOptions,
+            $stampSource,
+            $stampExpression,
+            $stampPages,
+            $stampOptions,
         );
     }
 
@@ -748,7 +858,15 @@ final class ChromiumPdfTest extends TestCase
      * string,
      * string,
      * array<int, Stream>,
-     * array<int, Stream>
+     * array<int, Stream>,
+     * string,
+     * string,
+     * string,
+     * array<string, string>,
+     * string,
+     * string,
+     * string,
+     * array<string, string>
      * }>
      */
     public static function provideMarkdownData(): array
@@ -820,6 +938,14 @@ final class ChromiumPdfTest extends TestCase
                 [
                     Stream::string('my.jpg', 'Image content'),
                 ],
+                'my_watermark_source',
+                'my_watermark_expression',
+                '1-2',
+                ['key' => 'value'],
+                'my_stamp_source',
+                'my_stamp_expression',
+                '3-4',
+                ['key' => 'value'],
             ],
         ];
     }
@@ -834,6 +960,8 @@ final class ChromiumPdfTest extends TestCase
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
      * @param Stream[]                                          $assets
+     * @param array<string,mixed>                               $watermarkOptions
+     * @param array<string,mixed>                               $stampOptions
      */
     private function hydrateChromiumPdfFormData(
         ChromiumPdf $chromium,
@@ -877,6 +1005,14 @@ final class ChromiumPdfTest extends TestCase
         string $ownerPassword = '',
         array $embeds = [],
         array $assets = [],
+        string $watermarkSource = '',
+        string $watermarkExpression = '',
+        string $watermarkPages = '',
+        array $watermarkOptions = [],
+        string $stampSource = '',
+        string $stampExpression = '',
+        string $stampPages = '',
+        array $stampOptions = [],
     ): ChromiumPdf {
         if ($singlePage) {
             $chromium->singlePage();
@@ -1022,6 +1158,14 @@ final class ChromiumPdfTest extends TestCase
             $chromium->assets(...$assets);
         }
 
+        if ($watermarkSource !== '') {
+            $chromium->watermarking($watermarkSource, $watermarkExpression, $watermarkPages, $watermarkOptions);
+        }
+
+        if ($stampSource !== '') {
+            $chromium->stamping($stampSource, $stampExpression, $stampPages, $stampOptions);
+        }
+
         return $chromium;
     }
 
@@ -1035,6 +1179,8 @@ final class ChromiumPdfTest extends TestCase
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
      * @param Stream[]                                          $assets
+     * @param array<string,mixed>                               $watermarkOptions
+     * @param array<string,mixed>                               $stampOptions
      */
     private function assertChromiumPdfOptions(
         string $body,
@@ -1078,6 +1224,14 @@ final class ChromiumPdfTest extends TestCase
         string $ownerPassword,
         array $embeds,
         array $assets,
+        string $watermarkSource = '',
+        string $watermarkExpression = '',
+        string $watermarkPages = '',
+        array $watermarkOptions = [],
+        string $stampSource = '',
+        string $stampExpression = '',
+        string $stampPages = '',
+        array $stampOptions = [],
     ): void {
         if ($singlePage) {
             $this->assertContainsFormValue($body, 'singlePage', '1');
@@ -1264,5 +1418,49 @@ final class ChromiumPdfTest extends TestCase
             $asset->getStream()->rewind();
             $this->assertContainsFormFile($body, $asset->getFilename(), $asset->getStream()->getContents(), 'image/jpeg');
         }
+
+        if ($watermarkSource !== '') {
+            $this->assertContainsFormValue($body, 'watermarkSource', $watermarkSource);
+        }
+
+        if ($watermarkExpression !== '') {
+            $this->assertContainsFormValue($body, 'watermarkExpression', $watermarkExpression);
+        }
+
+        if ($watermarkPages !== '') {
+            $this->assertContainsFormValue($body, 'watermarkPages', $watermarkPages);
+        }
+
+        if (count($watermarkOptions) > 0) {
+            $json = json_encode($watermarkOptions);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'watermarkOptions', $json);
+        }
+
+        if ($stampSource !== '') {
+            $this->assertContainsFormValue($body, 'stampSource', $stampSource);
+        }
+
+        if ($stampExpression !== '') {
+            $this->assertContainsFormValue($body, 'stampExpression', $stampExpression);
+        }
+
+        if ($stampPages !== '') {
+            $this->assertContainsFormValue($body, 'stampPages', $stampPages);
+        }
+
+        if (count($stampOptions) === 0) {
+            return;
+        }
+
+        $json = json_encode($stampOptions);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        $this->assertContainsFormValue($body, 'stampOptions', $json);
     }
 }

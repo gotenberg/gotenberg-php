@@ -10,6 +10,7 @@ use Http\Discovery\Psr17FactoryDiscovery;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 
+use function count;
 use function json_encode;
 
 trait MultipartFormDataModule
@@ -104,6 +105,98 @@ trait MultipartFormDataModule
         }
 
         $this->headers['Gotenberg-Webhook-Extra-Http-Headers'] = $json;
+
+        return $this;
+    }
+
+    /**
+     * Configures watermarking on the resulting PDF(s).
+     * Only non-empty values are set.
+     */
+
+    /**
+     * @param array<string,mixed> $options
+     *
+     * @throws NativeFunctionErrored
+     */
+    public function watermarking(string $source, string $expression = '', string $pages = '', array $options = []): self
+    {
+        $this->formValue('watermarkSource', $source);
+
+        if ($expression !== '') {
+            $this->formValue('watermarkExpression', $expression);
+        }
+
+        if ($pages !== '') {
+            $this->formValue('watermarkPages', $pages);
+        }
+
+        if (count($options) > 0) {
+            $json = json_encode($options);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->formValue('watermarkOptions', $json);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Adds watermark file(s).
+     */
+    public function watermarkFiles(Stream ...$files): self
+    {
+        foreach ($files as $file) {
+            $this->formFile($file->getFilename(), $file->getStream(), 'watermarks');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Configures stamping on the resulting PDF(s).
+     * Only non-empty values are set.
+     */
+
+    /**
+     * @param array<string,mixed> $options
+     *
+     * @throws NativeFunctionErrored
+     */
+    public function stamping(string $source, string $expression = '', string $pages = '', array $options = []): self
+    {
+        $this->formValue('stampSource', $source);
+
+        if ($expression !== '') {
+            $this->formValue('stampExpression', $expression);
+        }
+
+        if ($pages !== '') {
+            $this->formValue('stampPages', $pages);
+        }
+
+        if (count($options) > 0) {
+            $json = json_encode($options);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->formValue('stampOptions', $json);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Adds stamp file(s).
+     */
+    public function stampFiles(Stream ...$files): self
+    {
+        foreach ($files as $file) {
+            $this->formFile($file->getFilename(), $file->getStream(), 'stamps');
+        }
 
         return $this;
     }

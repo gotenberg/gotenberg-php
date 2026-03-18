@@ -230,6 +230,91 @@ class PdfEngines
     }
 
     /**
+     * Sets the bookmarks for the merge route.
+     */
+    public function bookmarks(string $bookmarks): self
+    {
+        $this->formValue('bookmarks', $bookmarks);
+
+        return $this;
+    }
+
+    /**
+     * Enables auto-indexing of bookmarks for the merge route.
+     */
+    public function autoIndexBookmarks(): self
+    {
+        $this->formValue('autoIndexBookmarks', true);
+
+        return $this;
+    }
+
+    /**
+     * Watermarks PDF(s).
+     * Gotenberg will return the PDF or a ZIP archive with the PDFs.
+     */
+    public function watermark(string $source, Stream ...$pdfs): RequestInterface
+    {
+        $this->formValue('watermarkSource', $source);
+
+        foreach ($pdfs as $pdf) {
+            $this->formFile($pdf->getFilename(), $pdf->getStream());
+        }
+
+        $this->endpoint = '/forms/pdfengines/watermark';
+
+        return $this->request();
+    }
+
+    /**
+     * Stamps PDF(s).
+     * Gotenberg will return the PDF or a ZIP archive with the PDFs.
+     */
+    public function stamp(string $source, Stream ...$pdfs): RequestInterface
+    {
+        $this->formValue('stampSource', $source);
+
+        foreach ($pdfs as $pdf) {
+            $this->formFile($pdf->getFilename(), $pdf->getStream());
+        }
+
+        $this->endpoint = '/forms/pdfengines/stamp';
+
+        return $this->request();
+    }
+
+    /**
+     * Retrieves the bookmarks of specified PDFs, returning a JSON formatted
+     * response with the structure filename => bookmarks.
+     */
+    public function readBookmarks(Stream ...$pdfs): RequestInterface
+    {
+        foreach ($pdfs as $pdf) {
+            $this->formFile($pdf->getFilename(), $pdf->getStream());
+        }
+
+        $this->endpoint = '/forms/pdfengines/bookmarks/read';
+
+        return $this->request();
+    }
+
+    /**
+     * Allows writing specified bookmarks to one or more PDF.
+     */
+    public function writeBookmarks(string $bookmarks, Stream ...$pdfs): RequestInterface
+    {
+        $this->formValue('bookmarks', $bookmarks);
+
+        foreach ($pdfs as $pdf) {
+            $this->formFile($pdf->getFilename(), $pdf->getStream());
+        }
+
+        $this->endpoint = '/forms/pdfengines/bookmarks/write';
+
+        return $this->request();
+    }
+
+    /**
      * Allows embedding one or more files to one or more PDF.
      *
      * @param Stream[] $embeds
