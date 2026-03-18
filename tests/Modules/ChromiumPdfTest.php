@@ -85,6 +85,8 @@ final class ChromiumPdfTest extends TestCase
         string $stampExpression = '',
         string $stampPages = '',
         array $stampOptions = [],
+        int $rotateAngle = 0,
+        string $rotatePages = '',
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
         $chromium = $this->hydrateChromiumPdfFormData(
@@ -137,6 +139,8 @@ final class ChromiumPdfTest extends TestCase
             $stampExpression,
             $stampPages,
             $stampOptions,
+            $rotateAngle,
+            $rotatePages,
         );
 
         $request = $chromium->url($url);
@@ -195,6 +199,8 @@ final class ChromiumPdfTest extends TestCase
             $stampExpression,
             $stampPages,
             $stampOptions,
+            $rotateAngle,
+            $rotatePages,
         );
     }
 
@@ -319,6 +325,8 @@ final class ChromiumPdfTest extends TestCase
                 'my_stamp_expression',
                 '3-4',
                 ['key' => 'value'],
+                90,
+                '1-3',
             ],
         ];
     }
@@ -388,6 +396,8 @@ final class ChromiumPdfTest extends TestCase
         string $stampExpression = '',
         string $stampPages = '',
         array $stampOptions = [],
+        int $rotateAngle = 0,
+        string $rotatePages = '',
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
         $chromium = $this->hydrateChromiumPdfFormData(
@@ -440,6 +450,8 @@ final class ChromiumPdfTest extends TestCase
             $stampExpression,
             $stampPages,
             $stampOptions,
+            $rotateAngle,
+            $rotatePages,
         );
 
         $request = $chromium->html($index);
@@ -500,6 +512,8 @@ final class ChromiumPdfTest extends TestCase
             $stampExpression,
             $stampPages,
             $stampOptions,
+            $rotateAngle,
+            $rotatePages,
         );
     }
 
@@ -624,6 +638,8 @@ final class ChromiumPdfTest extends TestCase
                 'my_stamp_expression',
                 '3-4',
                 ['key' => 'value'],
+                180,
+                '1-2',
             ],
         ];
     }
@@ -695,6 +711,8 @@ final class ChromiumPdfTest extends TestCase
         string $stampExpression = '',
         string $stampPages = '',
         array $stampOptions = [],
+        int $rotateAngle = 0,
+        string $rotatePages = '',
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
         $chromium = $this->hydrateChromiumPdfFormData(
@@ -747,6 +765,8 @@ final class ChromiumPdfTest extends TestCase
             $stampExpression,
             $stampPages,
             $stampOptions,
+            $rotateAngle,
+            $rotatePages,
         );
 
         $request = $chromium->markdown($index, ...$markdowns);
@@ -812,6 +832,8 @@ final class ChromiumPdfTest extends TestCase
             $stampExpression,
             $stampPages,
             $stampOptions,
+            $rotateAngle,
+            $rotatePages,
         );
     }
 
@@ -946,6 +968,8 @@ final class ChromiumPdfTest extends TestCase
                 'my_stamp_expression',
                 '3-4',
                 ['key' => 'value'],
+                270,
+                '1-5',
             ],
         ];
     }
@@ -1013,6 +1037,8 @@ final class ChromiumPdfTest extends TestCase
         string $stampExpression = '',
         string $stampPages = '',
         array $stampOptions = [],
+        int $rotateAngle = 0,
+        string $rotatePages = '',
     ): ChromiumPdf {
         if ($singlePage) {
             $chromium->singlePage();
@@ -1166,6 +1192,10 @@ final class ChromiumPdfTest extends TestCase
             $chromium->stamping($stampSource, $stampExpression, $stampPages, $stampOptions);
         }
 
+        if ($rotateAngle !== 0) {
+            $chromium->rotating($rotateAngle, $rotatePages);
+        }
+
         return $chromium;
     }
 
@@ -1232,6 +1262,8 @@ final class ChromiumPdfTest extends TestCase
         string $stampExpression = '',
         string $stampPages = '',
         array $stampOptions = [],
+        int $rotateAngle = 0,
+        string $rotatePages = '',
     ): void {
         if ($singlePage) {
             $this->assertContainsFormValue($body, 'singlePage', '1');
@@ -1452,15 +1484,23 @@ final class ChromiumPdfTest extends TestCase
             $this->assertContainsFormValue($body, 'stampPages', $stampPages);
         }
 
-        if (count($stampOptions) === 0) {
+        if (count($stampOptions) > 0) {
+            $json = json_encode($stampOptions);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'stampOptions', $json);
+        }
+
+        if ($rotateAngle !== 0) {
+            $this->assertContainsFormValue($body, 'rotateAngle', (string) $rotateAngle);
+        }
+
+        if ($rotatePages === '') {
             return;
         }
 
-        $json = json_encode($stampOptions);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->assertContainsFormValue($body, 'stampOptions', $json);
+        $this->assertContainsFormValue($body, 'rotatePages', $rotatePages);
     }
 }

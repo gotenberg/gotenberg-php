@@ -284,6 +284,23 @@ class PdfEngines
     }
 
     /**
+     * Rotates PDF(s).
+     * Gotenberg will return the PDF or a ZIP archive with the PDFs.
+     */
+    public function rotate(int $angle, Stream ...$pdfs): RequestInterface
+    {
+        $this->formValue('rotateAngle', $angle);
+
+        foreach ($pdfs as $pdf) {
+            $this->formFile($pdf->getFilename(), $pdf->getStream());
+        }
+
+        $this->endpoint = '/forms/pdfengines/rotate';
+
+        return $this->request();
+    }
+
+    /**
      * Retrieves the bookmarks of specified PDFs, returning a JSON formatted
      * response with the structure filename => bookmarks.
      */

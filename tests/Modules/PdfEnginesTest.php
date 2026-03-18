@@ -36,6 +36,8 @@ final class PdfEnginesTest extends TestCase
         array $embeds = [],
         string $bookmarks = '',
         bool $autoIndexBookmarks = false,
+        int $rotateAngle = 0,
+        string $rotatePages = '',
     ): void {
         $pdfEngines = Gotenberg::pdfEngines('')->index(new DummyIndex());
 
@@ -69,6 +71,10 @@ final class PdfEnginesTest extends TestCase
 
         if ($autoIndexBookmarks) {
             $pdfEngines->autoIndexBookmarks();
+        }
+
+        if ($rotateAngle !== 0) {
+            $pdfEngines->rotating($rotateAngle, $rotatePages);
         }
 
         $request = $pdfEngines->merge(...$pdfs);
@@ -110,6 +116,14 @@ final class PdfEnginesTest extends TestCase
             $this->assertContainsFormValue($body, 'autoIndexBookmarks', '1');
         }
 
+        if ($rotateAngle !== 0) {
+            $this->assertContainsFormValue($body, 'rotateAngle', (string) $rotateAngle);
+        }
+
+        if ($rotatePages !== '') {
+            $this->assertContainsFormValue($body, 'rotatePages', $rotatePages);
+        }
+
         foreach ($pdfs as $pdf) {
             $pdf->getStream()->rewind();
             $this->assertContainsFormFile($body, 'foo_' . $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
@@ -121,7 +135,7 @@ final class PdfEnginesTest extends TestCase
         }
     }
 
-    /** @return array<string, array{array<int, Stream>, string|null, bool, array<string, array<string>|bool|float|int|string>, bool, string, string, array<int, Stream>, string, bool}> */
+    /** @return array<string, array{array<int, Stream>, string|null, bool, array<string, array<string>|bool|float|int|string>, bool, string, string, array<int, Stream>, string, bool, int, string}> */
     public static function provideMergeData(): array
     {
         return [
@@ -149,6 +163,8 @@ final class PdfEnginesTest extends TestCase
                 ],
                 '[{"title":"Chapter 1","page":1}]',
                 true,
+                90,
+                '1-3,5',
             ],
         ];
     }
@@ -184,6 +200,8 @@ final class PdfEnginesTest extends TestCase
         string $stampPages = '',
         array $stampOptions = [],
         array $stampFiles = [],
+        int $rotateAngle = 0,
+        string $rotatePages = '',
     ): void {
         $pdfEngines = Gotenberg::pdfEngines('');
 
@@ -225,6 +243,10 @@ final class PdfEnginesTest extends TestCase
 
         if (count($stampFiles) > 0) {
             $pdfEngines->stampFiles(...$stampFiles);
+        }
+
+        if ($rotateAngle !== 0) {
+            $pdfEngines->rotating($rotateAngle, $rotatePages);
         }
 
         $request = $pdfEngines->split($mode, ...$pdfs);
@@ -303,6 +325,14 @@ final class PdfEnginesTest extends TestCase
             $this->assertContainsFormValue($body, 'stampOptions', $json);
         }
 
+        if ($rotateAngle !== 0) {
+            $this->assertContainsFormValue($body, 'rotateAngle', (string) $rotateAngle);
+        }
+
+        if ($rotatePages !== '') {
+            $this->assertContainsFormValue($body, 'rotatePages', $rotatePages);
+        }
+
         foreach ($pdfs as $pdf) {
             $pdf->getStream()->rewind();
             $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
@@ -344,7 +374,9 @@ final class PdfEnginesTest extends TestCase
      * string,
      * string,
      * array<string, string>,
-     * array<int, Stream>
+     * array<int, Stream>,
+     * int,
+     * string
      * }>
      */
     public static function provideSplitData(): array
@@ -387,6 +419,8 @@ final class PdfEnginesTest extends TestCase
                 [
                     Stream::string('my_stamp.pdf', 'Stamp content'),
                 ],
+                180,
+                '1-3',
             ],
         ];
     }
@@ -784,6 +818,57 @@ final class PdfEnginesTest extends TestCase
                 [
                     Stream::string('my_stamp.pdf', 'Stamp content'),
                 ],
+            ],
+        ];
+    }
+
+    /** @param Stream[] $pdfs */
+    #[Test]
+    #[DataProvider('provideRotateData')]
+    public function it_creates_a_valid_request_for_the_forms_pdfengines_rotate_endpoint(
+        int $angle,
+        array $pdfs,
+        string $pages = '',
+    ): void {
+        $pdfEngines = Gotenberg::pdfEngines('');
+
+        if ($pages !== '') {
+            $pdfEngines->rotating($angle, $pages);
+        }
+
+        $request = $pdfEngines->rotate($angle, ...$pdfs);
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertSame('/forms/pdfengines/rotate', $request->getUri()->getPath());
+        $this->assertContainsFormValue($body, 'rotateAngle', (string) $angle);
+
+        if ($pages !== '') {
+            $this->assertContainsFormValue($body, 'rotatePages', $pages);
+        }
+
+        foreach ($pdfs as $pdf) {
+            $pdf->getStream()->rewind();
+            $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
+        }
+    }
+
+    /** @return array<string, array{0: int, 1: array<int, Stream>, 2?: string}> */
+    public static function provideRotateData(): array
+    {
+        return [
+            'basic' => [
+                90,
+                [
+                    Stream::string('my.pdf', 'PDF content'),
+                ],
+            ],
+            'full_options' => [
+                270,
+                [
+                    Stream::string('my.pdf', 'PDF content'),
+                    Stream::string('my_second.pdf', 'Second PDF content'),
+                ],
+                '1-3,5',
             ],
         ];
     }

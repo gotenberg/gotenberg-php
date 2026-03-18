@@ -75,6 +75,8 @@ final class LibreOfficeTest extends TestCase
         string $stampExpression = '',
         string $stampPages = '',
         array $stampOptions = [],
+        int $rotateAngle = 0,
+        string $rotatePages = '',
     ): void {
         $libreOffice = Gotenberg::libreOffice('');
 
@@ -234,6 +236,10 @@ final class LibreOfficeTest extends TestCase
 
         if ($stampSource !== '') {
             $libreOffice->stamping($stampSource, $stampExpression, $stampPages, $stampOptions);
+        }
+
+        if ($rotateAngle !== 0) {
+            $libreOffice->rotating($rotateAngle, $rotatePages);
         }
 
         $request = $libreOffice->convert(...$files);
@@ -449,16 +455,24 @@ final class LibreOfficeTest extends TestCase
             $this->assertContainsFormValue($body, 'stampPages', $stampPages);
         }
 
-        if (count($stampOptions) === 0) {
+        if (count($stampOptions) > 0) {
+            $json = json_encode($stampOptions);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'stampOptions', $json);
+        }
+
+        if ($rotateAngle !== 0) {
+            $this->assertContainsFormValue($body, 'rotateAngle', (string) $rotateAngle);
+        }
+
+        if ($rotatePages === '') {
             return;
         }
 
-        $json = json_encode($stampOptions);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->assertContainsFormValue($body, 'stampOptions', $json);
+        $this->assertContainsFormValue($body, 'rotatePages', $rotatePages);
     }
 
     /**
@@ -509,7 +523,9 @@ final class LibreOfficeTest extends TestCase
      * stampSource?: string,
      * stampExpression?: string,
      * stampPages?: string,
-     * stampOptions?: array<string, string>
+     * stampOptions?: array<string, string>,
+     * rotateAngle?: int,
+     * rotatePages?: string
      * }>
      */
     public static function provideConvertData(): array
@@ -574,6 +590,8 @@ final class LibreOfficeTest extends TestCase
                 'stampExpression' => 'my_stamp_expression',
                 'stampPages' => '3-4',
                 'stampOptions' => ['key' => 'value'],
+                'rotateAngle' => 90,
+                'rotatePages' => '1-3',
             ],
         ];
     }

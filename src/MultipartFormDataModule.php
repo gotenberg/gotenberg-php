@@ -201,6 +201,21 @@ trait MultipartFormDataModule
         return $this;
     }
 
+    /**
+     * Configures rotation on the resulting PDF(s).
+     * Only non-empty values are set.
+     */
+    public function rotating(int $angle, string $pages = ''): self
+    {
+        $this->formValue('rotateAngle', $angle);
+
+        if ($pages !== '') {
+            $this->formValue('rotatePages', $pages);
+        }
+
+        return $this;
+    }
+
     protected function formValue(string $name, mixed $value): self
     {
         $this->multipartFormData[] = [
