@@ -23,7 +23,7 @@ final class MultipartFormDataModuleTest extends TestCase
             ->downloadFrom([
                 new DownloadFrom('https://my.url/my_filename'),
                 new DownloadFrom('https://my.url/my_filename_2', ['X-Header' => 'value'], true),
-                new DownloadFrom('https://my.url/my_filename_3', null, false, 'watermark'),
+                new DownloadFrom('https://my.url/my_filename_3', null, false, DownloadFrom::FIELD_WATERMARK),
             ])
             ->webhook('https://my.webhook.url', 'https://my.webhook.error.url')
             ->webhookMethod('POST')

@@ -8,6 +8,10 @@ use JsonSerializable;
 
 class DownloadFrom implements JsonSerializable
 {
+    public const FIELD_EMBEDDED  = 'embedded';
+    public const FIELD_WATERMARK = 'watermark';
+    public const FIELD_STAMP     = 'stamp';
+
     /** @param array<string,string> $extraHttpHeaders */
     public function __construct(
         public readonly string $url,
