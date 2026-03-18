@@ -112,9 +112,7 @@ trait MultipartFormDataModule
     /**
      * Configures watermarking on the resulting PDF(s).
      * Only non-empty values are set.
-     */
-
-    /**
+     *
      * @param array<string,mixed> $options
      *
      * @throws NativeFunctionErrored
@@ -144,13 +142,11 @@ trait MultipartFormDataModule
     }
 
     /**
-     * Adds watermark file(s).
+     * Adds watermark file.
      */
-    public function watermarkFiles(Stream ...$files): self
+    public function watermarkFile(Stream $file): self
     {
-        foreach ($files as $file) {
-            $this->formFile($file->getFilename(), $file->getStream(), 'watermarks');
-        }
+        $this->formFile($file->getFilename(), $file->getStream(), 'watermark');
 
         return $this;
     }
@@ -158,9 +154,7 @@ trait MultipartFormDataModule
     /**
      * Configures stamping on the resulting PDF(s).
      * Only non-empty values are set.
-     */
-
-    /**
+     *
      * @param array<string,mixed> $options
      *
      * @throws NativeFunctionErrored
@@ -190,13 +184,11 @@ trait MultipartFormDataModule
     }
 
     /**
-     * Adds stamp file(s).
+     * Adds stamp file.
      */
-    public function stampFiles(Stream ...$files): self
+    public function stampFile(Stream $file): self
     {
-        foreach ($files as $file) {
-            $this->formFile($file->getFilename(), $file->getStream(), 'stamps');
-        }
+        $this->formFile($file->getFilename(), $file->getStream(), 'stamp');
 
         return $this;
     }

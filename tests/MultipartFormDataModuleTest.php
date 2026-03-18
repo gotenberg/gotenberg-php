@@ -23,6 +23,7 @@ final class MultipartFormDataModuleTest extends TestCase
             ->downloadFrom([
                 new DownloadFrom('https://my.url/my_filename'),
                 new DownloadFrom('https://my.url/my_filename_2', ['X-Header' => 'value'], true),
+                new DownloadFrom('https://my.url/my_filename_3', null, false, 'watermark'),
             ])
             ->webhook('https://my.webhook.url', 'https://my.webhook.error.url')
             ->webhookMethod('POST')
@@ -38,7 +39,7 @@ final class MultipartFormDataModuleTest extends TestCase
 
         // Assert DownloadFrom Form Value
         $body         = $this->sanitize($request->getBody()->getContents());
-        $expectedJson = '[{"url":"https:\/\/my.url\/my_filename","embedded":false},{"url":"https:\/\/my.url\/my_filename_2","embedded":true,"extraHttpHeaders":{"X-Header":"value"}}]';
+        $expectedJson = '[{"url":"https:\/\/my.url\/my_filename","embedded":false},{"url":"https:\/\/my.url\/my_filename_2","embedded":true,"extraHttpHeaders":{"X-Header":"value"}},{"url":"https:\/\/my.url\/my_filename_3","embedded":false,"field":"watermark"}]';
 
         $this->assertContainsFormValue($body, 'downloadFrom', $expectedJson);
 
@@ -68,7 +69,7 @@ final class MultipartFormDataModuleTest extends TestCase
         $dummy   = new DummyMultipartFormDataModule('https://my.url/');
         $request = $dummy
             ->watermarking('my_source', 'my_expression', '1-2', ['key' => 'value'])
-            ->watermarkFiles(Stream::string('my_watermark.pdf', 'Watermark content'))
+            ->watermarkFile(Stream::string('my_watermark.pdf', 'Watermark content'))
             ->build();
 
         $body = $this->sanitize($request->getBody()->getContents());
@@ -77,7 +78,7 @@ final class MultipartFormDataModuleTest extends TestCase
         $this->assertContainsFormValue($body, 'watermarkExpression', 'my_expression');
         $this->assertContainsFormValue($body, 'watermarkPages', '1-2');
         $this->assertContainsFormValue($body, 'watermarkOptions', '{"key":"value"}');
-        $this->assertContainsFormFile($body, 'my_watermark.pdf', 'Watermark content', 'application/pdf', 'watermarks');
+        $this->assertContainsFormFile($body, 'my_watermark.pdf', 'Watermark content', 'application/pdf', 'watermark');
     }
 
     #[Test]
@@ -99,7 +100,7 @@ final class MultipartFormDataModuleTest extends TestCase
         $dummy   = new DummyMultipartFormDataModule('https://my.url/');
         $request = $dummy
             ->stamping('my_source', 'my_expression', '1-2', ['key' => 'value'])
-            ->stampFiles(Stream::string('my_stamp.pdf', 'Stamp content'))
+            ->stampFile(Stream::string('my_stamp.pdf', 'Stamp content'))
             ->build();
 
         $body = $this->sanitize($request->getBody()->getContents());
@@ -108,7 +109,7 @@ final class MultipartFormDataModuleTest extends TestCase
         $this->assertContainsFormValue($body, 'stampExpression', 'my_expression');
         $this->assertContainsFormValue($body, 'stampPages', '1-2');
         $this->assertContainsFormValue($body, 'stampOptions', '{"key":"value"}');
-        $this->assertContainsFormFile($body, 'my_stamp.pdf', 'Stamp content', 'application/pdf', 'stamps');
+        $this->assertContainsFormFile($body, 'my_stamp.pdf', 'Stamp content', 'application/pdf', 'stamp');
     }
 
     #[Test]

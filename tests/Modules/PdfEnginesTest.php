@@ -174,9 +174,7 @@ final class PdfEnginesTest extends TestCase
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
      * @param array<string,mixed>                               $watermarkOptions
-     * @param Stream[]                                          $watermarkFiles
      * @param array<string,mixed>                               $stampOptions
-     * @param Stream[]                                          $stampFiles
      */
     #[Test]
     #[DataProvider('provideSplitData')]
@@ -194,12 +192,12 @@ final class PdfEnginesTest extends TestCase
         string $watermarkExpression = '',
         string $watermarkPages = '',
         array $watermarkOptions = [],
-        array $watermarkFiles = [],
+        Stream|null $watermarkFile = null,
         string $stampSource = '',
         string $stampExpression = '',
         string $stampPages = '',
         array $stampOptions = [],
-        array $stampFiles = [],
+        Stream|null $stampFile = null,
         int $rotateAngle = 0,
         string $rotatePages = '',
     ): void {
@@ -233,16 +231,16 @@ final class PdfEnginesTest extends TestCase
             $pdfEngines->watermarking($watermarkSource, $watermarkExpression, $watermarkPages, $watermarkOptions);
         }
 
-        if (count($watermarkFiles) > 0) {
-            $pdfEngines->watermarkFiles(...$watermarkFiles);
+        if ($watermarkFile !== null) {
+            $pdfEngines->watermarkFile($watermarkFile);
         }
 
         if ($stampSource !== '') {
             $pdfEngines->stamping($stampSource, $stampExpression, $stampPages, $stampOptions);
         }
 
-        if (count($stampFiles) > 0) {
-            $pdfEngines->stampFiles(...$stampFiles);
+        if ($stampFile !== null) {
+            $pdfEngines->stampFile($stampFile);
         }
 
         if ($rotateAngle !== 0) {
@@ -343,15 +341,17 @@ final class PdfEnginesTest extends TestCase
             $this->assertContainsFormFile($body, $embed->getFilename(), $embed->getStream()->getContents(), 'application/xml', 'embeds');
         }
 
-        foreach ($watermarkFiles as $watermarkFile) {
+        if ($watermarkFile !== null) {
             $watermarkFile->getStream()->rewind();
-            $this->assertContainsFormFile($body, $watermarkFile->getFilename(), $watermarkFile->getStream()->getContents(), 'application/pdf', 'watermarks');
+            $this->assertContainsFormFile($body, $watermarkFile->getFilename(), $watermarkFile->getStream()->getContents(), 'application/pdf', 'watermark');
         }
 
-        foreach ($stampFiles as $stampFile) {
-            $stampFile->getStream()->rewind();
-            $this->assertContainsFormFile($body, $stampFile->getFilename(), $stampFile->getStream()->getContents(), 'application/pdf', 'stamps');
+        if ($stampFile === null) {
+            return;
         }
+
+        $stampFile->getStream()->rewind();
+        $this->assertContainsFormFile($body, $stampFile->getFilename(), $stampFile->getStream()->getContents(), 'application/pdf', 'stamp');
     }
 
     /**
@@ -369,12 +369,12 @@ final class PdfEnginesTest extends TestCase
      * string,
      * string,
      * array<string, string>,
-     * array<int, Stream>,
+     * Stream|null,
      * string,
      * string,
      * string,
      * array<string, string>,
-     * array<int, Stream>,
+     * Stream|null,
      * int,
      * string
      * }>
@@ -409,16 +409,12 @@ final class PdfEnginesTest extends TestCase
                 'my_watermark_expression',
                 '1-2',
                 ['key' => 'value'],
-                [
-                    Stream::string('my_watermark.pdf', 'Watermark content'),
-                ],
+                Stream::string('my_watermark.pdf', 'Watermark content'),
                 'my_stamp_source',
                 'my_stamp_expression',
                 '3-4',
                 ['key' => 'value'],
-                [
-                    Stream::string('my_stamp.pdf', 'Stamp content'),
-                ],
+                Stream::string('my_stamp.pdf', 'Stamp content'),
                 180,
                 '1-3',
             ],
@@ -655,7 +651,6 @@ final class PdfEnginesTest extends TestCase
     /**
      * @param Stream[]            $pdfs
      * @param array<string,mixed> $options
-     * @param Stream[]            $watermarkFiles
      */
     #[Test]
     #[DataProvider('provideWatermarkData')]
@@ -665,7 +660,7 @@ final class PdfEnginesTest extends TestCase
         string $expression = '',
         string $pages = '',
         array $options = [],
-        array $watermarkFiles = [],
+        Stream|null $watermarkFile = null,
     ): void {
         $pdfEngines = Gotenberg::pdfEngines('');
 
@@ -673,8 +668,8 @@ final class PdfEnginesTest extends TestCase
             $pdfEngines->watermarking($source, $expression, $pages, $options);
         }
 
-        if (count($watermarkFiles) > 0) {
-            $pdfEngines->watermarkFiles(...$watermarkFiles);
+        if ($watermarkFile !== null) {
+            $pdfEngines->watermarkFile($watermarkFile);
         }
 
         $request = $pdfEngines->watermark($source, ...$pdfs);
@@ -705,13 +700,15 @@ final class PdfEnginesTest extends TestCase
             $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
         }
 
-        foreach ($watermarkFiles as $watermarkFile) {
-            $watermarkFile->getStream()->rewind();
-            $this->assertContainsFormFile($body, $watermarkFile->getFilename(), $watermarkFile->getStream()->getContents(), 'application/pdf', 'watermarks');
+        if ($watermarkFile === null) {
+            return;
         }
+
+        $watermarkFile->getStream()->rewind();
+        $this->assertContainsFormFile($body, $watermarkFile->getFilename(), $watermarkFile->getStream()->getContents(), 'application/pdf', 'watermark');
     }
 
-    /** @return array<string, array{0: string, 1: array<int, Stream>, 2?: string, 3?: string, 4?: array<string, string>, 5?: array<int, Stream>}> */
+    /** @return array<string, array{0: string, 1: array<int, Stream>, 2?: string, 3?: string, 4?: array<string, string>, 5?: Stream}> */
     public static function provideWatermarkData(): array
     {
         return [
@@ -730,9 +727,7 @@ final class PdfEnginesTest extends TestCase
                 'my_expression',
                 '1-2',
                 ['key' => 'value'],
-                [
-                    Stream::string('my_watermark.pdf', 'Watermark content'),
-                ],
+                Stream::string('my_watermark.pdf', 'Watermark content'),
             ],
         ];
     }
@@ -740,7 +735,6 @@ final class PdfEnginesTest extends TestCase
     /**
      * @param Stream[]            $pdfs
      * @param array<string,mixed> $options
-     * @param Stream[]            $stampFiles
      */
     #[Test]
     #[DataProvider('provideStampData')]
@@ -750,7 +744,7 @@ final class PdfEnginesTest extends TestCase
         string $expression = '',
         string $pages = '',
         array $options = [],
-        array $stampFiles = [],
+        Stream|null $stampFile = null,
     ): void {
         $pdfEngines = Gotenberg::pdfEngines('');
 
@@ -758,8 +752,8 @@ final class PdfEnginesTest extends TestCase
             $pdfEngines->stamping($source, $expression, $pages, $options);
         }
 
-        if (count($stampFiles) > 0) {
-            $pdfEngines->stampFiles(...$stampFiles);
+        if ($stampFile !== null) {
+            $pdfEngines->stampFile($stampFile);
         }
 
         $request = $pdfEngines->stamp($source, ...$pdfs);
@@ -790,13 +784,15 @@ final class PdfEnginesTest extends TestCase
             $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
         }
 
-        foreach ($stampFiles as $stampFile) {
-            $stampFile->getStream()->rewind();
-            $this->assertContainsFormFile($body, $stampFile->getFilename(), $stampFile->getStream()->getContents(), 'application/pdf', 'stamps');
+        if ($stampFile === null) {
+            return;
         }
+
+        $stampFile->getStream()->rewind();
+        $this->assertContainsFormFile($body, $stampFile->getFilename(), $stampFile->getStream()->getContents(), 'application/pdf', 'stamp');
     }
 
-    /** @return array<string, array{0: string, 1: array<int, Stream>, 2?: string, 3?: string, 4?: array<string, string>, 5?: array<int, Stream>}> */
+    /** @return array<string, array{0: string, 1: array<int, Stream>, 2?: string, 3?: string, 4?: array<string, string>, 5?: Stream}> */
     public static function provideStampData(): array
     {
         return [
@@ -815,9 +811,7 @@ final class PdfEnginesTest extends TestCase
                 'my_expression',
                 '1-2',
                 ['key' => 'value'],
-                [
-                    Stream::string('my_stamp.pdf', 'Stamp content'),
-                ],
+                Stream::string('my_stamp.pdf', 'Stamp content'),
             ],
         ];
     }
