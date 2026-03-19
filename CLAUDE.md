@@ -1,3 +1,3 @@
 # Claude Code — Gotenberg PHP Client
 
-Read [AGENTS.md](AGENTS.md) first. It is the root context: core principles, project layout, quick reference, codebase navigation, and persona selection.
+Read [AGENTS.md](AGENTS.md) first. It contains the mandatory workflow, core principles, project layout, and all development reference material (coding patterns, testing, review checklist).

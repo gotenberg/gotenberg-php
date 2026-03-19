@@ -6,12 +6,6 @@ Thank you for your interest in contributing to the Gotenberg PHP client! This gu
 
 Please read the [AGENTS.md](AGENTS.md) file — it describes the core principles, project layout, and development standards that all contributions must follow. Even though it is written for AI agents, the same rules apply to human contributors.
 
-For deeper context on specific areas, see the personas in `.agents/`:
-
-- **[DEVELOPER](.agents/DEVELOPER.md)** — Composer workflow, architecture, coding patterns.
-- **[TESTER](.agents/TESTER.md)** — How to write unit tests.
-- **[REVIEWER](.agents/REVIEWER.md)** — What reviewers look for (useful to check before submitting).
-
 ## Getting Started
 
 ### Prerequisites
