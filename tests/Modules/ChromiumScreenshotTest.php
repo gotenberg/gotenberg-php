@@ -53,6 +53,7 @@ final class ChromiumScreenshotTest extends TestCase
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
+        bool|null $skipNetworkAlmostIdleEvent = null,
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->screenshot();
@@ -79,6 +80,7 @@ final class ChromiumScreenshotTest extends TestCase
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $skipNetworkAlmostIdleEvent,
             $assets,
         );
 
@@ -111,6 +113,7 @@ final class ChromiumScreenshotTest extends TestCase
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $skipNetworkAlmostIdleEvent,
             $assets,
         );
     }
@@ -138,6 +141,7 @@ final class ChromiumScreenshotTest extends TestCase
      * array<int, string>,
      * bool,
      * bool,
+     * bool|null,
      * bool|null,
      * array<int, Stream>
      * }>
@@ -175,6 +179,7 @@ final class ChromiumScreenshotTest extends TestCase
                 [499, 599],
                 [499, 599],
                 ['my.com'],
+                true,
                 true,
                 true,
                 true,
@@ -219,6 +224,7 @@ final class ChromiumScreenshotTest extends TestCase
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
+        bool|null $skipNetworkAlmostIdleEvent = null,
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->screenshot();
@@ -245,6 +251,7 @@ final class ChromiumScreenshotTest extends TestCase
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $skipNetworkAlmostIdleEvent,
             $assets,
         );
 
@@ -279,6 +286,7 @@ final class ChromiumScreenshotTest extends TestCase
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $skipNetworkAlmostIdleEvent,
             $assets,
         );
     }
@@ -306,6 +314,7 @@ final class ChromiumScreenshotTest extends TestCase
      * array<int, string>,
      * bool,
      * bool,
+     * bool|null,
      * bool|null,
      * array<int, Stream>
      * }>
@@ -343,6 +352,7 @@ final class ChromiumScreenshotTest extends TestCase
                 [499, 599],
                 [499, 599],
                 ['my.com'],
+                true,
                 true,
                 true,
                 true,
@@ -389,6 +399,7 @@ final class ChromiumScreenshotTest extends TestCase
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
+        bool|null $skipNetworkAlmostIdleEvent = null,
         array $assets = [],
     ): void {
         $chromium = Gotenberg::chromium('')->screenshot();
@@ -415,6 +426,7 @@ final class ChromiumScreenshotTest extends TestCase
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $skipNetworkAlmostIdleEvent,
             $assets,
         );
 
@@ -454,6 +466,7 @@ final class ChromiumScreenshotTest extends TestCase
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $skipNetworkAlmostIdleEvent,
             $assets,
         );
     }
@@ -482,6 +495,7 @@ final class ChromiumScreenshotTest extends TestCase
      * array<int, string>,
      * bool,
      * bool,
+     * bool|null,
      * bool|null,
      * array<int, Stream>
      * }>
@@ -530,6 +544,7 @@ final class ChromiumScreenshotTest extends TestCase
                 true,
                 true,
                 true,
+                true,
                 [
                     Stream::string('my.jpg', 'Image content'),
                 ],
@@ -569,6 +584,7 @@ final class ChromiumScreenshotTest extends TestCase
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
+        bool|null $skipNetworkAlmostIdleEvent = null,
         array $assets = [],
     ): ChromiumScreenshot {
         if ($width !== null) {
@@ -667,6 +683,10 @@ final class ChromiumScreenshotTest extends TestCase
             $chromium->skipNetworkIdleEvent($skipNetworkIdleEvent);
         }
 
+        if ($skipNetworkAlmostIdleEvent !== null) {
+            $chromium->skipNetworkAlmostIdleEvent($skipNetworkAlmostIdleEvent);
+        }
+
         if (count($assets) > 0) {
             $chromium->assets(...$assets);
         }
@@ -706,6 +726,7 @@ final class ChromiumScreenshotTest extends TestCase
         bool $failOnResourceLoadingFailed,
         bool $failOnConsoleExceptions,
         bool|null $skipNetworkIdleEvent,
+        bool|null $skipNetworkAlmostIdleEvent,
         array $assets,
     ): void {
         if ($width !== null) {
@@ -820,6 +841,10 @@ final class ChromiumScreenshotTest extends TestCase
 
         if ($skipNetworkIdleEvent !== null) {
             $this->assertContainsFormValue($body, 'skipNetworkIdleEvent', $skipNetworkIdleEvent ? '1' : '0');
+        }
+
+        if ($skipNetworkAlmostIdleEvent !== null) {
+            $this->assertContainsFormValue($body, 'skipNetworkAlmostIdleEvent', $skipNetworkAlmostIdleEvent ? '1' : '0');
         }
 
         if (count($assets) <= 0) {

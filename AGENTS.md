@@ -107,7 +107,17 @@ All verification tasks go through Composer scripts. Do not run tools directly un
 | `composer run lint:fix`   | Auto-fix coding standard violations (phpcbf)         | Before every commit  |
 | `composer run lint`       | Run phpcs + phpstan at max level                     | Before every commit  |
 | `composer run tests`      | Run PHPUnit with coverage                            | After code changes   |
-| `composer run all`        | lint:fix + lint + tests in sequence                  | Before submitting PR |
+| `composer run all`        | lint:fix + lint + tests in sequence                  | Before submitting PR |g
+
+Run all Composer commands inside this Docker container:
+
+```bash
+docker run --rm -it \
+    -e PHP_EXTENSION_XDEBUG=1 \
+    -v $(PWD):/usr/src/app/ \
+    thecodingmachine/php:8.1-v4-cli \
+    bash -c "composer run lint:fix && composer run lint && composer run tests"
+```
 
 ### Architecture
 

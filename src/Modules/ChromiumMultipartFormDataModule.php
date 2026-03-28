@@ -242,6 +242,17 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
+     * Specifies whether Chromium have to wait or not for its network to be
+     * almost idle.
+     */
+    public function skipNetworkAlmostIdleEvent(bool $skip = true): self
+    {
+        $this->formValue('skipNetworkAlmostIdleEvent', $skip ?: '0');
+
+        return $this;
+    }
+
+    /**
      * Sets the additional files, like images, fonts, stylesheets, and so on.
      */
     public function assets(Stream ...$assets): self

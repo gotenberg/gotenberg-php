@@ -68,6 +68,7 @@ final class ChromiumPdfTest extends TestCase
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
+        bool|null $skipNetworkAlmostIdleEvent = null,
         SplitMode|null $splitMode = null,
         string|null $pdfa = null,
         bool $pdfua = false,
@@ -122,6 +123,7 @@ final class ChromiumPdfTest extends TestCase
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $skipNetworkAlmostIdleEvent,
             $splitMode,
             $pdfa,
             $pdfua,
@@ -182,6 +184,7 @@ final class ChromiumPdfTest extends TestCase
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $skipNetworkAlmostIdleEvent,
             $splitMode,
             $pdfa,
             $pdfua,
@@ -237,6 +240,7 @@ final class ChromiumPdfTest extends TestCase
      * array<int, string>,
      * bool,
      * bool,
+     * bool|null,
      * bool|null,
      * SplitMode|null,
      * string|null,
@@ -300,6 +304,7 @@ final class ChromiumPdfTest extends TestCase
                 [499, 599],
                 [499, 599],
                 ['my.com'],
+                true,
                 true,
                 true,
                 true,
@@ -379,6 +384,7 @@ final class ChromiumPdfTest extends TestCase
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
+        bool|null $skipNetworkAlmostIdleEvent = null,
         SplitMode|null $splitMode = null,
         string|null $pdfa = null,
         bool $pdfua = false,
@@ -433,6 +439,7 @@ final class ChromiumPdfTest extends TestCase
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $skipNetworkAlmostIdleEvent,
             $splitMode,
             $pdfa,
             $pdfua,
@@ -495,6 +502,7 @@ final class ChromiumPdfTest extends TestCase
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $skipNetworkAlmostIdleEvent,
             $splitMode,
             $pdfa,
             $pdfua,
@@ -550,6 +558,7 @@ final class ChromiumPdfTest extends TestCase
      * array<int, string>,
      * bool,
      * bool,
+     * bool|null,
      * bool|null,
      * SplitMode|null,
      * string|null,
@@ -613,6 +622,7 @@ final class ChromiumPdfTest extends TestCase
                 [499, 599],
                 [499, 599],
                 ['my.com'],
+                true,
                 true,
                 true,
                 true,
@@ -694,6 +704,7 @@ final class ChromiumPdfTest extends TestCase
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
+        bool|null $skipNetworkAlmostIdleEvent = null,
         SplitMode|null $splitMode = null,
         string|null $pdfa = null,
         bool $pdfua = false,
@@ -748,6 +759,7 @@ final class ChromiumPdfTest extends TestCase
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $skipNetworkAlmostIdleEvent,
             $splitMode,
             $pdfa,
             $pdfua,
@@ -815,6 +827,7 @@ final class ChromiumPdfTest extends TestCase
             $failOnResourceLoadingFailed,
             $failOnConsoleExceptions,
             $skipNetworkIdleEvent,
+            $skipNetworkAlmostIdleEvent,
             $splitMode,
             $pdfa,
             $pdfua,
@@ -871,6 +884,7 @@ final class ChromiumPdfTest extends TestCase
      * array<int, string>,
      * bool,
      * bool,
+     * bool|null,
      * bool|null,
      * SplitMode|null,
      * string|null,
@@ -943,6 +957,7 @@ final class ChromiumPdfTest extends TestCase
                 [499, 599],
                 [499, 599],
                 ['my.com'],
+                true,
                 true,
                 true,
                 true,
@@ -1020,6 +1035,7 @@ final class ChromiumPdfTest extends TestCase
         bool $failOnResourceLoadingFailed = false,
         bool $failOnConsoleExceptions = false,
         bool|null $skipNetworkIdleEvent = null,
+        bool|null $skipNetworkAlmostIdleEvent = null,
         SplitMode|null $splitMode = null,
         string|null $pdfa = null,
         bool $pdfua = false,
@@ -1152,6 +1168,10 @@ final class ChromiumPdfTest extends TestCase
             $chromium->skipNetworkIdleEvent($skipNetworkIdleEvent);
         }
 
+        if ($skipNetworkAlmostIdleEvent !== null) {
+            $chromium->skipNetworkAlmostIdleEvent($skipNetworkAlmostIdleEvent);
+        }
+
         if ($splitMode !== null) {
             $chromium->split($splitMode);
         }
@@ -1245,6 +1265,7 @@ final class ChromiumPdfTest extends TestCase
         bool $failOnResourceLoadingFailed,
         bool $failOnConsoleExceptions,
         bool|null $skipNetworkIdleEvent,
+        bool|null $skipNetworkAlmostIdleEvent,
         SplitMode|null $splitMode,
         string|null $pdfa,
         bool $pdfua,
@@ -1407,6 +1428,10 @@ final class ChromiumPdfTest extends TestCase
 
         if ($skipNetworkIdleEvent !== null) {
             $this->assertContainsFormValue($body, 'skipNetworkIdleEvent', $skipNetworkIdleEvent ? '1' : '0');
+        }
+
+        if ($skipNetworkAlmostIdleEvent !== null) {
+            $this->assertContainsFormValue($body, 'skipNetworkAlmostIdleEvent', $skipNetworkAlmostIdleEvent ? '1' : '0');
         }
 
         if ($splitMode !== null) {
