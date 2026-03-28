@@ -32,6 +32,7 @@ final class MultipartFormDataModuleTest extends TestCase
                 'My-Webhook-Http-Header'        => 'HTTP header content',
                 'My-Second-Webhook-Http-Header' => 'Second HTTP header content',
             ])
+            ->webhookEventsUrl('https://my.webhook.events.url')
             ->build();
 
         // Assert Output Filename Header
@@ -61,6 +62,9 @@ final class MultipartFormDataModuleTest extends TestCase
         }
 
         $this->assertSame([$json], $request->getHeader('Gotenberg-Webhook-Extra-Http-Headers'));
+
+        // Assert Webhook Events Url Header
+        $this->assertSame(['https://my.webhook.events.url'], $request->getHeader('Gotenberg-Webhook-Events-Url'));
     }
 
     #[Test]

@@ -30,14 +30,25 @@ trait ApiModule
     }
 
     /**
+     * Overrides the default UUID correlation ID that identifies a request in
+     * Gotenberg's logs.
+     */
+    public function correlationId(string $correlationId, string $header = 'Gotenberg-Trace'): self
+    {
+        $this->headers[$header] = $correlationId;
+
+        return $this;
+    }
+
+    /**
      * Overrides the default UUID trace, or request ID, that identifies a
      * request in Gotenberg's logs.
+     *
+     * @deprecated Use correlationId() instead.
      */
     public function trace(string $trace, string $header = 'Gotenberg-Trace'): self
     {
-        $this->headers[$header] = $trace;
-
-        return $this;
+        return $this->correlationId($trace, $header);
     }
 
     protected function request(string $method, StreamInterface|null $body = null): RequestInterface

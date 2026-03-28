@@ -110,6 +110,17 @@ trait MultipartFormDataModule
     }
 
     /**
+     * Sets the URL that Gotenberg will use to send webhook event
+     * notifications (e.g., success/error events after webhook delivery).
+     */
+    public function webhookEventsUrl(string $url): self
+    {
+        $this->headers['Gotenberg-Webhook-Events-Url'] = $url;
+
+        return $this;
+    }
+
+    /**
      * Configures watermarking on the resulting PDF(s).
      * Only non-empty values are set.
      *

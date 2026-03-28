@@ -44,7 +44,7 @@ final class GotenbergTest extends TestCase
         } catch (GotenbergApiErrored $e) {
             $this->assertSame(400, $e->getCode());
             $this->assertSame('Bad Request', $e->getMessage());
-            $this->assertSame($withTrace ? 'debug' : '', $e->getGotenbergTrace());
+            $this->assertSame($withTrace ? 'debug' : '', $e->getCorrelationId());
             $this->assertSame($response, $e->getResponse());
         }
     }

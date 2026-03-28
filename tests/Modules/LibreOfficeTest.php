@@ -47,6 +47,21 @@ final class LibreOfficeTest extends TestCase
         bool $exportHiddenSlides = false,
         bool $skipEmptyPages = false,
         bool $addOriginalDocumentAsStream = false,
+        string|null $initialView = null,
+        int|null $initialPage = null,
+        string|null $magnification = null,
+        int|null $zoom = null,
+        string|null $pageLayout = null,
+        bool $firstPageOnLeft = false,
+        bool $resizeWindowToInitialPage = false,
+        bool $centerWindow = false,
+        bool $openInFullScreenMode = false,
+        bool $displayPDFDocumentTitle = false,
+        bool $hideViewerMenubar = false,
+        bool $hideViewerToolbar = false,
+        bool $hideViewerWindowControls = false,
+        bool $useTransitionEffects = false,
+        int|null $openBookmarkLevels = null,
         bool $singlePageSheets = false,
         bool $losslessImageCompression = false,
         int|null $quality = null,
@@ -150,6 +165,66 @@ final class LibreOfficeTest extends TestCase
 
         if ($addOriginalDocumentAsStream) {
             $libreOffice->addOriginalDocumentAsStream();
+        }
+
+        if ($initialView !== null) {
+            $libreOffice->initialView($initialView);
+        }
+
+        if ($initialPage !== null) {
+            $libreOffice->initialPage($initialPage);
+        }
+
+        if ($magnification !== null) {
+            $libreOffice->magnification($magnification);
+        }
+
+        if ($zoom !== null) {
+            $libreOffice->zoom($zoom);
+        }
+
+        if ($pageLayout !== null) {
+            $libreOffice->pageLayout($pageLayout);
+        }
+
+        if ($firstPageOnLeft) {
+            $libreOffice->firstPageOnLeft();
+        }
+
+        if ($resizeWindowToInitialPage) {
+            $libreOffice->resizeWindowToInitialPage();
+        }
+
+        if ($centerWindow) {
+            $libreOffice->centerWindow();
+        }
+
+        if ($openInFullScreenMode) {
+            $libreOffice->openInFullScreenMode();
+        }
+
+        if ($displayPDFDocumentTitle) {
+            $libreOffice->displayPDFDocumentTitle();
+        }
+
+        if ($hideViewerMenubar) {
+            $libreOffice->hideViewerMenubar();
+        }
+
+        if ($hideViewerToolbar) {
+            $libreOffice->hideViewerToolbar();
+        }
+
+        if ($hideViewerWindowControls) {
+            $libreOffice->hideViewerWindowControls();
+        }
+
+        if ($useTransitionEffects) {
+            $libreOffice->useTransitionEffects();
+        }
+
+        if ($openBookmarkLevels !== null) {
+            $libreOffice->openBookmarkLevels($openBookmarkLevels);
         }
 
         if ($singlePageSheets) {
@@ -317,6 +392,66 @@ final class LibreOfficeTest extends TestCase
 
         if ($addOriginalDocumentAsStream) {
             $this->assertContainsFormValue($body, 'addOriginalDocumentAsStream', '1');
+        }
+
+        if ($initialView !== null) {
+            $this->assertContainsFormValue($body, 'initialView', $initialView);
+        }
+
+        if ($initialPage !== null) {
+            $this->assertContainsFormValue($body, 'initialPage', (string) $initialPage);
+        }
+
+        if ($magnification !== null) {
+            $this->assertContainsFormValue($body, 'magnification', $magnification);
+        }
+
+        if ($zoom !== null) {
+            $this->assertContainsFormValue($body, 'zoom', (string) $zoom);
+        }
+
+        if ($pageLayout !== null) {
+            $this->assertContainsFormValue($body, 'pageLayout', $pageLayout);
+        }
+
+        if ($firstPageOnLeft) {
+            $this->assertContainsFormValue($body, 'firstPageOnLeft', '1');
+        }
+
+        if ($resizeWindowToInitialPage) {
+            $this->assertContainsFormValue($body, 'resizeWindowToInitialPage', '1');
+        }
+
+        if ($centerWindow) {
+            $this->assertContainsFormValue($body, 'centerWindow', '1');
+        }
+
+        if ($openInFullScreenMode) {
+            $this->assertContainsFormValue($body, 'openInFullScreenMode', '1');
+        }
+
+        if ($displayPDFDocumentTitle) {
+            $this->assertContainsFormValue($body, 'displayPDFDocumentTitle', '1');
+        }
+
+        if ($hideViewerMenubar) {
+            $this->assertContainsFormValue($body, 'hideViewerMenubar', '1');
+        }
+
+        if ($hideViewerToolbar) {
+            $this->assertContainsFormValue($body, 'hideViewerToolbar', '1');
+        }
+
+        if ($hideViewerWindowControls) {
+            $this->assertContainsFormValue($body, 'hideViewerWindowControls', '1');
+        }
+
+        if ($useTransitionEffects) {
+            $this->assertContainsFormValue($body, 'useTransitionEffects', '1');
+        }
+
+        if ($openBookmarkLevels !== null) {
+            $this->assertContainsFormValue($body, 'openBookmarkLevels', (string) $openBookmarkLevels);
         }
 
         if ($singlePageSheets) {
@@ -496,6 +631,21 @@ final class LibreOfficeTest extends TestCase
      * exportHiddenSlides?: bool,
      * skipEmptyPages?: bool,
      * addOriginalDocumentAsStream?: bool,
+     * initialView?: string|null,
+     * initialPage?: int|null,
+     * magnification?: string|null,
+     * zoom?: int|null,
+     * pageLayout?: string|null,
+     * firstPageOnLeft?: bool,
+     * resizeWindowToInitialPage?: bool,
+     * centerWindow?: bool,
+     * openInFullScreenMode?: bool,
+     * displayPDFDocumentTitle?: bool,
+     * hideViewerMenubar?: bool,
+     * hideViewerToolbar?: bool,
+     * hideViewerWindowControls?: bool,
+     * useTransitionEffects?: bool,
+     * openBookmarkLevels?: int|null,
      * singlePageSheets?: bool,
      * losslessImageCompression?: bool,
      * quality?: int|null,
@@ -559,6 +709,21 @@ final class LibreOfficeTest extends TestCase
                 'exportHiddenSlides' => true,
                 'skipEmptyPages' => true,
                 'addOriginalDocumentAsStream' => true,
+                'initialView' => 'outline',
+                'initialPage' => 2,
+                'magnification' => 'fitWidth',
+                'zoom' => 150,
+                'pageLayout' => 'continuous',
+                'firstPageOnLeft' => true,
+                'resizeWindowToInitialPage' => true,
+                'centerWindow' => true,
+                'openInFullScreenMode' => true,
+                'displayPDFDocumentTitle' => true,
+                'hideViewerMenubar' => true,
+                'hideViewerToolbar' => true,
+                'hideViewerWindowControls' => true,
+                'useTransitionEffects' => true,
+                'openBookmarkLevels' => 3,
                 'singlePageSheets' => true,
                 'losslessImageCompression' => true,
                 'quality' => 100,

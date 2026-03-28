@@ -229,16 +229,17 @@ $request = Gotenberg::chromium($apiUrl)
 
 Gotenberg will automatically add the correct file extension.
 
-### Trace or request ID
+### Correlation ID
 
-By default, Gotenberg creates a *UUID* trace that identifies a request in its logs. You may override its value thanks to:
+By default, Gotenberg creates a *UUID* correlation ID that identifies a request in its logs. You may override its value
+thanks to:
 
 ```php
 use Gotenberg\Gotenberg;
 
-$request = Gotenberg::chromium('$apiUrl')
+$request = Gotenberg::chromium($apiUrl)
     ->pdf()
-    ->trace('debug')
+    ->correlationId('debug')
     ->url('https://my.url');
 ```
 
@@ -249,15 +250,15 @@ use Gotenberg\Gotenberg;
 
 $request = Gotenberg::chromium($apiUrl)
     ->pdf()
-    ->trace('debug', 'Request-Id')
+    ->correlationId('debug', 'Request-Id')
     ->url('https://my.url');
 ```
 
-Please note that it should be the same value as defined by the `--api-trace-header` Gotenberg's property.
+Please note that it should be the same value as defined by the `--api-correlation-id-header` Gotenberg's property.
 
-The response from Gotenberg will also contain the trace header. In case of error, both the `Gotenberg::send` and 
-`Gotenberg::save` methods throw a `GotenbergApiErrored` exception that provides the following method for retrieving the 
-trace:
+The response from Gotenberg will also contain the correlation ID header. In case of error, both the `Gotenberg::send`
+and `Gotenberg::save` methods throw a `GotenbergApiErrored` exception that provides the following method for retrieving
+it:
 
 ```php
 use Gotenberg\Exceptions\GotenbergApiErrored;
@@ -270,8 +271,11 @@ try {
             ->url('https://my.url')
     );
 } catch (GotenbergApiErrored $e) {
-    $trace = $e->getGotenbergTrace();
+    $correlationId = $e->getCorrelationId();
     // Or if you override the header name:
-    $trace = $e->getGotenbergTrace('Request-Id');
+    $correlationId = $e->getCorrelationId('Request-Id');
 }
 ```
+
+> [!NOTE]
+> The `trace()` and `getGotenbergTrace()` methods are deprecated but still available for backward compatibility.

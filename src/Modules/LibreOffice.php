@@ -230,7 +230,167 @@ class LibreOffice
     }
 
     /**
-     * Ignores each sheet’s paper size, print ranges and shown/hidden status
+     * Specifies how the document shall be displayed when opened. Possible
+     * values are: "document", "outline", "thumbnails".
+     */
+    public function initialView(string $view): self
+    {
+        $this->formValue('initialView', $view);
+
+        return $this;
+    }
+
+    /**
+     * Specifies the page on which a PDF document should be opened in the
+     * viewer.
+     */
+    public function initialPage(int $page): self
+    {
+        $this->formValue('initialPage', $page);
+
+        return $this;
+    }
+
+    /**
+     * Specifies the magnification to use when the document is opened.
+     * Possible values are: "default", "fitVisible", "fitWidth", "fitPage",
+     * "fitActualSize".
+     */
+    public function magnification(string $magnification): self
+    {
+        $this->formValue('magnification', $magnification);
+
+        return $this;
+    }
+
+    /**
+     * Specifies the zoom value to use when the document is opened.
+     */
+    public function zoom(int $zoom): self
+    {
+        $this->formValue('zoom', $zoom);
+
+        return $this;
+    }
+
+    /**
+     * Specifies the page layout to use when the document is opened. Possible
+     * values are: "default", "singlePage", "continuous", "continuousFacing".
+     */
+    public function pageLayout(string $layout): self
+    {
+        $this->formValue('pageLayout', $layout);
+
+        return $this;
+    }
+
+    /**
+     * Specifies that the first page on the left side of the viewer should be
+     * displayed in a two-column layout.
+     */
+    public function firstPageOnLeft(): self
+    {
+        $this->formValue('firstPageOnLeft', true);
+
+        return $this;
+    }
+
+    /**
+     * Specifies that the PDF viewer window should be resized to fit the size
+     * of the first page of the document.
+     */
+    public function resizeWindowToInitialPage(): self
+    {
+        $this->formValue('resizeWindowToInitialPage', true);
+
+        return $this;
+    }
+
+    /**
+     * Specifies that the PDF viewer window should be centered on the screen.
+     */
+    public function centerWindow(): self
+    {
+        $this->formValue('centerWindow', true);
+
+        return $this;
+    }
+
+    /**
+     * Specifies that the PDF document should be displayed in full-screen mode.
+     */
+    public function openInFullScreenMode(): self
+    {
+        $this->formValue('openInFullScreenMode', true);
+
+        return $this;
+    }
+
+    /**
+     * Specifies that the title of the document should be displayed in the
+     * title bar of the viewer.
+     */
+    public function displayPDFDocumentTitle(): self
+    {
+        $this->formValue('displayPDFDocumentTitle', true);
+
+        return $this;
+    }
+
+    /**
+     * Specifies that the viewer's menu bar should be hidden.
+     */
+    public function hideViewerMenubar(): self
+    {
+        $this->formValue('hideViewerMenubar', true);
+
+        return $this;
+    }
+
+    /**
+     * Specifies that the viewer's toolbar should be hidden.
+     */
+    public function hideViewerToolbar(): self
+    {
+        $this->formValue('hideViewerToolbar', true);
+
+        return $this;
+    }
+
+    /**
+     * Specifies that the viewer's window controls should be hidden.
+     */
+    public function hideViewerWindowControls(): self
+    {
+        $this->formValue('hideViewerWindowControls', true);
+
+        return $this;
+    }
+
+    /**
+     * Specifies whether to use transition effects when displaying the
+     * document.
+     */
+    public function useTransitionEffects(): self
+    {
+        $this->formValue('useTransitionEffects', true);
+
+        return $this;
+    }
+
+    /**
+     * Specifies the number of bookmark levels to display in the viewer when
+     * the document is opened.
+     */
+    public function openBookmarkLevels(int $levels): self
+    {
+        $this->formValue('openBookmarkLevels', $levels);
+
+        return $this;
+    }
+
+    /**
+     * Ignores each sheet's paper size, print ranges and shown/hidden status
      * and puts every sheet (even hidden sheets) on exactly one page.
      */
     public function singlePageSheets(): self
