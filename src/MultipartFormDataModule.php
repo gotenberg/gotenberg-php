@@ -54,11 +54,18 @@ trait MultipartFormDataModule
     /**
      * Sets the callback and error callback that Gotenberg will use to send
      * respectively the output file and the error response.
+     *
+     * @param string $errorUrl Deprecated: use webhookEventsUrl() instead.
+     *                         If Gotenberg-Webhook-Events-Url is set, this
+     *                         parameter is not required.
      */
-    public function webhook(string $url, string $errorUrl): self
+    public function webhook(string $url, string $errorUrl = ''): self
     {
-        $this->headers['Gotenberg-Webhook-Url']       = $url;
-        $this->headers['Gotenberg-Webhook-Error-Url'] = $errorUrl;
+        $this->headers['Gotenberg-Webhook-Url'] = $url;
+
+        if ($errorUrl !== '') {
+            $this->headers['Gotenberg-Webhook-Error-Url'] = $errorUrl;
+        }
 
         return $this;
     }
@@ -81,6 +88,8 @@ trait MultipartFormDataModule
      * error webhook.
      *
      * Either "POST", "PATCH", or "PUT" - default "POST".
+     *
+     * @deprecated Use webhookEventsUrl() instead.
      */
     public function webhookErrorMethod(string $method): self
     {

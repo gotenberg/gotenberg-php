@@ -68,6 +68,20 @@ final class MultipartFormDataModuleTest extends TestCase
     }
 
     #[Test]
+    public function it_creates_a_valid_request_with_webhook_without_error_url(): void
+    {
+        $dummy   = new DummyMultipartFormDataModule('https://my.url/');
+        $request = $dummy
+            ->webhook('https://my.webhook.url')
+            ->webhookEventsUrl('https://my.webhook.events.url')
+            ->build();
+
+        $this->assertSame(['https://my.webhook.url'], $request->getHeader('Gotenberg-Webhook-Url'));
+        $this->assertEmpty($request->getHeader('Gotenberg-Webhook-Error-Url'));
+        $this->assertSame(['https://my.webhook.events.url'], $request->getHeader('Gotenberg-Webhook-Events-Url'));
+    }
+
+    #[Test]
     public function it_creates_a_valid_request_with_watermarking(): void
     {
         $dummy   = new DummyMultipartFormDataModule('https://my.url/');
