@@ -108,4 +108,4 @@ Plan non-trivial changes before coding. Present what needs to change, why, which
 
 [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`. Scope should match the module (e.g., `chromium`, `libreoffice`, `pdfengines`).
 
-Stage specific files. Never `git add -A` or `git add .`. Do not push unless asked.
+Stage specific files. Never `git add -A` or `git add .`.
