@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Test\Modules;
 
+use Gotenberg\EmbedMetadata;
 use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
 use Gotenberg\Modules\ChromiumCookie;
@@ -29,6 +30,7 @@ final class ChromiumPdfTest extends TestCase
      * @param string[]                                          $ignoreResourceHttpStatusDomains
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
+     * @param EmbedMetadata[]                                   $embedsMetadata
      * @param Stream[]                                          $assets
      * @param array<string,mixed>                               $watermarkOptions
      * @param array<string,mixed>                               $stampOptions
@@ -77,6 +79,7 @@ final class ChromiumPdfTest extends TestCase
         string $userPassword = '',
         string $ownerPassword = '',
         array $embeds = [],
+        array $embedsMetadata = [],
         array $assets = [],
         string $watermarkSource = '',
         string $watermarkExpression = '',
@@ -132,6 +135,7 @@ final class ChromiumPdfTest extends TestCase
             $userPassword,
             $ownerPassword,
             $embeds,
+            $embedsMetadata,
             $assets,
             $watermarkSource,
             $watermarkExpression,
@@ -193,6 +197,7 @@ final class ChromiumPdfTest extends TestCase
             $userPassword,
             $ownerPassword,
             $embeds,
+            $embedsMetadata,
             $assets,
             $watermarkSource,
             $watermarkExpression,
@@ -250,6 +255,7 @@ final class ChromiumPdfTest extends TestCase
      * string,
      * string,
      * array<int, Stream>,
+     * array<int, EmbedMetadata>,
      * array<int, Stream>,
      * string,
      * string,
@@ -320,6 +326,10 @@ final class ChromiumPdfTest extends TestCase
                     Stream::string('my_second.xml', 'Second XML content'),
                 ],
                 [
+                    new EmbedMetadata('my.xml', 'text/xml', EmbedMetadata::RELATIONSHIP_DATA),
+                    new EmbedMetadata('my_second.xml', 'text/xml', EmbedMetadata::RELATIONSHIP_ALTERNATIVE),
+                ],
+                [
                     Stream::string('my.jpg', 'Image content'),
                 ],
                 'my_watermark_source',
@@ -345,6 +355,7 @@ final class ChromiumPdfTest extends TestCase
      * @param string[]                                          $ignoreResourceHttpStatusDomains
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
+     * @param EmbedMetadata[]                                   $embedsMetadata
      * @param Stream[]                                          $assets
      * @param array<string,mixed>                               $watermarkOptions
      * @param array<string,mixed>                               $stampOptions
@@ -393,6 +404,7 @@ final class ChromiumPdfTest extends TestCase
         string $userPassword = '',
         string $ownerPassword = '',
         array $embeds = [],
+        array $embedsMetadata = [],
         array $assets = [],
         string $watermarkSource = '',
         string $watermarkExpression = '',
@@ -448,6 +460,7 @@ final class ChromiumPdfTest extends TestCase
             $userPassword,
             $ownerPassword,
             $embeds,
+            $embedsMetadata,
             $assets,
             $watermarkSource,
             $watermarkExpression,
@@ -511,6 +524,7 @@ final class ChromiumPdfTest extends TestCase
             $userPassword,
             $ownerPassword,
             $embeds,
+            $embedsMetadata,
             $assets,
             $watermarkSource,
             $watermarkExpression,
@@ -568,6 +582,7 @@ final class ChromiumPdfTest extends TestCase
      * string,
      * string,
      * array<int, Stream>,
+     * array<int, EmbedMetadata>,
      * array<int, Stream>,
      * string,
      * string,
@@ -638,6 +653,10 @@ final class ChromiumPdfTest extends TestCase
                     Stream::string('my_second.xml', 'Second XML content'),
                 ],
                 [
+                    new EmbedMetadata('my.xml', 'text/xml', EmbedMetadata::RELATIONSHIP_DATA),
+                    new EmbedMetadata('my_second.xml', 'text/xml', EmbedMetadata::RELATIONSHIP_ALTERNATIVE),
+                ],
+                [
                     Stream::string('my.jpg', 'Image content'),
                 ],
                 'my_watermark_source',
@@ -664,6 +683,7 @@ final class ChromiumPdfTest extends TestCase
      * @param Stream[]                                          $markdowns
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
+     * @param EmbedMetadata[]                                   $embedsMetadata
      * @param Stream[]                                          $assets
      * @param array<string,mixed>                               $watermarkOptions
      * @param array<string,mixed>                               $stampOptions
@@ -713,6 +733,7 @@ final class ChromiumPdfTest extends TestCase
         string $userPassword = '',
         string $ownerPassword = '',
         array $embeds = [],
+        array $embedsMetadata = [],
         array $assets = [],
         string $watermarkSource = '',
         string $watermarkExpression = '',
@@ -768,6 +789,7 @@ final class ChromiumPdfTest extends TestCase
             $userPassword,
             $ownerPassword,
             $embeds,
+            $embedsMetadata,
             $assets,
             $watermarkSource,
             $watermarkExpression,
@@ -836,6 +858,7 @@ final class ChromiumPdfTest extends TestCase
             $userPassword,
             $ownerPassword,
             $embeds,
+            $embedsMetadata,
             $assets,
             $watermarkSource,
             $watermarkExpression,
@@ -894,6 +917,7 @@ final class ChromiumPdfTest extends TestCase
      * string,
      * string,
      * array<int, Stream>,
+     * array<int, EmbedMetadata>,
      * array<int, Stream>,
      * string,
      * string,
@@ -973,6 +997,10 @@ final class ChromiumPdfTest extends TestCase
                     Stream::string('my_second.xml', 'Second XML content'),
                 ],
                 [
+                    new EmbedMetadata('my.xml', 'text/xml', EmbedMetadata::RELATIONSHIP_DATA),
+                    new EmbedMetadata('my_second.xml', 'text/xml', EmbedMetadata::RELATIONSHIP_ALTERNATIVE),
+                ],
+                [
                     Stream::string('my.jpg', 'Image content'),
                 ],
                 'my_watermark_source',
@@ -998,6 +1026,7 @@ final class ChromiumPdfTest extends TestCase
      * @param string[]                                          $ignoreResourceHttpStatusDomains
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
+     * @param EmbedMetadata[]                                   $embedsMetadata
      * @param Stream[]                                          $assets
      * @param array<string,mixed>                               $watermarkOptions
      * @param array<string,mixed>                               $stampOptions
@@ -1044,6 +1073,7 @@ final class ChromiumPdfTest extends TestCase
         string $userPassword = '',
         string $ownerPassword = '',
         array $embeds = [],
+        array $embedsMetadata = [],
         array $assets = [],
         string $watermarkSource = '',
         string $watermarkExpression = '',
@@ -1200,6 +1230,10 @@ final class ChromiumPdfTest extends TestCase
             $chromium->embeds(...$embeds);
         }
 
+        if (count($embedsMetadata) > 0) {
+            $chromium->embedsMetadata(...$embedsMetadata);
+        }
+
         if (count($assets) > 0) {
             $chromium->assets(...$assets);
         }
@@ -1228,6 +1262,7 @@ final class ChromiumPdfTest extends TestCase
      * @param string[]                                          $ignoreResourceHttpStatusDomains
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
+     * @param EmbedMetadata[]                                   $embedsMetadata
      * @param Stream[]                                          $assets
      * @param array<string,mixed>                               $watermarkOptions
      * @param array<string,mixed>                               $stampOptions
@@ -1274,6 +1309,7 @@ final class ChromiumPdfTest extends TestCase
         string $userPassword,
         string $ownerPassword,
         array $embeds,
+        array $embedsMetadata,
         array $assets,
         string $watermarkSource = '',
         string $watermarkExpression = '',
@@ -1469,6 +1505,20 @@ final class ChromiumPdfTest extends TestCase
         foreach ($embeds as $embed) {
             $embed->getStream()->rewind();
             $this->assertContainsFormFile($body, $embed->getFilename(), $embed->getStream()->getContents(), 'application/xml', 'embeds');
+        }
+
+        if (count($embedsMetadata) > 0) {
+            $map = [];
+            foreach ($embedsMetadata as $entry) {
+                $map[$entry->filename] = $entry;
+            }
+
+            $json = json_encode($map);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'embedsMetadata', $json);
         }
 
         foreach ($assets as $asset) {

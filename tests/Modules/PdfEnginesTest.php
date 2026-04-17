@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Test\Modules;
 
+use Gotenberg\EmbedMetadata;
 use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
 use Gotenberg\SplitMode;
@@ -606,14 +607,22 @@ final class PdfEnginesTest extends TestCase
     }
 
     /**
-     * @param Stream[] $pdfs
-     * @param Stream[] $embeds
+     * @param Stream[]        $pdfs
+     * @param Stream[]        $embeds
+     * @param EmbedMetadata[] $embedsMetadata
      */
     #[Test]
     #[DataProvider('provideEmbedData')]
-    public function it_creates_a_valid_request_for_the_forms_pdfengines_embed_endpoint(array $embeds, array $pdfs): void
-    {
+    public function it_creates_a_valid_request_for_the_forms_pdfengines_embed_endpoint(
+        array $embeds,
+        array $pdfs,
+        array $embedsMetadata = [],
+    ): void {
         $pdfEngines = Gotenberg::pdfEngines('');
+
+        if (count($embedsMetadata) > 0) {
+            $pdfEngines->embedsMetadata(...$embedsMetadata);
+        }
 
         $request = $pdfEngines->embed($embeds, ...$pdfs);
         $body    = $this->sanitize($request->getBody()->getContents());
@@ -629,9 +638,25 @@ final class PdfEnginesTest extends TestCase
             $embed->getStream()->rewind();
             $this->assertContainsFormFile($body, $embed->getFilename(), $embed->getStream()->getContents(), 'application/xml', 'embeds');
         }
+
+        if (count($embedsMetadata) === 0) {
+            return;
+        }
+
+        $map = [];
+        foreach ($embedsMetadata as $entry) {
+            $map[$entry->filename] = $entry;
+        }
+
+        $json = json_encode($map);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        $this->assertContainsFormValue($body, 'embedsMetadata', $json);
     }
 
-    /** @return array<string, array{array<int, Stream>, array<int, Stream>}> */
+    /** @return array<string, array{0: array<int, Stream>, 1: array<int, Stream>, 2?: array<int, EmbedMetadata>}> */
     public static function provideEmbedData(): array
     {
         return [
@@ -643,6 +668,19 @@ final class PdfEnginesTest extends TestCase
                 [
                     Stream::string('my.pdf', 'PDF content'),
                     Stream::string('my_second.pdf', 'Second PDF content'),
+                ],
+            ],
+            'with_metadata' => [
+                [
+                    Stream::string('my.xml', 'XML content'),
+                    Stream::string('my_second.xml', 'Second XML content'),
+                ],
+                [
+                    Stream::string('my.pdf', 'PDF content'),
+                ],
+                [
+                    new EmbedMetadata('my.xml', 'text/xml', EmbedMetadata::RELATIONSHIP_DATA),
+                    new EmbedMetadata('my_second.xml', 'text/xml', EmbedMetadata::RELATIONSHIP_ALTERNATIVE),
                 ],
             ],
         ];

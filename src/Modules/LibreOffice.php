@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
+use Gotenberg\EmbedMetadata;
 use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\HrtimeIndex;
 use Gotenberg\Index;
@@ -597,6 +598,29 @@ class LibreOffice
         foreach ($embeds as $embed) {
             $this->formFile($embed->getFilename(), $embed->getStream(), 'embeds');
         }
+
+        return $this;
+    }
+
+    /**
+     * Sets metadata on embedded files in the resulting PDF, required for
+     * Factur-X / ZUGFeRD compliance.
+     *
+     * @throws NativeFunctionErrored
+     */
+    public function embedsMetadata(EmbedMetadata ...$metadata): self
+    {
+        $map = [];
+        foreach ($metadata as $entry) {
+            $map[$entry->filename] = $entry;
+        }
+
+        $json = json_encode($map);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        $this->formValue('embedsMetadata', $json);
 
         return $this;
     }

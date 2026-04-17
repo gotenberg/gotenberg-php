@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Test\Modules;
 
+use Gotenberg\EmbedMetadata;
 use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Gotenberg;
 use Gotenberg\SplitMode;
@@ -22,6 +23,7 @@ final class LibreOfficeTest extends TestCase
      * @param Stream[]                                          $files
      * @param array<string,string|bool|float|int|array<string>> $metadata
      * @param Stream[]                                          $embeds
+     * @param EmbedMetadata[]                                   $embedsMetadata
      * @param array<string,mixed>                               $watermarkOptions
      * @param array<string,mixed>                               $stampOptions
      */
@@ -82,6 +84,7 @@ final class LibreOfficeTest extends TestCase
         string $userPassword = '',
         string $ownerPassword = '',
         array $embeds = [],
+        array $embedsMetadata = [],
         string $watermarkSource = '',
         string $watermarkExpression = '',
         string $watermarkPages = '',
@@ -303,6 +306,10 @@ final class LibreOfficeTest extends TestCase
 
         if (count($embeds) > 0) {
             $libreOffice->embeds(...$embeds);
+        }
+
+        if (count($embedsMetadata) > 0) {
+            $libreOffice->embedsMetadata(...$embedsMetadata);
         }
 
         if ($watermarkSource !== '') {
@@ -557,6 +564,20 @@ final class LibreOfficeTest extends TestCase
             );
         }
 
+        if (count($embedsMetadata) > 0) {
+            $map = [];
+            foreach ($embedsMetadata as $entry) {
+                $map[$entry->filename] = $entry;
+            }
+
+            $json = json_encode($map);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+
+            $this->assertContainsFormValue($body, 'embedsMetadata', $json);
+        }
+
         if ($watermarkSource !== '') {
             $this->assertContainsFormValue($body, 'watermarkSource', $watermarkSource);
         }
@@ -666,6 +687,7 @@ final class LibreOfficeTest extends TestCase
      * userPassword?: string,
      * ownerPassword?: string,
      * embeds?: array<int, Stream>,
+     * embedsMetadata?: array<int, EmbedMetadata>,
      * watermarkSource?: string,
      * watermarkExpression?: string,
      * watermarkPages?: string,
@@ -746,6 +768,10 @@ final class LibreOfficeTest extends TestCase
                 'embeds' => [
                     Stream::string('my.xml', 'XML content'),
                     Stream::string('my_second.xml', 'Second XML content'),
+                ],
+                'embedsMetadata' => [
+                    new EmbedMetadata('my.xml', 'text/xml', EmbedMetadata::RELATIONSHIP_DATA),
+                    new EmbedMetadata('my_second.xml', 'text/xml', EmbedMetadata::RELATIONSHIP_ALTERNATIVE),
                 ],
                 'watermarkSource' => 'my_watermark_source',
                 'watermarkExpression' => 'my_watermark_expression',
