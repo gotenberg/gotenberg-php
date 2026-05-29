@@ -35,6 +35,7 @@ final class ChromiumScreenshotTest extends TestCase
         int|null $width = null,
         int|null $height = null,
         bool $clip = false,
+        float|null $deviceScaleFactor = null,
         string|null $format = null,
         int|null $quality = null,
         bool $optimizeForSpeed = false,
@@ -62,6 +63,7 @@ final class ChromiumScreenshotTest extends TestCase
             $width,
             $height,
             $clip,
+            $deviceScaleFactor,
             $format,
             $quality,
             $optimizeForSpeed,
@@ -95,6 +97,7 @@ final class ChromiumScreenshotTest extends TestCase
             $width,
             $height,
             $clip,
+            $deviceScaleFactor,
             $format,
             $quality,
             $optimizeForSpeed,
@@ -124,6 +127,7 @@ final class ChromiumScreenshotTest extends TestCase
      * int|null,
      * int|null,
      * bool,
+     * float|null,
      * string|null,
      * int|null,
      * bool,
@@ -155,6 +159,7 @@ final class ChromiumScreenshotTest extends TestCase
                 1280,
                 800,
                 true,
+                2.0,
                 'png',
                 100,
                 true,
@@ -206,6 +211,7 @@ final class ChromiumScreenshotTest extends TestCase
         int|null $width = null,
         int|null $height = null,
         bool $clip = false,
+        float|null $deviceScaleFactor = null,
         string|null $format = null,
         int|null $quality = null,
         bool $optimizeForSpeed = false,
@@ -233,6 +239,7 @@ final class ChromiumScreenshotTest extends TestCase
             $width,
             $height,
             $clip,
+            $deviceScaleFactor,
             $format,
             $quality,
             $optimizeForSpeed,
@@ -268,6 +275,7 @@ final class ChromiumScreenshotTest extends TestCase
             $width,
             $height,
             $clip,
+            $deviceScaleFactor,
             $format,
             $quality,
             $optimizeForSpeed,
@@ -297,6 +305,7 @@ final class ChromiumScreenshotTest extends TestCase
      * int|null,
      * int|null,
      * bool,
+     * float|null,
      * string|null,
      * int|null,
      * bool,
@@ -328,6 +337,7 @@ final class ChromiumScreenshotTest extends TestCase
                 1280,
                 800,
                 true,
+                2.0,
                 'jpeg',
                 100,
                 true,
@@ -381,6 +391,7 @@ final class ChromiumScreenshotTest extends TestCase
         int|null $width = null,
         int|null $height = null,
         bool $clip = false,
+        float|null $deviceScaleFactor = null,
         string|null $format = null,
         int|null $quality = null,
         bool $optimizeForSpeed = false,
@@ -408,6 +419,7 @@ final class ChromiumScreenshotTest extends TestCase
             $width,
             $height,
             $clip,
+            $deviceScaleFactor,
             $format,
             $quality,
             $optimizeForSpeed,
@@ -448,6 +460,7 @@ final class ChromiumScreenshotTest extends TestCase
             $width,
             $height,
             $clip,
+            $deviceScaleFactor,
             $format,
             $quality,
             $optimizeForSpeed,
@@ -478,6 +491,7 @@ final class ChromiumScreenshotTest extends TestCase
      * int|null,
      * int|null,
      * bool,
+     * float|null,
      * string|null,
      * int|null,
      * bool,
@@ -518,6 +532,7 @@ final class ChromiumScreenshotTest extends TestCase
                 1280,
                 800,
                 true,
+                2.0,
                 'webp',
                 100,
                 true,
@@ -566,6 +581,7 @@ final class ChromiumScreenshotTest extends TestCase
         int|null $width,
         int|null $height,
         bool $clip,
+        float|null $deviceScaleFactor = null,
         string|null $format = null,
         int|null $quality = null,
         bool $optimizeForSpeed = false,
@@ -597,6 +613,10 @@ final class ChromiumScreenshotTest extends TestCase
 
         if ($clip) {
             $chromium->clip();
+        }
+
+        if ($deviceScaleFactor !== null) {
+            $chromium->deviceScaleFactor($deviceScaleFactor);
         }
 
         if ($format === 'png') {
@@ -708,6 +728,7 @@ final class ChromiumScreenshotTest extends TestCase
         int|null $width,
         int|null $height,
         bool $clip,
+        float|null $deviceScaleFactor,
         string|null $format,
         int|null $quality,
         bool $optimizeForSpeed,
@@ -739,6 +760,10 @@ final class ChromiumScreenshotTest extends TestCase
 
         if ($clip) {
             $this->assertContainsFormValue($body, 'clip', '1');
+        }
+
+        if ($deviceScaleFactor !== null) {
+            $this->assertContainsFormValue($body, 'deviceScaleFactor', (string) $deviceScaleFactor);
         }
 
         if ($format !== null) {

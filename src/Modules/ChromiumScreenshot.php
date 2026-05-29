@@ -44,6 +44,16 @@ class ChromiumScreenshot
     }
 
     /**
+     * The device scale factor, which controls the screenshot pixel density.
+     */
+    public function deviceScaleFactor(float $factor): self
+    {
+        $this->formValue('deviceScaleFactor', $factor);
+
+        return $this;
+    }
+
+    /**
      * PNG as image compression format.
      */
     public function png(): self
