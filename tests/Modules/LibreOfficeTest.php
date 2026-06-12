@@ -6,6 +6,7 @@ namespace Gotenberg\Test\Modules;
 
 use Gotenberg\EmbedMetadata;
 use Gotenberg\Exceptions\NativeFunctionErrored;
+use Gotenberg\FacturX;
 use Gotenberg\Gotenberg;
 use Gotenberg\SplitMode;
 use Gotenberg\Stream;
@@ -785,5 +786,43 @@ final class LibreOfficeTest extends TestCase
                 'rotatePages' => '1-3',
             ],
         ];
+    }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_factur_x(): void
+    {
+        $facturX = new FacturX(
+            Stream::string('factur-x.xml', 'XML content'),
+            FacturX::CONFORMANCE_EN_16931,
+            FacturX::DOCUMENT_TYPE_INVOICE,
+            '1.0',
+        );
+
+        $request = Gotenberg::libreOffice('')
+            ->pdfa('PDF/A-3b')
+            ->facturX($facturX)
+            ->convert(Stream::string('my.docx', 'DOCX content'));
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $facturX->xml->getStream()->rewind();
+        $this->assertContainsFormFile($body, 'factur-x.xml', 'XML content', 'application/xml', 'facturxXml');
+        $this->assertContainsFormValue($body, 'facturxConformanceLevel', 'EN 16931');
+        $this->assertContainsFormValue($body, 'facturxDocumentType', 'INVOICE');
+        $this->assertContainsFormValue($body, 'facturxVersion', '1.0');
+    }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_encryption_permissions(): void
+    {
+        $request = Gotenberg::libreOffice('')
+            ->encrypt('', 'my_owner_password')
+            ->allowPrinting(false)
+            ->allowAssembling(false)
+            ->convert(Stream::string('my.docx', 'DOCX content'));
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertContainsFormValue($body, 'allowPrinting', '0');
+        $this->assertContainsFormValue($body, 'allowAssembling', '0');
+        $this->assertContainsFormValue($body, 'ownerPassword', 'my_owner_password');
     }
 }

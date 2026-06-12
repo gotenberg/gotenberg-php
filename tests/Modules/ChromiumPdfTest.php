@@ -6,6 +6,7 @@ namespace Gotenberg\Test\Modules;
 
 use Gotenberg\EmbedMetadata;
 use Gotenberg\Exceptions\NativeFunctionErrored;
+use Gotenberg\FacturX;
 use Gotenberg\Gotenberg;
 use Gotenberg\Modules\ChromiumCookie;
 use Gotenberg\Modules\ChromiumEmulatedMediaFeatures;
@@ -1577,5 +1578,41 @@ final class ChromiumPdfTest extends TestCase
         }
 
         $this->assertContainsFormValue($body, 'rotatePages', $rotatePages);
+    }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_factur_x(): void
+    {
+        $facturX = new FacturX(
+            Stream::string('factur-x.xml', 'XML content'),
+            FacturX::CONFORMANCE_XRECHNUNG,
+        );
+
+        $request = Gotenberg::chromium('')->pdf()
+            ->pdfa('PDF/A-3b')
+            ->facturX($facturX)
+            ->url('https://example.com');
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $facturX->xml->getStream()->rewind();
+        $this->assertContainsFormFile($body, 'factur-x.xml', 'XML content', 'application/xml', 'facturxXml');
+        $this->assertContainsFormValue($body, 'facturxConformanceLevel', 'XRECHNUNG');
+        $this->assertContainsFormValue($body, 'facturxDocumentType', 'INVOICE');
+        $this->assertContainsFormValue($body, 'facturxVersion', '1.0');
+    }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_encryption_permissions(): void
+    {
+        $request = Gotenberg::chromium('')->pdf()
+            ->encrypt('', 'my_owner_password')
+            ->allowPrinting(false)
+            ->allowCopying(false)
+            ->url('https://example.com');
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertContainsFormValue($body, 'allowPrinting', '0');
+        $this->assertContainsFormValue($body, 'allowCopying', '0');
+        $this->assertContainsFormValue($body, 'ownerPassword', 'my_owner_password');
     }
 }

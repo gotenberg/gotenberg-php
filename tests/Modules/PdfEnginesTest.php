@@ -6,6 +6,7 @@ namespace Gotenberg\Test\Modules;
 
 use Gotenberg\EmbedMetadata;
 use Gotenberg\Exceptions\NativeFunctionErrored;
+use Gotenberg\FacturX;
 use Gotenberg\Gotenberg;
 use Gotenberg\SplitMode;
 use Gotenberg\Stream;
@@ -967,5 +968,73 @@ final class PdfEnginesTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    /** @param Stream[] $pdfs */
+    #[Test]
+    #[DataProvider('provideFacturXData')]
+    public function it_creates_a_valid_request_for_the_forms_pdfengines_factur_x_endpoint(
+        FacturX $facturX,
+        array $pdfs,
+    ): void {
+        $pdfEngines = Gotenberg::pdfEngines('');
+
+        $request = $pdfEngines->injectFacturX($facturX, ...$pdfs);
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertSame('/forms/pdfengines/factur-x', $request->getUri()->getPath());
+
+        $facturX->xml->getStream()->rewind();
+        $this->assertContainsFormFile($body, $facturX->xml->getFilename(), $facturX->xml->getStream()->getContents(), 'application/xml', 'facturxXml');
+        $this->assertContainsFormValue($body, 'facturxConformanceLevel', $facturX->conformanceLevel);
+        $this->assertContainsFormValue($body, 'facturxDocumentType', $facturX->documentType);
+        $this->assertContainsFormValue($body, 'facturxVersion', $facturX->version);
+
+        foreach ($pdfs as $pdf) {
+            $pdf->getStream()->rewind();
+            $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
+        }
+    }
+
+    /** @return array<string, array{FacturX, array<int, Stream>}> */
+    public static function provideFacturXData(): array
+    {
+        return [
+            'basic' => [
+                new FacturX(
+                    Stream::string('factur-x.xml', 'XML content'),
+                    FacturX::CONFORMANCE_EN_16931,
+                ),
+                [
+                    Stream::string('my.pdf', 'PDF content'),
+                    Stream::string('my_second.pdf', 'Second PDF content'),
+                ],
+            ],
+        ];
+    }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_encryption_permissions(): void
+    {
+        $pdf = Stream::string('my.pdf', 'PDF content');
+
+        $request = Gotenberg::pdfEngines('')
+            ->allowPrinting(false)
+            ->allowCopying(false)
+            ->allowModifying(false)
+            ->allowAnnotating()
+            ->allowFillingForms(false)
+            ->allowAssembling(false)
+            ->encrypt('', 'my_owner_password', $pdf);
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertSame('/forms/pdfengines/encrypt', $request->getUri()->getPath());
+        $this->assertContainsFormValue($body, 'allowPrinting', '0');
+        $this->assertContainsFormValue($body, 'allowCopying', '0');
+        $this->assertContainsFormValue($body, 'allowModifying', '0');
+        $this->assertContainsFormValue($body, 'allowAnnotating', '1');
+        $this->assertContainsFormValue($body, 'allowFillingForms', '0');
+        $this->assertContainsFormValue($body, 'allowAssembling', '0');
+        $this->assertContainsFormValue($body, 'ownerPassword', 'my_owner_password');
     }
 }

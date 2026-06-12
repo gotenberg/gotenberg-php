@@ -6,6 +6,7 @@ namespace Gotenberg\Modules;
 
 use Gotenberg\EmbedMetadata;
 use Gotenberg\Exceptions\NativeFunctionErrored;
+use Gotenberg\FacturX;
 use Gotenberg\SplitMode;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
@@ -233,6 +234,90 @@ class ChromiumPdf
     {
         $this->formValue('userPassword', $userPassword);
         $this->formValue('ownerPassword', $ownerPassword);
+
+        return $this;
+    }
+
+    /**
+     * Specifies whether printing the resulting PDF is allowed.
+     * Note: restricting any permission requires a userPassword or ownerPassword.
+     */
+    public function allowPrinting(bool $allow = true): self
+    {
+        $this->formValue('allowPrinting', $allow ?: '0');
+
+        return $this;
+    }
+
+    /**
+     * Specifies whether copying text and graphics from the resulting PDF is
+     * allowed.
+     * Note: restricting any permission requires a userPassword or ownerPassword.
+     */
+    public function allowCopying(bool $allow = true): self
+    {
+        $this->formValue('allowCopying', $allow ?: '0');
+
+        return $this;
+    }
+
+    /**
+     * Specifies whether modifying the resulting PDF is allowed.
+     * Note: restricting any permission requires a userPassword or ownerPassword.
+     */
+    public function allowModifying(bool $allow = true): self
+    {
+        $this->formValue('allowModifying', $allow ?: '0');
+
+        return $this;
+    }
+
+    /**
+     * Specifies whether adding or modifying annotations in the resulting PDF is
+     * allowed.
+     * Note: restricting any permission requires a userPassword or ownerPassword.
+     */
+    public function allowAnnotating(bool $allow = true): self
+    {
+        $this->formValue('allowAnnotating', $allow ?: '0');
+
+        return $this;
+    }
+
+    /**
+     * Specifies whether filling interactive form fields in the resulting PDF is
+     * allowed.
+     * Note: restricting any permission requires a userPassword or ownerPassword.
+     */
+    public function allowFillingForms(bool $allow = true): self
+    {
+        $this->formValue('allowFillingForms', $allow ?: '0');
+
+        return $this;
+    }
+
+    /**
+     * Specifies whether assembling the resulting PDF (insert, rotate, or delete
+     * pages and create bookmarks or thumbnails) is allowed.
+     * Note: restricting any permission requires a userPassword or ownerPassword.
+     */
+    public function allowAssembling(bool $allow = true): self
+    {
+        $this->formValue('allowAssembling', $allow ?: '0');
+
+        return $this;
+    }
+
+    /**
+     * Configures the embedding of a Factur-X / ZUGFeRD invoice XML into the
+     * resulting PDF. Requires a PDF/A-3 variant (set via the pdfa method).
+     */
+    public function facturX(FacturX $facturx): self
+    {
+        $this->formFile($facturx->xml->getFilename(), $facturx->xml->getStream(), 'facturxXml');
+        $this->formValue('facturxConformanceLevel', $facturx->conformanceLevel);
+        $this->formValue('facturxDocumentType', $facturx->documentType);
+        $this->formValue('facturxVersion', $facturx->version);
 
         return $this;
     }
