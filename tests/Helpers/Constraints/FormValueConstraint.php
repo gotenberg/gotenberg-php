@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Gotenberg\Test\Helpers\Constraints;
 
+use GuzzleHttp\Psr7\DiagnosticValue;
 use PHPUnit\Framework\Constraint\Constraint;
 
+use function class_exists;
 use function is_string;
 use function mb_strlen;
 use function sprintf;
@@ -25,14 +27,14 @@ final class FormValueConstraint extends Constraint
             return false;
         }
 
-        $length = mb_strlen($this->value);
+        $needle = 'Content-Disposition: form-data; name="' . $this->name . '"';
 
-        $needle = 'Content-Disposition: form-data; name="'
-            . $this->name
-            . '" Content-Length: '
-            . $length
-            . ' '
-            . $this->value;
+        // guzzlehttp/psr7:^3.0 removed the non-standard Content-Length header from multipart/form-data parts
+        if (! class_exists(DiagnosticValue::class)) {
+              $needle .= ' Content-Length: ' . mb_strlen($this->value);
+        }
+
+        $needle .= ' ' . $this->value;
 
         return str_contains($other, $needle);
     }
