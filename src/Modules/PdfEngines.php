@@ -84,6 +84,17 @@ class PdfEngines
     }
 
     /**
+     * Re-encodes the images of the resulting PDF to reduce its file size.
+     */
+    public function optimizeImages(int $quality = 80): self
+    {
+        $this->formValue('optimizeImages', true);
+        $this->formValue('imageQuality', $quality);
+
+        return $this;
+    }
+
+    /**
      * Defines whether the resulting PDF should be encrypted.
      * Prefer the encrypt method if you only want to encrypt one or more PDFs.
      */
@@ -264,6 +275,21 @@ class PdfEngines
         }
 
         $this->endpoint = '/forms/pdfengines/flatten';
+
+        return $this->request();
+    }
+
+    /**
+     * Optimizes PDF(s) by re-encoding their images to reduce file size.
+     * Gotenberg will return the PDF or a ZIP archive with the PDFs.
+     */
+    public function optimize(Stream ...$pdfs): RequestInterface
+    {
+        foreach ($pdfs as $pdf) {
+            $this->formFile($pdf->getFilename(), $pdf->getStream());
+        }
+
+        $this->endpoint = '/forms/pdfengines/optimize';
 
         return $this->request();
     }

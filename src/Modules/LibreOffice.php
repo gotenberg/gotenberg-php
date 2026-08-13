@@ -425,6 +425,17 @@ class LibreOffice
     }
 
     /**
+     * Re-encodes the images of the resulting PDF to reduce its file size.
+     */
+    public function optimizeImages(int $quality = 80): self
+    {
+        $this->formValue('optimizeImages', true);
+        $this->formValue('imageQuality', $quality);
+
+        return $this;
+    }
+
+    /**
      * Specifies if the resolution of each image is reduced to the resolution
      * specified by the form field maxImageResolution.
      * FIXME: parameter not used.

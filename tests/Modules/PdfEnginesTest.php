@@ -1037,4 +1037,22 @@ final class PdfEnginesTest extends TestCase
         $this->assertContainsFormValue($body, 'allowAssembling', '0');
         $this->assertContainsFormValue($body, 'ownerPassword', 'my_owner_password');
     }
+
+    #[Test]
+    public function it_creates_a_valid_request_for_the_forms_pdfengines_optimize_endpoint(): void
+    {
+        $pdf = Stream::string('my.pdf', 'PDF content');
+
+        $request = Gotenberg::pdfEngines('')
+            ->optimizeImages(70)
+            ->optimize($pdf);
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertSame('/forms/pdfengines/optimize', $request->getUri()->getPath());
+        $this->assertContainsFormValue($body, 'optimizeImages', '1');
+        $this->assertContainsFormValue($body, 'imageQuality', '70');
+
+        $pdf->getStream()->rewind();
+        $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
+    }
 }

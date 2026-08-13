@@ -881,4 +881,16 @@ final class ChromiumScreenshotTest extends TestCase
             $this->assertContainsFormFile($body, $asset->getFilename(), $asset->getStream()->getContents(), 'image/jpeg');
         }
     }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_a_selector(): void
+    {
+        $request = Gotenberg::chromium('')
+            ->screenshot()
+            ->selector('#target')
+            ->url('https://example.com');
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertContainsFormValue($body, 'selector', '#target');
+    }
 }

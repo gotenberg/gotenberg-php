@@ -28,6 +28,17 @@ class ChromiumPdf
     }
 
     /**
+     * Re-encodes the images of the resulting PDF to reduce its file size.
+     */
+    public function optimizeImages(int $quality = 80): self
+    {
+        $this->formValue('optimizeImages', true);
+        $this->formValue('imageQuality', $quality);
+
+        return $this;
+    }
+
+    /**
      * Overrides the default paper size, using various units such as 72pt,
      * 96px, 1in, 25.4mm, 2.54cm, or 6pc. The default unit is inches when
      * not specified.

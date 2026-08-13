@@ -825,4 +825,16 @@ final class LibreOfficeTest extends TestCase
         $this->assertContainsFormValue($body, 'allowAssembling', '0');
         $this->assertContainsFormValue($body, 'ownerPassword', 'my_owner_password');
     }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_optimized_images(): void
+    {
+        $request = Gotenberg::libreOffice('')
+            ->optimizeImages(70)
+            ->convert(Stream::string('my.docx', 'DOCX content'));
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertContainsFormValue($body, 'optimizeImages', '1');
+        $this->assertContainsFormValue($body, 'imageQuality', '70');
+    }
 }

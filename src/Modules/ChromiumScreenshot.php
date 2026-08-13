@@ -105,6 +105,17 @@ class ChromiumScreenshot
     }
 
     /**
+     * Clips the screenshot to the bounding box of the first element matching
+     * the given CSS selector.
+     */
+    public function selector(string $selector): self
+    {
+        $this->formValue('selector', $selector);
+
+        return $this;
+    }
+
+    /**
      * Captures a screenshot of a target URL.
      *
      * @throws NativeFunctionErrored
