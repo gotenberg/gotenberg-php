@@ -92,6 +92,8 @@ final class ChromiumPdfTest extends TestCase
         array $stampOptions = [],
         int $rotateAngle = 0,
         string $rotatePages = '',
+        bool $optimizeImages = false,
+        int|null $imageQuality = null,
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
         $chromium = $this->hydrateChromiumPdfFormData(
@@ -148,6 +150,8 @@ final class ChromiumPdfTest extends TestCase
             $stampOptions,
             $rotateAngle,
             $rotatePages,
+            $optimizeImages,
+            $imageQuality,
         );
 
         $request = $chromium->url($url);
@@ -210,6 +214,8 @@ final class ChromiumPdfTest extends TestCase
             $stampOptions,
             $rotateAngle,
             $rotatePages,
+            $optimizeImages,
+            $imageQuality,
         );
     }
 
@@ -265,7 +271,9 @@ final class ChromiumPdfTest extends TestCase
      * string,
      * string,
      * string,
-     * array<string, string>
+     * array<string, string>,
+     * bool,
+     * int|null
      * }>
      */
     public static function provideUrlData(): array
@@ -343,6 +351,8 @@ final class ChromiumPdfTest extends TestCase
                 ['key' => 'value'],
                 90,
                 '1-3',
+                true,
+                60,
             ],
         ];
     }
@@ -417,6 +427,8 @@ final class ChromiumPdfTest extends TestCase
         array $stampOptions = [],
         int $rotateAngle = 0,
         string $rotatePages = '',
+        bool $optimizeImages = false,
+        int|null $imageQuality = null,
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
         $chromium = $this->hydrateChromiumPdfFormData(
@@ -473,6 +485,8 @@ final class ChromiumPdfTest extends TestCase
             $stampOptions,
             $rotateAngle,
             $rotatePages,
+            $optimizeImages,
+            $imageQuality,
         );
 
         $request = $chromium->html($index);
@@ -537,6 +551,8 @@ final class ChromiumPdfTest extends TestCase
             $stampOptions,
             $rotateAngle,
             $rotatePages,
+            $optimizeImages,
+            $imageQuality,
         );
     }
 
@@ -592,7 +608,9 @@ final class ChromiumPdfTest extends TestCase
      * string,
      * string,
      * string,
-     * array<string, string>
+     * array<string, string>,
+     * bool,
+     * int|null
      * }>
      */
     public static function provideHtmlData(): array
@@ -670,6 +688,8 @@ final class ChromiumPdfTest extends TestCase
                 ['key' => 'value'],
                 180,
                 '1-2',
+                true,
+                60,
             ],
         ];
     }
@@ -746,6 +766,8 @@ final class ChromiumPdfTest extends TestCase
         array $stampOptions = [],
         int $rotateAngle = 0,
         string $rotatePages = '',
+        bool $optimizeImages = false,
+        int|null $imageQuality = null,
     ): void {
         $chromium = Gotenberg::chromium('')->pdf();
         $chromium = $this->hydrateChromiumPdfFormData(
@@ -802,6 +824,8 @@ final class ChromiumPdfTest extends TestCase
             $stampOptions,
             $rotateAngle,
             $rotatePages,
+            $optimizeImages,
+            $imageQuality,
         );
 
         $request = $chromium->markdown($index, ...$markdowns);
@@ -871,6 +895,8 @@ final class ChromiumPdfTest extends TestCase
             $stampOptions,
             $rotateAngle,
             $rotatePages,
+            $optimizeImages,
+            $imageQuality,
         );
     }
 
@@ -927,7 +953,9 @@ final class ChromiumPdfTest extends TestCase
      * string,
      * string,
      * string,
-     * array<string, string>
+     * array<string, string>,
+     * bool,
+     * int|null
      * }>
      */
     public static function provideMarkdownData(): array
@@ -1014,6 +1042,8 @@ final class ChromiumPdfTest extends TestCase
                 ['key' => 'value'],
                 270,
                 '1-5',
+                true,
+                60,
             ],
         ];
     }
@@ -1086,6 +1116,8 @@ final class ChromiumPdfTest extends TestCase
         array $stampOptions = [],
         int $rotateAngle = 0,
         string $rotatePages = '',
+        bool $optimizeImages = false,
+        int|null $imageQuality = null,
     ): ChromiumPdf {
         if ($singlePage) {
             $chromium->singlePage();
@@ -1251,6 +1283,10 @@ final class ChromiumPdfTest extends TestCase
             $chromium->rotating($rotateAngle, $rotatePages);
         }
 
+        if ($optimizeImages) {
+            $chromium->optimizeImages($imageQuality ?? 80);
+        }
+
         return $chromium;
     }
 
@@ -1322,6 +1358,8 @@ final class ChromiumPdfTest extends TestCase
         array $stampOptions = [],
         int $rotateAngle = 0,
         string $rotatePages = '',
+        bool $optimizeImages = false,
+        int|null $imageQuality = null,
     ): void {
         if ($singlePage) {
             $this->assertContainsFormValue($body, 'singlePage', '1');
@@ -1573,6 +1611,11 @@ final class ChromiumPdfTest extends TestCase
             $this->assertContainsFormValue($body, 'rotateAngle', (string) $rotateAngle);
         }
 
+        if ($optimizeImages) {
+            $this->assertContainsFormValue($body, 'optimizeImages', '1');
+            $this->assertContainsFormValue($body, 'imageQuality', (string) ($imageQuality ?? 80));
+        }
+
         if ($rotatePages === '') {
             return;
         }
@@ -1614,18 +1657,5 @@ final class ChromiumPdfTest extends TestCase
         $this->assertContainsFormValue($body, 'allowPrinting', '0');
         $this->assertContainsFormValue($body, 'allowCopying', '0');
         $this->assertContainsFormValue($body, 'ownerPassword', 'my_owner_password');
-    }
-
-    #[Test]
-    public function it_creates_a_valid_request_with_optimized_images(): void
-    {
-        $request = Gotenberg::chromium('')
-            ->pdf()
-            ->optimizeImages(70)
-            ->url('https://example.com');
-        $body    = $this->sanitize($request->getBody()->getContents());
-
-        $this->assertContainsFormValue($body, 'optimizeImages', '1');
-        $this->assertContainsFormValue($body, 'imageQuality', '70');
     }
 }

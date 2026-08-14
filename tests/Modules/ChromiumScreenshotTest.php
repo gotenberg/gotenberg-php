@@ -56,6 +56,7 @@ final class ChromiumScreenshotTest extends TestCase
         bool|null $skipNetworkIdleEvent = null,
         bool|null $skipNetworkAlmostIdleEvent = null,
         array $assets = [],
+        string|null $selector = null,
     ): void {
         $chromium = Gotenberg::chromium('')->screenshot();
         $chromium = $this->hydrateChromiumScreenshotFormData(
@@ -84,6 +85,7 @@ final class ChromiumScreenshotTest extends TestCase
             $skipNetworkIdleEvent,
             $skipNetworkAlmostIdleEvent,
             $assets,
+            $selector,
         );
 
         $request = $chromium->url($url);
@@ -118,6 +120,7 @@ final class ChromiumScreenshotTest extends TestCase
             $skipNetworkIdleEvent,
             $skipNetworkAlmostIdleEvent,
             $assets,
+            $selector,
         );
     }
 
@@ -147,7 +150,8 @@ final class ChromiumScreenshotTest extends TestCase
      * bool,
      * bool|null,
      * bool|null,
-     * array<int, Stream>
+     * array<int, Stream>,
+     * string|null
      * }>
      */
     public static function provideUrlData(): array
@@ -191,6 +195,7 @@ final class ChromiumScreenshotTest extends TestCase
                 [
                     Stream::string('my.jpg', 'Image content'),
                 ],
+                '#content',
             ],
         ];
     }
@@ -232,6 +237,7 @@ final class ChromiumScreenshotTest extends TestCase
         bool|null $skipNetworkIdleEvent = null,
         bool|null $skipNetworkAlmostIdleEvent = null,
         array $assets = [],
+        string|null $selector = null,
     ): void {
         $chromium = Gotenberg::chromium('')->screenshot();
         $chromium = $this->hydrateChromiumScreenshotFormData(
@@ -260,6 +266,7 @@ final class ChromiumScreenshotTest extends TestCase
             $skipNetworkIdleEvent,
             $skipNetworkAlmostIdleEvent,
             $assets,
+            $selector,
         );
 
         $request = $chromium->html($index);
@@ -296,6 +303,7 @@ final class ChromiumScreenshotTest extends TestCase
             $skipNetworkIdleEvent,
             $skipNetworkAlmostIdleEvent,
             $assets,
+            $selector,
         );
     }
 
@@ -325,7 +333,8 @@ final class ChromiumScreenshotTest extends TestCase
      * bool,
      * bool|null,
      * bool|null,
-     * array<int, Stream>
+     * array<int, Stream>,
+     * string|null
      * }>
      */
     public static function provideHtmlData(): array
@@ -369,6 +378,7 @@ final class ChromiumScreenshotTest extends TestCase
                 [
                     Stream::string('my.jpg', 'Image content'),
                 ],
+                '#content',
             ],
         ];
     }
@@ -412,6 +422,7 @@ final class ChromiumScreenshotTest extends TestCase
         bool|null $skipNetworkIdleEvent = null,
         bool|null $skipNetworkAlmostIdleEvent = null,
         array $assets = [],
+        string|null $selector = null,
     ): void {
         $chromium = Gotenberg::chromium('')->screenshot();
         $chromium = $this->hydrateChromiumScreenshotFormData(
@@ -440,6 +451,7 @@ final class ChromiumScreenshotTest extends TestCase
             $skipNetworkIdleEvent,
             $skipNetworkAlmostIdleEvent,
             $assets,
+            $selector,
         );
 
         $request = $chromium->markdown($index, ...$markdowns);
@@ -481,6 +493,7 @@ final class ChromiumScreenshotTest extends TestCase
             $skipNetworkIdleEvent,
             $skipNetworkAlmostIdleEvent,
             $assets,
+            $selector,
         );
     }
 
@@ -511,7 +524,8 @@ final class ChromiumScreenshotTest extends TestCase
      * bool,
      * bool|null,
      * bool|null,
-     * array<int, Stream>
+     * array<int, Stream>,
+     * string|null
      * }>
      */
     public static function provideMarkdownData(): array
@@ -563,6 +577,7 @@ final class ChromiumScreenshotTest extends TestCase
                 [
                     Stream::string('my.jpg', 'Image content'),
                 ],
+                '#content',
             ],
         ];
     }
@@ -602,6 +617,7 @@ final class ChromiumScreenshotTest extends TestCase
         bool|null $skipNetworkIdleEvent = null,
         bool|null $skipNetworkAlmostIdleEvent = null,
         array $assets = [],
+        string|null $selector = null,
     ): ChromiumScreenshot {
         if ($width !== null) {
             $chromium->width($width);
@@ -711,6 +727,10 @@ final class ChromiumScreenshotTest extends TestCase
             $chromium->assets(...$assets);
         }
 
+        if ($selector !== null) {
+            $chromium->selector($selector);
+        }
+
         return $chromium;
     }
 
@@ -749,6 +769,7 @@ final class ChromiumScreenshotTest extends TestCase
         bool|null $skipNetworkIdleEvent,
         bool|null $skipNetworkAlmostIdleEvent,
         array $assets,
+        string|null $selector = null,
     ): void {
         if ($width !== null) {
             $this->assertContainsFormValue($body, 'width', (string) $width);
@@ -872,6 +893,10 @@ final class ChromiumScreenshotTest extends TestCase
             $this->assertContainsFormValue($body, 'skipNetworkAlmostIdleEvent', $skipNetworkAlmostIdleEvent ? '1' : '0');
         }
 
+        if ($selector !== null) {
+            $this->assertContainsFormValue($body, 'selector', $selector);
+        }
+
         if (count($assets) <= 0) {
             return;
         }
@@ -880,17 +905,5 @@ final class ChromiumScreenshotTest extends TestCase
             $asset->getStream()->rewind();
             $this->assertContainsFormFile($body, $asset->getFilename(), $asset->getStream()->getContents(), 'image/jpeg');
         }
-    }
-
-    #[Test]
-    public function it_creates_a_valid_request_with_a_selector(): void
-    {
-        $request = Gotenberg::chromium('')
-            ->screenshot()
-            ->selector('#target')
-            ->url('https://example.com');
-        $body    = $this->sanitize($request->getBody()->getContents());
-
-        $this->assertContainsFormValue($body, 'selector', '#target');
     }
 }

@@ -40,6 +40,8 @@ final class PdfEnginesTest extends TestCase
         bool $autoIndexBookmarks = false,
         int $rotateAngle = 0,
         string $rotatePages = '',
+        bool $optimizeImages = false,
+        int|null $imageQuality = null,
     ): void {
         $pdfEngines = Gotenberg::pdfEngines('')->index(new DummyIndex());
 
@@ -77,6 +79,10 @@ final class PdfEnginesTest extends TestCase
 
         if ($rotateAngle !== 0) {
             $pdfEngines->rotating($rotateAngle, $rotatePages);
+        }
+
+        if ($optimizeImages) {
+            $pdfEngines->optimizeImages($imageQuality ?? 80);
         }
 
         $request = $pdfEngines->merge(...$pdfs);
@@ -126,6 +132,11 @@ final class PdfEnginesTest extends TestCase
             $this->assertContainsFormValue($body, 'rotatePages', $rotatePages);
         }
 
+        if ($optimizeImages) {
+            $this->assertContainsFormValue($body, 'optimizeImages', '1');
+            $this->assertContainsFormValue($body, 'imageQuality', (string) ($imageQuality ?? 80));
+        }
+
         foreach ($pdfs as $pdf) {
             $pdf->getStream()->rewind();
             $this->assertContainsFormFile($body, 'foo_' . $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
@@ -137,7 +148,7 @@ final class PdfEnginesTest extends TestCase
         }
     }
 
-    /** @return array<string, array{array<int, Stream>, string|null, bool, array<string, array<string>|bool|float|int|string>, bool, string, string, array<int, Stream>, string, bool, int, string}> */
+    /** @return array<string, array{array<int, Stream>, string|null, bool, array<string, array<string>|bool|float|int|string>, bool, string, string, array<int, Stream>, string, bool, int, string, bool, int|null}> */
     public static function provideMergeData(): array
     {
         return [
@@ -167,6 +178,8 @@ final class PdfEnginesTest extends TestCase
                 true,
                 90,
                 '1-3,5',
+                true,
+                60,
             ],
         ];
     }
@@ -202,6 +215,8 @@ final class PdfEnginesTest extends TestCase
         Stream|null $stampFile = null,
         int $rotateAngle = 0,
         string $rotatePages = '',
+        bool $optimizeImages = false,
+        int|null $imageQuality = null,
     ): void {
         $pdfEngines = Gotenberg::pdfEngines('');
 
@@ -247,6 +262,10 @@ final class PdfEnginesTest extends TestCase
 
         if ($rotateAngle !== 0) {
             $pdfEngines->rotating($rotateAngle, $rotatePages);
+        }
+
+        if ($optimizeImages) {
+            $pdfEngines->optimizeImages($imageQuality ?? 80);
         }
 
         $request = $pdfEngines->split($mode, ...$pdfs);
@@ -333,6 +352,11 @@ final class PdfEnginesTest extends TestCase
             $this->assertContainsFormValue($body, 'rotatePages', $rotatePages);
         }
 
+        if ($optimizeImages) {
+            $this->assertContainsFormValue($body, 'optimizeImages', '1');
+            $this->assertContainsFormValue($body, 'imageQuality', (string) ($imageQuality ?? 80));
+        }
+
         foreach ($pdfs as $pdf) {
             $pdf->getStream()->rewind();
             $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
@@ -378,7 +402,9 @@ final class PdfEnginesTest extends TestCase
      * array<string, string>,
      * Stream|null,
      * int,
-     * string
+     * string,
+     * bool,
+     * int|null
      * }>
      */
     public static function provideSplitData(): array
@@ -419,6 +445,8 @@ final class PdfEnginesTest extends TestCase
                 Stream::string('my_stamp.pdf', 'Stamp content'),
                 180,
                 '1-3',
+                true,
+                60,
             ],
         ];
     }

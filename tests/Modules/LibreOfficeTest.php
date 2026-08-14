@@ -96,6 +96,8 @@ final class LibreOfficeTest extends TestCase
         array $stampOptions = [],
         int $rotateAngle = 0,
         string $rotatePages = '',
+        bool $optimizeImages = false,
+        int|null $imageQuality = null,
     ): void {
         $libreOffice = Gotenberg::libreOffice('');
 
@@ -323,6 +325,10 @@ final class LibreOfficeTest extends TestCase
 
         if ($rotateAngle !== 0) {
             $libreOffice->rotating($rotateAngle, $rotatePages);
+        }
+
+        if ($optimizeImages) {
+            $libreOffice->optimizeImages($imageQuality ?? 80);
         }
 
         $request = $libreOffice->convert(...$files);
@@ -625,6 +631,11 @@ final class LibreOfficeTest extends TestCase
             $this->assertContainsFormValue($body, 'rotateAngle', (string) $rotateAngle);
         }
 
+        if ($optimizeImages) {
+            $this->assertContainsFormValue($body, 'optimizeImages', '1');
+            $this->assertContainsFormValue($body, 'imageQuality', (string) ($imageQuality ?? 80));
+        }
+
         if ($rotatePages === '') {
             return;
         }
@@ -698,7 +709,9 @@ final class LibreOfficeTest extends TestCase
      * stampPages?: string,
      * stampOptions?: array<string, string>,
      * rotateAngle?: int,
-     * rotatePages?: string
+     * rotatePages?: string,
+     * optimizeImages?: bool,
+     * imageQuality?: int|null
      * }>
      */
     public static function provideConvertData(): array
@@ -784,6 +797,8 @@ final class LibreOfficeTest extends TestCase
                 'stampOptions' => ['key' => 'value'],
                 'rotateAngle' => 90,
                 'rotatePages' => '1-3',
+                'optimizeImages' => true,
+                'imageQuality' => 60,
             ],
         ];
     }
@@ -824,17 +839,5 @@ final class LibreOfficeTest extends TestCase
         $this->assertContainsFormValue($body, 'allowPrinting', '0');
         $this->assertContainsFormValue($body, 'allowAssembling', '0');
         $this->assertContainsFormValue($body, 'ownerPassword', 'my_owner_password');
-    }
-
-    #[Test]
-    public function it_creates_a_valid_request_with_optimized_images(): void
-    {
-        $request = Gotenberg::libreOffice('')
-            ->optimizeImages(70)
-            ->convert(Stream::string('my.docx', 'DOCX content'));
-        $body    = $this->sanitize($request->getBody()->getContents());
-
-        $this->assertContainsFormValue($body, 'optimizeImages', '1');
-        $this->assertContainsFormValue($body, 'imageQuality', '70');
     }
 }
