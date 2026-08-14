@@ -1082,12 +1082,10 @@ final class PdfEnginesTest extends TestCase
         $pdf = Stream::string('my.pdf', 'PDF content');
 
         $request = Gotenberg::pdfEngines('')
-            ->optimizeImages(70)
-            ->optimize($pdf);
+            ->optimize(70, $pdf);
         $body    = $this->sanitize($request->getBody()->getContents());
 
         $this->assertSame('/forms/pdfengines/optimize', $request->getUri()->getPath());
-        $this->assertContainsFormValue($body, 'optimizeImages', '1');
         $this->assertContainsFormValue($body, 'imageQuality', '70');
 
         $pdf->getStream()->rewind();
@@ -1101,8 +1099,8 @@ final class PdfEnginesTest extends TestCase
         $pdf  = Stream::string('my.pdf', 'PDF content');
 
         $request = Gotenberg::pdfEngines('')
-            ->addStamp('text', 'CONFIDENTIAL', '1-2', ['rot' => '45'])
-            ->addStamp('image', file: $logo)
+            ->stamping('text', 'CONFIDENTIAL', '1-2', ['rot' => '45'])
+            ->stamping('image', file: $logo)
             ->stamps($pdf);
         $body    = $this->sanitize($request->getBody()->getContents());
 
@@ -1115,6 +1113,32 @@ final class PdfEnginesTest extends TestCase
 
         $logo->getStream()->rewind();
         $this->assertContainsFormFile($body, 'logo.png', 'PNG content', null, 'stamp');
+
+        $pdf->getStream()->rewind();
+        $this->assertContainsFormFile($body, 'my.pdf', 'PDF content', 'application/pdf');
+    }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_multiple_watermarks(): void
+    {
+        $logo = Stream::string('logo.png', 'PNG content');
+        $pdf  = Stream::string('my.pdf', 'PDF content');
+
+        $request = Gotenberg::pdfEngines('')
+            ->watermarking('text', 'DRAFT', '1-2', ['rot' => '45'])
+            ->watermarking('image', file: $logo)
+            ->watermarks($pdf);
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertSame('/forms/pdfengines/watermark', $request->getUri()->getPath());
+        $this->assertContainsFormValue($body, 'watermarkSource', 'text');
+        $this->assertContainsFormValue($body, 'watermarkSource', 'image');
+        $this->assertContainsFormValue($body, 'watermarkExpression', 'DRAFT');
+        $this->assertContainsFormValue($body, 'watermarkPages', '1-2');
+        $this->assertContainsFormValue($body, 'watermarkOptions', '{"rot":"45"}');
+
+        $logo->getStream()->rewind();
+        $this->assertContainsFormFile($body, 'logo.png', 'PNG content', null, 'watermark');
 
         $pdf->getStream()->rewind();
         $this->assertContainsFormFile($body, 'my.pdf', 'PDF content', 'application/pdf');

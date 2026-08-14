@@ -130,32 +130,32 @@ trait MultipartFormDataModule
     }
 
     /**
-     * Configures watermarking on the resulting PDF(s).
-     * Only non-empty values are set.
+     * Configures watermarking on the resulting PDF(s). Call it once per
+     * watermark; watermarks are applied in the order they are added. Every field
+     * is sent for each watermark so the entries stay aligned by position.
+     * Provide $file for an "image" or "pdf" source.
      *
      * @param array<string,mixed> $options
      *
      * @throws NativeFunctionErrored
      */
-    public function watermarking(string $source, string $expression = '', string $pages = '', array $options = []): self
+    public function watermarking(string $source, string $expression = '', string $pages = '', array $options = [], Stream|null $file = null): self
     {
-        $this->formValue('watermarkSource', $source);
-
-        if ($expression !== '') {
-            $this->formValue('watermarkExpression', $expression);
-        }
-
-        if ($pages !== '') {
-            $this->formValue('watermarkPages', $pages);
-        }
-
+        $json = '';
         if (count($options) > 0) {
             $json = json_encode($options);
             if ($json === false) {
                 throw NativeFunctionErrored::createFromLastPhpError();
             }
+        }
 
-            $this->formValue('watermarkOptions', $json);
+        $this->formValue('watermarkSource', $source);
+        $this->formValue('watermarkExpression', $expression);
+        $this->formValue('watermarkPages', $pages);
+        $this->formValue('watermarkOptions', $json);
+
+        if ($file !== null) {
+            $this->formFile($file->getFilename(), $file->getStream(), 'watermark');
         }
 
         return $this;
@@ -172,32 +172,32 @@ trait MultipartFormDataModule
     }
 
     /**
-     * Configures stamping on the resulting PDF(s).
-     * Only non-empty values are set.
+     * Configures stamping on the resulting PDF(s). Call it once per stamp;
+     * stamps are applied in the order they are added. Every field is sent for
+     * each stamp so the entries stay aligned by position. Provide $file for an
+     * "image" or "pdf" source.
      *
      * @param array<string,mixed> $options
      *
      * @throws NativeFunctionErrored
      */
-    public function stamping(string $source, string $expression = '', string $pages = '', array $options = []): self
+    public function stamping(string $source, string $expression = '', string $pages = '', array $options = [], Stream|null $file = null): self
     {
-        $this->formValue('stampSource', $source);
-
-        if ($expression !== '') {
-            $this->formValue('stampExpression', $expression);
-        }
-
-        if ($pages !== '') {
-            $this->formValue('stampPages', $pages);
-        }
-
+        $json = '';
         if (count($options) > 0) {
             $json = json_encode($options);
             if ($json === false) {
                 throw NativeFunctionErrored::createFromLastPhpError();
             }
+        }
 
-            $this->formValue('stampOptions', $json);
+        $this->formValue('stampSource', $source);
+        $this->formValue('stampExpression', $expression);
+        $this->formValue('stampPages', $pages);
+        $this->formValue('stampOptions', $json);
+
+        if ($file !== null) {
+            $this->formFile($file->getFilename(), $file->getStream(), 'stamp');
         }
 
         return $this;
