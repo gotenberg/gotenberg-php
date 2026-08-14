@@ -14,6 +14,7 @@ use Gotenberg\SplitMode;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
 
+use function count;
 use function json_encode;
 
 class PdfEngines
@@ -420,6 +421,53 @@ class PdfEngines
     {
         $this->formValue('stampSource', $source);
 
+        foreach ($pdfs as $pdf) {
+            $this->formFile($pdf->getFilename(), $pdf->getStream());
+        }
+
+        $this->endpoint = '/forms/pdfengines/stamp';
+
+        return $this->request();
+    }
+
+    /**
+     * Adds a stamp to apply on the stamp route. Call it once per stamp; stamps
+     * are applied in the order they are added. Every field is sent for each
+     * stamp so the entries stay aligned by position. Provide $file for an
+     * "image" or "pdf" source.
+     *
+     * @param array<string,mixed> $options
+     *
+     * @throws NativeFunctionErrored
+     */
+    public function addStamp(string $source, string $expression = '', string $pages = '', array $options = [], Stream|null $file = null): self
+    {
+        $json = '';
+        if (count($options) > 0) {
+            $json = json_encode($options);
+            if ($json === false) {
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
+        }
+
+        $this->formValue('stampSource', $source);
+        $this->formValue('stampExpression', $expression);
+        $this->formValue('stampPages', $pages);
+        $this->formValue('stampOptions', $json);
+
+        if ($file !== null) {
+            $this->formFile($file->getFilename(), $file->getStream(), 'stamp');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Stamps PDF(s) with the stamps added via addStamp().
+     * Gotenberg will return the PDF or a ZIP archive with the PDFs.
+     */
+    public function stamps(Stream ...$pdfs): RequestInterface
+    {
         foreach ($pdfs as $pdf) {
             $this->formFile($pdf->getFilename(), $pdf->getStream());
         }

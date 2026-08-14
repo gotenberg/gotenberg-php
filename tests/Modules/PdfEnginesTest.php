@@ -1093,4 +1093,30 @@ final class PdfEnginesTest extends TestCase
         $pdf->getStream()->rewind();
         $this->assertContainsFormFile($body, $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
     }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_multiple_stamps(): void
+    {
+        $logo = Stream::string('logo.png', 'PNG content');
+        $pdf  = Stream::string('my.pdf', 'PDF content');
+
+        $request = Gotenberg::pdfEngines('')
+            ->addStamp('text', 'CONFIDENTIAL', '1-2', ['rot' => '45'])
+            ->addStamp('image', file: $logo)
+            ->stamps($pdf);
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertSame('/forms/pdfengines/stamp', $request->getUri()->getPath());
+        $this->assertContainsFormValue($body, 'stampSource', 'text');
+        $this->assertContainsFormValue($body, 'stampSource', 'image');
+        $this->assertContainsFormValue($body, 'stampExpression', 'CONFIDENTIAL');
+        $this->assertContainsFormValue($body, 'stampPages', '1-2');
+        $this->assertContainsFormValue($body, 'stampOptions', '{"rot":"45"}');
+
+        $logo->getStream()->rewind();
+        $this->assertContainsFormFile($body, 'logo.png', 'PNG content', null, 'stamp');
+
+        $pdf->getStream()->rewind();
+        $this->assertContainsFormFile($body, 'my.pdf', 'PDF content', 'application/pdf');
+    }
 }
