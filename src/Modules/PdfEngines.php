@@ -385,6 +385,17 @@ class PdfEngines
     }
 
     /**
+     * Adds a bookmark per merged document for the merge route, labeled by its
+     * title metadata and pointing to its first page.
+     */
+    public function titleBookmarks(): self
+    {
+        $this->formValue('titleBookmarks', true);
+
+        return $this;
+    }
+
+    /**
      * Watermarks PDF(s).
      * Gotenberg will return the PDF or a ZIP archive with the PDFs.
      */

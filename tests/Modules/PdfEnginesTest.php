@@ -42,6 +42,7 @@ final class PdfEnginesTest extends TestCase
         string $rotatePages = '',
         bool $optimizeImages = false,
         int|null $imageQuality = null,
+        bool $titleBookmarks = false,
     ): void {
         $pdfEngines = Gotenberg::pdfEngines('')->index(new DummyIndex());
 
@@ -83,6 +84,10 @@ final class PdfEnginesTest extends TestCase
 
         if ($optimizeImages) {
             $pdfEngines->optimizeImages($imageQuality ?? 80);
+        }
+
+        if ($titleBookmarks) {
+            $pdfEngines->titleBookmarks();
         }
 
         $request = $pdfEngines->merge(...$pdfs);
@@ -137,6 +142,10 @@ final class PdfEnginesTest extends TestCase
             $this->assertContainsFormValue($body, 'imageQuality', (string) ($imageQuality ?? 80));
         }
 
+        if ($titleBookmarks) {
+            $this->assertContainsFormValue($body, 'titleBookmarks', '1');
+        }
+
         foreach ($pdfs as $pdf) {
             $pdf->getStream()->rewind();
             $this->assertContainsFormFile($body, 'foo_' . $pdf->getFilename(), $pdf->getStream()->getContents(), 'application/pdf');
@@ -148,7 +157,7 @@ final class PdfEnginesTest extends TestCase
         }
     }
 
-    /** @return array<string, array{array<int, Stream>, string|null, bool, array<string, array<string>|bool|float|int|string>, bool, string, string, array<int, Stream>, string, bool, int, string, bool, int|null}> */
+    /** @return array<string, array{array<int, Stream>, string|null, bool, array<string, array<string>|bool|float|int|string>, bool, string, string, array<int, Stream>, string, bool, int, string, bool, int|null, bool}> */
     public static function provideMergeData(): array
     {
         return [
@@ -180,6 +189,7 @@ final class PdfEnginesTest extends TestCase
                 '1-3,5',
                 true,
                 60,
+                true,
             ],
         ];
     }
