@@ -540,6 +540,17 @@ class LibreOffice
     }
 
     /**
+     * Generates a tagged (accessible) PDF without declaring PDF/UA
+     * conformance. PDF/UA implies it.
+     */
+    public function generateTaggedPdf(): self
+    {
+        $this->formValue('generateTaggedPdf', true);
+
+        return $this;
+    }
+
+    /**
      * Sets the metadata to write.
      *
      * @param array<string,string|bool|float|int|array<string>> $metadata

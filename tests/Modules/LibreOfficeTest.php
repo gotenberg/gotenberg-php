@@ -840,4 +840,15 @@ final class LibreOfficeTest extends TestCase
         $this->assertContainsFormValue($body, 'allowAssembling', '0');
         $this->assertContainsFormValue($body, 'ownerPassword', 'my_owner_password');
     }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_a_tagged_pdf(): void
+    {
+        $request = Gotenberg::libreOffice('')
+            ->generateTaggedPdf()
+            ->convert(Stream::string('my.docx', 'DOCX content'));
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertContainsFormValue($body, 'generateTaggedPdf', '1');
+    }
 }
