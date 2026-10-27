@@ -231,6 +231,27 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
+     * Forces Gotenberg to return a 409 Conflict response if the Chromium
+     * console logs messages of the given types (log, debug, info, warning,
+     * error, assert).
+     *
+     * @param string[] $types
+     *
+     * @throws NativeFunctionErrored
+     */
+    public function failOnConsoleMessageTypes(array $types): self
+    {
+        $json = json_encode($types);
+        if ($json === false) {
+            throw NativeFunctionErrored::createFromLastPhpError();
+        }
+
+        $this->formValue('failOnConsoleMessageTypes', $json);
+
+        return $this;
+    }
+
+    /**
      * Specifies whether Chromium have to wait or not for its network to be
      * idle.
      */

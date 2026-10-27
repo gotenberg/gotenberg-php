@@ -906,4 +906,15 @@ final class ChromiumScreenshotTest extends TestCase
             $this->assertContainsFormFile($body, $asset->getFilename(), $asset->getStream()->getContents(), 'image/jpeg');
         }
     }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_console_message_types(): void
+    {
+        $request = Gotenberg::chromium('')->screenshot()
+            ->failOnConsoleMessageTypes(['warning', 'error'])
+            ->url('https://example.com');
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertContainsFormValue($body, 'failOnConsoleMessageTypes', '["warning","error"]');
+    }
 }

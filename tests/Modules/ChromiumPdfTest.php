@@ -1658,4 +1658,15 @@ final class ChromiumPdfTest extends TestCase
         $this->assertContainsFormValue($body, 'allowCopying', '0');
         $this->assertContainsFormValue($body, 'ownerPassword', 'my_owner_password');
     }
+
+    #[Test]
+    public function it_creates_a_valid_request_with_console_message_types(): void
+    {
+        $request = Gotenberg::chromium('')->pdf()
+            ->failOnConsoleMessageTypes(['warning', 'error'])
+            ->url('https://example.com');
+        $body    = $this->sanitize($request->getBody()->getContents());
+
+        $this->assertContainsFormValue($body, 'failOnConsoleMessageTypes', '["warning","error"]');
+    }
 }
