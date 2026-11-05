@@ -19,7 +19,8 @@ PDF files, and more!
 
 | Gotenberg version   | Client                                                                                            |
 |---------------------|---------------------------------------------------------------------------------------------------|
-| `8.x` **(current)** | `v2.x` **(current)**                                                                              |
+| `9.x` **(current)** | `v3.x` **(current)**                                                                              |
+| `8.x`               | `v2.x`                                                                                            |
 | `7.x`               | `v1.x`                                                                                            |
 | `6.x`               | [thecodingmachine/gotenberg-php-client](https://github.com/thecodingmachine/gotenberg-php-client) |
 
@@ -58,7 +59,7 @@ $response = Gotenberg::send(
 
 ## Requirement
 
-This packages requires [Gotenberg](https://gotenberg.dev), a containerized API for seamless PDF conversion.
+This package requires PHP 8.3 or later, and [Gotenberg](https://gotenberg.dev) 9, a containerized API for seamless PDF conversion.
 
 See the [installation guide](https://gotenberg.dev/docs/getting-started/installation) for more information.
 
@@ -92,7 +93,7 @@ use Gotenberg\Gotenberg;
 
 Gotenberg::chromium($apiUrl);
 Gotenberg::libreOffice($apiUrl);
-Gotenberg::pdfEngines($apiUrl);
+Gotenberg::pdf($apiUrl);
 ```
 
 Each of these modules offers a variety of methods to populate a *multipart/form-data* request.
@@ -106,7 +107,7 @@ use Gotenberg\Gotenberg;
 Gotenberg::chromium($apiUrl)
     ->pdf()                  // Or screenshot().
     ->singlePage()           // Optional.
-    ->url('https://my.url'));
+    ->url('https://my.url');
 ```
 
 > [!TIP]
@@ -132,12 +133,76 @@ Gotenberg::chromium($apiUrl)
 Gotenberg::libreOffice($apiUrl)
     ->convert(new Stream('document.docx', $stream));
 
+// Or upload a ZIP archive that Gotenberg unpacks.
+Gotenberg::chromium($apiUrl)
+    ->pdf()
+    ->archives(Stream::path($pathToSiteZip))
+    ->html(null);
+
 // Or even tell Gotenberg to download the files for you.
 Gotenberg::libreOffice($apiUrl)
-    ->downloadFrom([
+    ->downloadFrom(
         new DownloadFrom('https://url.to.document.docx', ['MyHeader' => 'MyValue'])
-    ])
+    )
     ->convert();
+```
+
+## Stages
+
+A stage is one operation on a PDF: merge, split, stamp, redact, sign, make PDF/A, and so on. Gotenberg runs them in
+order on the PDFs a Chromium or LibreOffice conversion makes:
+
+```php
+use Gotenberg\Gotenberg;
+use Gotenberg\Stage;
+use Gotenberg\Stream;
+
+Gotenberg::libreOffice($apiUrl)
+    ->stages(
+        Stage::merge(),
+        Stage::stampText('DRAFT', x: 72, y: 72, fontSize: 24),
+        Stage::remediate('PDF/A-2b'),
+    )
+    ->convert(
+        Stream::path($pathToDocx),
+        Stream::path($pathToXlsx)
+    );
+```
+
+A stage that reads a file, such as an image to stamp or a certificate, takes a `Stream`: the client uploads it for you.
+With a `merge` stage, the documents are merged in the order of the arguments. See [Run stages](https://gotenberg.dev/docs/pdf/pipe)
+for every stage and its order rules.
+
+The `pdf` module runs stages on the PDFs you upload, reads them, and validates them:
+
+```php
+use Gotenberg\Gotenberg;
+use Gotenberg\Stage;
+use Gotenberg\Stream;
+
+// Runs a list of stages, through /forms/pdf/pipe.
+Gotenberg::pdf($apiUrl)
+    ->stages(
+        Stage::select('1-2'),
+        Stage::stampImage(Stream::path($pathToLogo), x: 72, y: 72, width: 100),
+        Stage::optimize(),
+    )
+    ->pipe(Stream::path($pathToPdf));
+
+// Runs one stage, through its own route: /forms/pdf/merge, /forms/pdf/sign, and so on.
+Gotenberg::pdf($apiUrl)
+    ->run(Stage::merge(), Stream::path($pathToPdf1), Stream::path($pathToPdf2));
+
+Gotenberg::pdf($apiUrl)
+    ->run(Stage::sign(Stream::path($pathToP12), certificatePassword: 'secret'), Stream::path($pathToPdf));
+
+// Reads the PDFs; Gotenberg answers JSON, one entry per PDF.
+Gotenberg::pdf($apiUrl)->info(Stream::path($pathToPdf));
+Gotenberg::pdf($apiUrl)->metadata(Stream::path($pathToPdf));
+Gotenberg::pdf($apiUrl)->bookmarks(Stream::path($pathToPdf));
+Gotenberg::pdf($apiUrl)->attachments(Stream::path($pathToPdf));
+Gotenberg::pdf($apiUrl)->form(null, Stream::path($pathToPdf));
+Gotenberg::pdf($apiUrl)->validate(['PDF/A-2b', 'PDF/UA-1'], Stream::path($pathToPdf));
 ```
 
 ## Send a request to the API
@@ -203,8 +268,9 @@ $request = Gotenberg::chromium($apiUrl)
 $filename = Gotenberg::save($request, '/path/to/saving/directory');
 ```
 
-It returns the filename of the resulting file. By default, Gotenberg creates a *UUID* filename (i.e., 
-`95cd9945-484f-4f89-8bdb-23dbdd0bdea9`) with either a `.zip` or a `.pdf` file extension (or image formats for screenshots).
+It returns the filename of the resulting file, as the `Content-Disposition` header names it. Without
+`outputFilename()`, Gotenberg names the result after its source (`report.docx` gives `report.docx.pdf`), or picks a
+*UUID* for a web page or a ZIP archive.
 
 You may also explicitly set the HTTP client:
 
@@ -277,5 +343,35 @@ try {
 }
 ```
 
-> [!NOTE]
-> The `trace()` and `getGotenbergTrace()` methods are deprecated but still available for backward compatibility.
+### Webhook
+
+You may tell Gotenberg to upload the result to a webhook instead of answering with it. Gotenberg then sends a
+`webhook.success` or `webhook.error` event to the events URL:
+
+```php
+use Gotenberg\Gotenberg;
+
+$request = Gotenberg::chromium($apiUrl)
+    ->pdf()
+    ->webhook('https://my.webhook.url', 'https://my.webhook.url/events')
+    ->webhookMethod('PUT') // Optional, default POST.
+    ->webhookExtraHttpHeaders(['Authorization' => 'Bearer …']) // Optional.
+    ->url('https://my.url');
+```
+
+## Upgrade from v2
+
+The client follows the Gotenberg 9 API:
+
+* `Gotenberg::pdfEngines()` becomes `Gotenberg::pdf()`: each route is a stage, run with `run()` or `stages()->pipe()`.
+* The post-processing methods of the conversions (`merge()`, `split()`, `pdfa()`, `pdfua()`, `metadata()`, `flatten()`,
+  `encrypt()`, `allow*()`, `facturX()`, `embeds()`, `optimizeImages()`, `watermarking()`, `stamping()`, `rotating()`)
+  become stages. `SplitMode`, `FacturX` and `EmbedMetadata` give way to `Stage`.
+* Fields with an engine twin take the `native` prefix: `nativePages()`, `nativeBookmarks()`, `nativeTaggedPdf()`,
+  `nativePdfa()`, `nativePdfua()`, `nativeQuality()`, `nativeWatermark*()`, and so on. `paperSize()` takes a name
+  (`A4`, `Letter`…), `paperDimensions()` the width and height.
+* `webhook()` takes the events URL, which Gotenberg requires; the error webhook is gone.
+* `downloadFrom()`, `cookies()` and the `failOn*()` methods are variadic, `emulatedMediaFeatures()` takes an array.
+* `Stream` exposes `filename` and `stream` as readonly properties.
+* JSON encoding errors throw `JsonException`.
+* The deprecated `trace()` and `getGotenbergTrace()` are removed: use `correlationId()` and `getCorrelationId()`.
