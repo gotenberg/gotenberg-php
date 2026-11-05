@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Test\Modules;
 
+use Closure;
 use Gotenberg\Gotenberg;
 use Gotenberg\InitialView;
 use Gotenberg\Magnification;
@@ -21,21 +22,22 @@ use Psr\Http\Message\RequestInterface;
 final class LibreOfficeTest extends TestCase
 {
     /**
+     * @param Closure(): RequestInterface                                   $build
      * @param list<array{0: string, 1: string}>                             $values
      * @param list<array{0: string, 1: string, 2: string, 3?: string|null}> $files
      */
     #[Test]
     #[DataProvider('provideRequestData')]
-    public function it_creates_a_valid_request(RequestInterface $request, array $values, array $files = []): void
+    public function it_creates_a_valid_request(Closure $build, array $values, array $files = []): void
     {
-        $this->assertRequest($request, '/forms/libreoffice/convert', $values, $files);
+        $this->assertRequest($build(), '/forms/libreoffice/convert', $values, $files);
     }
 
-    /** @return iterable<string, array{0: RequestInterface, 1: list<array{0: string, 1: string}>, 2?: list<array{0: string, 1: string, 2: string, 3?: string|null}>}> */
+    /** @return iterable<string, array{0: Closure(): RequestInterface, 1: list<array{0: string, 1: string}>, 2?: list<array{0: string, 1: string, 2: string, 3?: string|null}>}> */
     public static function provideRequestData(): iterable
     {
         yield 'every option' => [
-            Gotenberg::libreOffice('https://my.url')
+            (static fn (): RequestInterface => Gotenberg::libreOffice('https://my.url')
                 ->password('my_password')
                 ->paperSize(PaperSize::Legal)
                 ->paperDimensions('21cm', 29.7)
@@ -84,7 +86,7 @@ final class LibreOfficeTest extends TestCase
                 ->hideViewerMenubar()
                 ->hideViewerToolbar()
                 ->hideViewerWindowControls()
-                ->convert(Stream::string('my.docx', 'Word content'), Stream::string('my.xlsx', 'Excel content')),
+                ->convert(Stream::string('my.docx', 'Word content'), Stream::string('my.xlsx', 'Excel content'))),
             [
                 ['password', 'my_password'],
                 ['paperSize', 'Legal'],
@@ -143,10 +145,10 @@ final class LibreOfficeTest extends TestCase
         ];
 
         yield 'merge stage keeps the order of the arguments' => [
-            Gotenberg::libreOffice('https://my.url')
+            (static fn (): RequestInterface => Gotenberg::libreOffice('https://my.url')
                 ->index(new DummyIndex())
                 ->stages(Stage::merge(), Stage::remediate(Profile::PdfA2b))
-                ->convert(Stream::string('b.docx', 'Word content'), Stream::string('a.xlsx', 'Excel content')),
+                ->convert(Stream::string('b.docx', 'Word content'), Stream::string('a.xlsx', 'Excel content'))),
             [['stages', '[{"op":"merge"},{"op":"remediate","profile":"PDF\\/A-2b"}]']],
             [
                 ['files', '0_b.docx', 'Word content'],

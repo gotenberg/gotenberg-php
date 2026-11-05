@@ -90,7 +90,7 @@ Unit tests only (no integration tests, this is a client library). PHPUnit 12.4+.
 - `assertRequest(RequestInterface $request, string $endpoint, array $values, array $files)`: asserts the endpoint, the form values (`[name, value]`) and the form files (`[field, filename, content, content type]`).
 - `assertContainsFormValue()` and `assertContainsFormFile()`: the single checks `assertRequest()` runs.
 
-Tests follow a data provider pattern: a static method returns an array of test cases (description, `RequestInterface` built via the fluent API, expected form values/files), and the test method runs assertions against each.
+Tests follow a data provider pattern: a static method yields test cases (a closure that builds the request or stage with the fluent API, then the expected form values and files), and the test method calls the closure and runs assertions against the result. Never build the request in the provider itself: PHPUnit runs providers before it starts recording coverage, so that code counts as untested. Wrap the closure in parentheses, `(static fn (): RequestInterface => ...)`, or phpcs misreads the array.
 
 Form field names must match Gotenberg's API exactly. Cross-reference with the [Gotenberg documentation](https://gotenberg.dev).
 
