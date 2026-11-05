@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
-class Chromium
+final readonly class Chromium
 {
-    public function __construct(public readonly string $baseUrl)
+    public function __construct(public string $baseUrl)
     {
     }
 

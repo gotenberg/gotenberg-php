@@ -6,16 +6,16 @@ namespace Gotenberg\Modules;
 
 use JsonSerializable;
 
-class ChromiumCookie implements JsonSerializable
+final readonly class ChromiumCookie implements JsonSerializable
 {
     public function __construct(
-        public readonly string $name,
-        public readonly string $value,
-        public readonly string $domain,
-        public readonly string|null $path = null,
-        public readonly bool|null $secure = null,
-        public readonly bool|null $httpOnly = null,
-        public readonly string|null $sameSite = null,
+        public string $name,
+        public string $value,
+        public string $domain,
+        public string|null $path = null,
+        public bool|null $secure = null,
+        public bool|null $httpOnly = null,
+        public string|null $sameSite = null,
     ) {
     }
 

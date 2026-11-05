@@ -6,35 +6,22 @@ namespace Gotenberg;
 
 use JsonSerializable;
 
-class DownloadFrom implements JsonSerializable
+final readonly class DownloadFrom implements JsonSerializable
 {
-    public const FIELD_EMBEDDED  = 'embedded';
-    public const FIELD_WATERMARK = 'watermark';
-    public const FIELD_STAMP     = 'stamp';
-
     /** @param array<string,string> $extraHttpHeaders */
     public function __construct(
-        public readonly string $url,
-        public readonly array|null $extraHttpHeaders = null,
-        public readonly bool $embedded = false,
-        public readonly string $field = '',
+        public string $url,
+        public array $extraHttpHeaders = [],
     ) {
     }
 
-    /** @return array<string, array<string,string>|bool|string> */
+    /** @return array{url: string, extraHttpHeaders?: array<string,string>} */
     public function jsonSerialize(): array
     {
-        $serialized = [
-            'url' => $this->url,
-            'embedded' => $this->embedded,
-        ];
+        $serialized = ['url' => $this->url];
 
-        if (! empty($this->extraHttpHeaders)) {
+        if ($this->extraHttpHeaders !== []) {
             $serialized['extraHttpHeaders'] = $this->extraHttpHeaders;
-        }
-
-        if ($this->field !== '') {
-            $serialized['field'] = $this->field;
         }
 
         return $serialized;

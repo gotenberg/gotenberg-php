@@ -4,40 +4,20 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
-use Gotenberg\EmbedMetadata;
-use Gotenberg\Exceptions\NativeFunctionErrored;
-use Gotenberg\FacturX;
-use Gotenberg\HrtimeIndex;
-use Gotenberg\Index;
 use Gotenberg\MultipartFormDataModule;
-use Gotenberg\SplitMode;
+use Gotenberg\StagesModule;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
-
-use function json_encode;
 
 class LibreOffice
 {
     use MultipartFormDataModule;
-
-    private Index|null $index = null;
-    private bool $merge       = false;
+    use StagesModule;
 
     /**
-     * Overrides the default index generator for ordering
-     * files we want to merge.
+     * Sets the password that opens the documents.
      */
-    public function index(Index $index): self
-    {
-        $this->index = $index;
-
-        return $this;
-    }
-
-    /**
-     * Sets the password for opening the source file.
-     */
-    public function password(string $password): self
+    public function password(string $password): static
     {
         $this->formValue('password', $password);
 
@@ -45,9 +25,33 @@ class LibreOffice
     }
 
     /**
+     * Sets the paper size of every page: "A3", "A4", "A5", "B4", "B5",
+     * "Letter", "Legal" or "Tabloid". Without it, each document keeps its own
+     * page size.
+     */
+    public function paperSize(string $size): static
+    {
+        $this->formValue('paperSize', $size);
+
+        return $this;
+    }
+
+    /**
+     * Overrides the paper width and height of every page, using various units
+     * such as 72pt, 96px, 1in, 25.4mm, 2.54cm, or 6pc.
+     */
+    public function paperDimensions(float|string $width, float|string $height): static
+    {
+        $this->formValue('paperWidth', $width);
+        $this->formValue('paperHeight', $height);
+
+        return $this;
+    }
+
+    /**
      * Sets the paper orientation to landscape.
      */
-    public function landscape(): self
+    public function landscape(): static
     {
         $this->formValue('landscape', true);
 
@@ -55,14 +59,35 @@ class LibreOffice
     }
 
     /**
-     * Sets the page ranges to print, e.g., "1-4"'.
-     * Empty means all pages.
+     * Sets the pages to export, in LibreOffice's syntax, e.g., "1-4". The
+     * select stage picks pages after the conversion.
      *
-     * Note: the page ranges are applied to all files independently.
+     * Note: the pages apply to all files independently.
      */
-    public function nativePageRanges(string $ranges): self
+    public function nativePages(string $pages): static
     {
-        $this->formValue('nativePageRanges', $ranges);
+        $this->formValue('nativePages', $pages);
+
+        return $this;
+    }
+
+    /**
+     * Puts each sheet of a spreadsheet on one page, hidden sheets included,
+     * regardless of its paper size and print ranges.
+     */
+    public function singlePage(): static
+    {
+        $this->formValue('singlePage', true);
+
+        return $this;
+    }
+
+    /**
+     * Suppresses automatically inserted empty pages. Writer documents only.
+     */
+    public function skipEmptyPages(): static
+    {
+        $this->formValue('skipEmptyPages', true);
 
         return $this;
     }
@@ -71,9 +96,9 @@ class LibreOffice
      * Specifies whether to update the indexes before conversion, keeping in
      * mind that doing so might result in missing links in the final PDF.
      */
-    public function updateIndexes(bool $update = true): self
+    public function updateIndexes(bool $update = true): static
     {
-        $this->formValue('updateIndexes', $update ?: '0');
+        $this->formValue('updateIndexes', $update);
 
         return $this;
     }
@@ -82,18 +107,17 @@ class LibreOffice
      * Specifies whether form fields are exported as widgets or only their fixed
      * print representation is exported.
      */
-    public function exportFormFields(bool $export = true): self
+    public function exportFormFields(bool $export = true): static
     {
-        $this->formValue('exportFormFields', $export ?: '0');
+        $this->formValue('exportFormFields', $export);
 
         return $this;
     }
 
     /**
-     * Specifies whether multiple form fields exported are allowed to have the
-     * same field name.
+     * Allows multiple exported form fields to have the same field name.
      */
-    public function allowDuplicateFieldNames(): self
+    public function allowDuplicateFieldNames(): static
     {
         $this->formValue('allowDuplicateFieldNames', true);
 
@@ -101,20 +125,19 @@ class LibreOffice
     }
 
     /**
-     * Specifies if bookmarks are exported to PDF.
+     * Specifies whether bookmarks are exported to PDF.
      */
-    public function exportBookmarks(bool $export = true): self
+    public function nativeBookmarks(bool $export = true): static
     {
-        $this->formValue('exportBookmarks', $export ?: '0');
+        $this->formValue('nativeBookmarks', $export);
 
         return $this;
     }
 
     /**
-     * Specifies that the bookmarks contained in the source LibreOffice file
-     * should be exported to the PDF file as Named Destination.
+     * Exports the bookmarks of the document as Named Destinations.
      */
-    public function exportBookmarksToPdfDestination(): self
+    public function exportBookmarksToPdfDestination(): static
     {
         $this->formValue('exportBookmarksToPdfDestination', true);
 
@@ -125,7 +148,7 @@ class LibreOffice
      * Exports the placeholders fields visual markings only. The exported
      * placeholder is ineffective.
      */
-    public function exportPlaceholders(): self
+    public function exportPlaceholders(): static
     {
         $this->formValue('exportPlaceholders', true);
 
@@ -133,9 +156,9 @@ class LibreOffice
     }
 
     /**
-     * Specifies if notes are exported to PDF.
+     * Exports the notes.
      */
-    public function exportNotes(): self
+    public function exportNotes(): static
     {
         $this->formValue('exportNotes', true);
 
@@ -143,31 +166,9 @@ class LibreOffice
     }
 
     /**
-     * Specifies if notes pages are exported to PDF. Notes pages are available
-     * in Impress documents only.
+     * Exports the notes in the margin.
      */
-    public function exportNotesPages(): self
-    {
-        $this->formValue('exportNotesPages', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies, if the form field exportNotesPages is set to true, if only
-     * notes pages are exported to PDF.
-     */
-    public function exportOnlyNotesPages(): self
-    {
-        $this->formValue('exportOnlyNotesPages', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies if notes in margin are exported to PDF.
-     */
-    public function exportNotesInMargin(): self
+    public function exportNotesInMargin(): static
     {
         $this->formValue('exportNotesInMargin', true);
 
@@ -175,34 +176,29 @@ class LibreOffice
     }
 
     /**
-     * Specifies that the target documents with .od[tpgs] extension, will have
-     * that extension changed to .pdf when the link is exported to PDF. The
-     * source document remains untouched.
+     * Exports the notes pages. Impress documents only.
      */
-    public function convertOooTargetToPdfTarget(): self
+    public function exportNotesPages(): static
     {
-        $this->formValue('convertOooTargetToPdfTarget', true);
+        $this->formValue('exportNotesPages', true);
 
         return $this;
     }
 
     /**
-     * Specifies that the file system related hyperlinks (file:// protocol)
-     * present in the document will be exported as relative to the source
-     * document location.
+     * Exports only the notes pages, with exportNotesPages.
      */
-    public function exportLinksRelativeFsys(): self
+    public function exportOnlyNotesPages(): static
     {
-        $this->formValue('exportLinksRelativeFsys', true);
+        $this->formValue('exportOnlyNotesPages', true);
 
         return $this;
     }
 
     /**
-     * Exports, for LibreOffice Impress, slides that are not included in slide
-     * shows.
+     * Exports, for Impress, the slides that are not included in slide shows.
      */
-    public function exportHiddenSlides(): self
+    public function exportHiddenSlides(): static
     {
         $this->formValue('exportHiddenSlides', true);
 
@@ -210,21 +206,42 @@ class LibreOffice
     }
 
     /**
-     * Specifies that automatically inserted empty pages are suppressed. This
-     * option is active only if storing Writer documents.
+     * Specifies whether to use transition effects when displaying the document.
      */
-    public function skipEmptyPages(): self
+    public function useTransitionEffects(bool $use = true): static
     {
-        $this->formValue('skipEmptyPages', true);
+        $this->formValue('useTransitionEffects', $use);
 
         return $this;
     }
 
     /**
-     * Specifies that a stream is inserted to the PDF file which contains the
-     * original document for archiving purposes.
+     * Changes the .od[tpgs] extension of link targets to .pdf. The source
+     * document remains untouched.
      */
-    public function addOriginalDocumentAsStream(): self
+    public function convertOooTargetToPdfTarget(): static
+    {
+        $this->formValue('convertOooTargetToPdfTarget', true);
+
+        return $this;
+    }
+
+    /**
+     * Exports the file system hyperlinks (file:// protocol) as relative to the
+     * source document location.
+     */
+    public function exportLinksRelativeFsys(): static
+    {
+        $this->formValue('exportLinksRelativeFsys', true);
+
+        return $this;
+    }
+
+    /**
+     * Inserts a stream that contains the original document, for archiving
+     * purposes.
+     */
+    public function addOriginalDocumentAsStream(): static
     {
         $this->formValue('addOriginalDocumentAsStream', true);
 
@@ -232,237 +249,52 @@ class LibreOffice
     }
 
     /**
-     * Specifies how the document shall be displayed when opened. Possible
-     * values are: "document", "outline", "thumbnails".
+     * Sets the quality of the JPEG export, from 1 to 100. A higher value
+     * produces a higher-quality image and a larger file.
      */
-    public function initialView(string $view): self
+    public function nativeQuality(int $quality): static
     {
-        $this->formValue('initialView', $view);
+        $this->formValue('nativeQuality', $quality);
 
         return $this;
     }
 
     /**
-     * Specifies the page on which a PDF document should be opened in the
-     * viewer.
+     * Exports images with a lossless compression format like PNG, instead of
+     * JPEG.
      */
-    public function initialPage(int $page): self
+    public function nativeLosslessImageCompression(): static
     {
-        $this->formValue('initialPage', $page);
+        $this->formValue('nativeLosslessImageCompression', true);
 
         return $this;
     }
 
     /**
-     * Specifies the magnification to use when the document is opened.
-     * Possible values are: "default", "fitVisible", "fitWidth", "fitPage",
-     * "fitActualSize".
+     * Reduces the resolution of each image to nativeMaxImageResolution.
      */
-    public function magnification(string $magnification): self
+    public function nativeReduceImageResolution(): static
     {
-        $this->formValue('magnification', $magnification);
+        $this->formValue('nativeReduceImageResolution', true);
 
         return $this;
     }
 
     /**
-     * Specifies the zoom value to use when the document is opened.
+     * Sets the resolution, in DPI, nativeReduceImageResolution reduces the
+     * images to: 75, 150, 300, 600 or 1200.
      */
-    public function zoom(int $zoom): self
+    public function nativeMaxImageResolution(int $dpi): static
     {
-        $this->formValue('zoom', $zoom);
+        $this->formValue('nativeMaxImageResolution', $dpi);
 
         return $this;
     }
 
     /**
-     * Specifies the page layout to use when the document is opened. Possible
-     * values are: "default", "singlePage", "continuous", "continuousFacing".
+     * Sets the watermark text LibreOffice draws on each page.
      */
-    public function pageLayout(string $layout): self
-    {
-        $this->formValue('pageLayout', $layout);
-
-        return $this;
-    }
-
-    /**
-     * Specifies that the first page on the left side of the viewer should be
-     * displayed in a two-column layout.
-     */
-    public function firstPageOnLeft(): self
-    {
-        $this->formValue('firstPageOnLeft', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies that the PDF viewer window should be resized to fit the size
-     * of the first page of the document.
-     */
-    public function resizeWindowToInitialPage(): self
-    {
-        $this->formValue('resizeWindowToInitialPage', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies that the PDF viewer window should be centered on the screen.
-     */
-    public function centerWindow(): self
-    {
-        $this->formValue('centerWindow', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies that the PDF document should be displayed in full-screen mode.
-     */
-    public function openInFullScreenMode(): self
-    {
-        $this->formValue('openInFullScreenMode', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies that the title of the document should be displayed in the
-     * title bar of the viewer.
-     */
-    public function displayPDFDocumentTitle(): self
-    {
-        $this->formValue('displayPDFDocumentTitle', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies that the viewer's menu bar should be hidden.
-     */
-    public function hideViewerMenubar(): self
-    {
-        $this->formValue('hideViewerMenubar', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies that the viewer's toolbar should be hidden.
-     */
-    public function hideViewerToolbar(): self
-    {
-        $this->formValue('hideViewerToolbar', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies that the viewer's window controls should be hidden.
-     */
-    public function hideViewerWindowControls(): self
-    {
-        $this->formValue('hideViewerWindowControls', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies whether to use transition effects when displaying the
-     * document.
-     */
-    public function useTransitionEffects(): self
-    {
-        $this->formValue('useTransitionEffects', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies the number of bookmark levels to display in the viewer when
-     * the document is opened.
-     */
-    public function openBookmarkLevels(int $levels): self
-    {
-        $this->formValue('openBookmarkLevels', $levels);
-
-        return $this;
-    }
-
-    /**
-     * Ignores each sheet's paper size, print ranges and shown/hidden status
-     * and puts every sheet (even hidden sheets) on exactly one page.
-     */
-    public function singlePageSheets(): self
-    {
-        $this->formValue('singlePageSheets', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies if images are exported to PDF using a lossless compression
-     * format like PNG or compressed using the JPEG format.
-     */
-    public function losslessImageCompression(): self
-    {
-        $this->formValue('losslessImageCompression', true);
-
-        return $this;
-    }
-
-    /**
-     * Specifies the quality of the JPG export. A higher value produces a
-     * higher-quality image and a larger file. Between 1 and 100.
-     */
-    public function quality(int $quality): self
-    {
-        $this->formValue('quality', $quality);
-
-        return $this;
-    }
-
-    /**
-     * Re-encodes the images of the resulting PDF to reduce its file size.
-     */
-    public function optimizeImages(int $quality = 80): self
-    {
-        $this->formValue('optimizeImages', true);
-        $this->formValue('imageQuality', $quality);
-
-        return $this;
-    }
-
-    /**
-     * Specifies if the resolution of each image is reduced to the resolution
-     * specified by the form field maxImageResolution.
-     * FIXME: parameter not used.
-     */
-    public function reduceImageResolution(bool $notUsedAnymore = true): self
-    {
-        $this->formValue('reduceImageResolution', true);
-
-        return $this;
-    }
-
-    /**
-     * If the form field reduceImageResolution is set to true, tells if all
-     * images will be reduced to the given value in DPI. Possible values are:
-     * 75, 150, 300, 600 and 1200.
-     */
-    public function maxImageResolution(int $dpi): self
-    {
-        $this->formValue('maxImageResolution', $dpi);
-
-        return $this;
-    }
-
-    /**
-     * Sets the native watermark text.
-     */
-    public function nativeWatermarkText(string $text): self
+    public function nativeWatermarkText(string $text): static
     {
         $this->formValue('nativeWatermarkText', $text);
 
@@ -470,9 +302,9 @@ class LibreOffice
     }
 
     /**
-     * Sets the native watermark color.
+     * Sets the watermark text color, as "#rrggbb".
      */
-    public function nativeWatermarkColor(int $color): self
+    public function nativeWatermarkColor(string $color): static
     {
         $this->formValue('nativeWatermarkColor', $color);
 
@@ -480,39 +312,39 @@ class LibreOffice
     }
 
     /**
-     * Sets the native watermark font height.
+     * Sets the watermark font size.
      */
-    public function nativeWatermarkFontHeight(int $height): self
+    public function nativeWatermarkFontSize(int $size): static
     {
-        $this->formValue('nativeWatermarkFontHeight', $height);
+        $this->formValue('nativeWatermarkFontSize', $size);
 
         return $this;
     }
 
     /**
-     * Sets the native watermark rotate angle.
+     * Sets the watermark angle, in degrees, counter-clockwise.
      */
-    public function nativeWatermarkRotateAngle(int $angle): self
+    public function nativeWatermarkRotation(float $degrees): static
     {
-        $this->formValue('nativeWatermarkRotateAngle', $angle);
+        $this->formValue('nativeWatermarkRotation', $degrees);
 
         return $this;
     }
 
     /**
-     * Sets the native watermark font name.
+     * Sets the watermark font name.
      */
-    public function nativeWatermarkFontName(string $name): self
+    public function nativeWatermarkFont(string $font): static
     {
-        $this->formValue('nativeWatermarkFontName', $name);
+        $this->formValue('nativeWatermarkFont', $font);
 
         return $this;
     }
 
     /**
-     * Sets the native tiled watermark text.
+     * Sets the tiled watermark text LibreOffice draws on each page.
      */
-    public function nativeTiledWatermarkText(string $text): self
+    public function nativeTiledWatermarkText(string $text): static
     {
         $this->formValue('nativeTiledWatermarkText', $text);
 
@@ -520,233 +352,179 @@ class LibreOffice
     }
 
     /**
-     * Sets the PDF/A format of the resulting PDF.
+     * Exports PDF/A: "PDF/A-1b", "PDF/A-2b", "PDF/A-3b" or "PDF/A-4". The
+     * remediate stage reaches the other PDF/A levels.
      */
-    public function pdfa(string $format): self
+    public function nativePdfa(string $profile): static
     {
-        $this->formValue('pdfa', $format);
+        $this->formValue('nativePdfa', $profile);
 
         return $this;
     }
 
     /**
-     * Enables PDF for Universal Access for optimal accessibility.
+     * Exports PDF/UA: "PDF/UA-1".
      */
-    public function pdfua(): self
+    public function nativePdfua(string $profile): static
     {
-        $this->formValue('pdfua', true);
+        $this->formValue('nativePdfua', $profile);
 
         return $this;
     }
 
     /**
-     * Generates a tagged (accessible) PDF without declaring PDF/UA
-     * conformance. PDF/UA implies it.
+     * Generates a tagged (accessible) PDF without declaring PDF/UA conformance.
      */
-    public function generateTaggedPdf(): self
+    public function nativeTaggedPdf(): static
     {
-        $this->formValue('generateTaggedPdf', true);
+        $this->formValue('nativeTaggedPdf', true);
 
         return $this;
     }
 
     /**
-     * Sets the metadata to write.
-     *
-     * @param array<string,string|bool|float|int|array<string>> $metadata
-     *
-     * @throws NativeFunctionErrored
+     * Specifies how the document shall be displayed when opened: "default",
+     * "outline" or "thumbnails".
      */
-    public function metadata(array $metadata): self
+    public function initialView(string $view): static
     {
-        $json = json_encode($metadata);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->formValue('metadata', $json);
+        $this->formValue('initialView', $view);
 
         return $this;
     }
 
     /**
-     * Merges the resulting PDFs.
+     * Specifies the page on which the document opens in the viewer.
      */
-    public function merge(): self
+    public function initialPage(int $page): static
     {
-        $this->merge = true;
-        $this->formValue('merge', true);
+        $this->formValue('initialPage', $page);
 
         return $this;
     }
 
     /**
-     * Splits the resulting PDFs.
+     * Specifies the magnification when the document opens: "default",
+     * "fitVisible", "fitWidth", "fitPage" or "fitActualSize".
      */
-    public function split(SplitMode $mode): self
+    public function magnification(string $magnification): static
     {
-        $this->formValue('splitMode', $mode->mode);
-        $this->formValue('splitSpan', $mode->span);
-        $this->formValue('splitUnify', $mode->unify ?: '0');
+        $this->formValue('magnification', $magnification);
 
         return $this;
     }
 
     /**
-     * Defines whether the resulting PDF should be flattened.
+     * Specifies the zoom when the document opens, with the magnification
+     * "fitActualSize".
      */
-    public function flatten(): self
+    public function zoom(int $zoom): static
     {
-        $this->formValue('flatten', true);
+        $this->formValue('zoom', $zoom);
 
         return $this;
     }
 
     /**
-     * Defines whether the resulting PDF should be encrypted.
+     * Specifies the page layout when the document opens: "default",
+     * "singlePage", "continuous" or "continuousFacing".
      */
-    public function encrypt(string $userPassword, string $ownerPassword = ''): self
+    public function pageLayout(string $layout): static
     {
-        $this->formValue('userPassword', $userPassword);
-        $this->formValue('ownerPassword', $ownerPassword);
+        $this->formValue('pageLayout', $layout);
 
         return $this;
     }
 
     /**
-     * Specifies whether printing the resulting PDF is allowed.
-     * Note: restricting any permission requires a userPassword or ownerPassword.
+     * Specifies how many bookmark levels the viewer opens; -1 opens them all.
      */
-    public function allowPrinting(bool $allow = true): self
+    public function openBookmarkLevels(int $levels): static
     {
-        $this->formValue('allowPrinting', $allow ?: '0');
+        $this->formValue('openBookmarkLevels', $levels);
 
         return $this;
     }
 
     /**
-     * Specifies whether copying text and graphics from the resulting PDF is
-     * allowed.
-     * Note: restricting any permission requires a userPassword or ownerPassword.
+     * Resizes the viewer window to fit the first page.
      */
-    public function allowCopying(bool $allow = true): self
+    public function resizeWindowToInitialPage(): static
     {
-        $this->formValue('allowCopying', $allow ?: '0');
+        $this->formValue('resizeWindowToInitialPage', true);
 
         return $this;
     }
 
     /**
-     * Specifies whether modifying the resulting PDF is allowed.
-     * Note: restricting any permission requires a userPassword or ownerPassword.
+     * Centers the viewer window on the screen.
      */
-    public function allowModifying(bool $allow = true): self
+    public function centerWindow(): static
     {
-        $this->formValue('allowModifying', $allow ?: '0');
+        $this->formValue('centerWindow', true);
 
         return $this;
     }
 
     /**
-     * Specifies whether adding or modifying annotations in the resulting PDF is
-     * allowed.
-     * Note: restricting any permission requires a userPassword or ownerPassword.
+     * Opens the document in full-screen mode.
      */
-    public function allowAnnotating(bool $allow = true): self
+    public function openInFullScreenMode(): static
     {
-        $this->formValue('allowAnnotating', $allow ?: '0');
+        $this->formValue('openInFullScreenMode', true);
 
         return $this;
     }
 
     /**
-     * Specifies whether filling interactive form fields in the resulting PDF is
-     * allowed.
-     * Note: restricting any permission requires a userPassword or ownerPassword.
+     * Specifies whether the viewer's title bar shows the document title instead
+     * of the file name.
      */
-    public function allowFillingForms(bool $allow = true): self
+    public function displayPDFDocumentTitle(bool $display = true): static
     {
-        $this->formValue('allowFillingForms', $allow ?: '0');
+        $this->formValue('displayPDFDocumentTitle', $display);
 
         return $this;
     }
 
     /**
-     * Specifies whether assembling the resulting PDF (insert, rotate, or delete
-     * pages and create bookmarks or thumbnails) is allowed.
-     * Note: restricting any permission requires a userPassword or ownerPassword.
+     * Hides the viewer's menu bar.
      */
-    public function allowAssembling(bool $allow = true): self
+    public function hideViewerMenubar(): static
     {
-        $this->formValue('allowAssembling', $allow ?: '0');
+        $this->formValue('hideViewerMenubar', true);
 
         return $this;
     }
 
     /**
-     * Configures the embedding of a Factur-X / ZUGFeRD invoice XML into the
-     * resulting PDF. Requires a PDF/A-3 variant (set via the pdfa method).
+     * Hides the viewer's toolbar.
      */
-    public function facturX(FacturX $facturx): self
+    public function hideViewerToolbar(): static
     {
-        $this->formFile($facturx->xml->getFilename(), $facturx->xml->getStream(), 'facturxXml');
-        $this->formValue('facturxConformanceLevel', $facturx->conformanceLevel);
-        $this->formValue('facturxDocumentType', $facturx->documentType);
-        $this->formValue('facturxVersion', $facturx->version);
+        $this->formValue('hideViewerToolbar', true);
 
         return $this;
     }
 
     /**
-     * Sets the file to embed in the resulting PDF.
+     * Hides the viewer's window controls.
      */
-    public function embeds(Stream ...$embeds): self
+    public function hideViewerWindowControls(): static
     {
-        foreach ($embeds as $embed) {
-            $this->formFile($embed->getFilename(), $embed->getStream(), 'embeds');
-        }
+        $this->formValue('hideViewerWindowControls', true);
 
         return $this;
     }
 
     /**
-     * Sets metadata on embedded files in the resulting PDF, required for
-     * Factur-X / ZUGFeRD compliance.
-     *
-     * @throws NativeFunctionErrored
-     */
-    public function embedsMetadata(EmbedMetadata ...$metadata): self
-    {
-        $map = [];
-        foreach ($metadata as $entry) {
-            $map[$entry->filename] = $entry;
-        }
-
-        $json = json_encode($map);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->formValue('embedsMetadata', $json);
-
-        return $this;
-    }
-
-    /**
-     * Converts the given document(s) to PDF(s). Gotenberg will return either
-     * a unique PDF if you request a merge or a ZIP archive with the PDFs.
-     *
-     * Note: if you requested a merge, the merging order is determined by the
-     * order of the arguments.
+     * Converts the given documents to PDFs. Gotenberg returns one PDF per
+     * document, in a ZIP archive when there are several, unless a merge stage
+     * joins them in the order of the arguments.
      */
     public function convert(Stream ...$files): RequestInterface
     {
-        $index = $this->index ?? new HrtimeIndex();
-        foreach ($files as $file) {
-            $filename = $this->merge ? $index->create() . '_' . $file->getFilename() : $file->getFilename();
-            $this->formFile($filename, $file->getStream());
-        }
-
+        $this->inputFiles(...$files);
         $this->endpoint = '/forms/libreoffice/convert';
 
         return $this->request();

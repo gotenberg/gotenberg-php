@@ -9,21 +9,22 @@ use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Exceptions\NoOutputFileInResponse;
 use Gotenberg\Modules\Chromium;
 use Gotenberg\Modules\LibreOffice;
-use Gotenberg\Modules\PdfEngines;
+use Gotenberg\Modules\Pdf;
 use Http\Discovery\Psr18ClientDiscovery;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-use function count;
+use function basename;
 use function fclose;
 use function fopen;
 use function fwrite;
 use function preg_match;
+use function rawurldecode;
 
 use const DIRECTORY_SEPARATOR;
 
-class Gotenberg
+final class Gotenberg
 {
     public static function chromium(string $baseUrl): Chromium
     {
@@ -35,20 +36,20 @@ class Gotenberg
         return new LibreOffice($baseUrl);
     }
 
-    public static function pdfEngines(string $baseUrl): PdfEngines
+    public static function pdf(string $baseUrl): Pdf
     {
-        return new PdfEngines($baseUrl);
+        return new Pdf($baseUrl);
     }
 
     /**
      * Sends a request to Gotenberg and throws an exception if the status code
-     * is not 200.
+     * is not 2xx.
      *
      * @throws GotenbergApiErrored
      */
     public static function send(RequestInterface $request, ClientInterface|null $client = null): ResponseInterface
     {
-        $client   = $client ?: Psr18ClientDiscovery::find();
+        $client ??= Psr18ClientDiscovery::find();
         $response = $client->sendRequest($request);
 
         if ($response->getStatusCode() < 200 || $response->getStatusCode() > 299) {
@@ -69,26 +70,9 @@ class Gotenberg
     public static function save(RequestInterface $request, string $dirPath, ClientInterface|null $client = null): string
     {
         $response = self::send($request, $client);
+        $filename = self::filename($response->getHeaderLine('Content-Disposition'));
 
-        $contentDisposition = $response->getHeader('Content-Disposition');
-        if (count($contentDisposition) === 0) {
-            throw new NoOutputFileInResponse();
-        }
-
-        $filename = false;
-        foreach ($contentDisposition as $value) {
-            if (preg_match('/filename="(.+?)"/', $value, $matches)) {
-                $filename = $matches[1];
-                break;
-            }
-
-            if (preg_match('/filename=([^; ]+)/', $value, $matches)) {
-                $filename = $matches[1];
-                break;
-            }
-        }
-
-        if ($filename === false) {
+        if ($filename === null) {
             throw new NoOutputFileInResponse();
         }
 
@@ -97,8 +81,13 @@ class Gotenberg
             throw NativeFunctionErrored::createFromLastPhpError();
         }
 
-        if (fwrite($file, $response->getBody()->getContents()) === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
+        $body = $response->getBody();
+        while (! $body->eof()) {
+            if (fwrite($file, $body->read(8192)) === false) {
+                fclose($file);
+
+                throw NativeFunctionErrored::createFromLastPhpError();
+            }
         }
 
         if (fclose($file) === false) {
@@ -106,5 +95,27 @@ class Gotenberg
         }
 
         return $filename;
+    }
+
+    /**
+     * Returns the file name a Content-Disposition header carries, preferring
+     * the RFC 6266 filename* parameter over its ASCII fallback. The name loses
+     * any directory part, so that it cannot escape the saving directory.
+     */
+    private static function filename(string $contentDisposition): string|null
+    {
+        if (preg_match("/filename\*=UTF-8''([^;\s]+)/i", $contentDisposition, $matches)) {
+            $filename = rawurldecode($matches[1]);
+        } elseif (preg_match('/filename="(.+?)"/', $contentDisposition, $matches)) {
+            $filename = $matches[1];
+        } elseif (preg_match('/filename=([^;\s]+)/', $contentDisposition, $matches)) {
+            $filename = $matches[1];
+        } else {
+            return null;
+        }
+
+        $filename = basename($filename);
+
+        return $filename === '' || $filename === '.' || $filename === '..' ? null : $filename;
     }
 }

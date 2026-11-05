@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace Gotenberg;
 
-use Gotenberg\Exceptions\NativeFunctionErrored;
 use GuzzleHttp\Psr7\MultipartStream;
-use Http\Discovery\Psr17FactoryDiscovery;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\StreamInterface;
 
-use function count;
+use function is_bool;
 use function json_encode;
+
+use const JSON_THROW_ON_ERROR;
 
 trait MultipartFormDataModule
 {
-    use ApiModule;
+    use ApiModule {
+        request as private apiRequest;
+    }
 
-    /** @var array<array<string,mixed>> */
+    /** @var list<array{name: string, contents: mixed, filename?: string}> */
     private array $multipartFormData = [];
 
     /**
@@ -25,7 +26,7 @@ trait MultipartFormDataModule
      * Note: Gotenberg adds the file extension automatically; you don't have to
      * set it.
      */
-    public function outputFilename(string $filename): self
+    public function outputFilename(string $filename): static
     {
         $this->headers['Gotenberg-Output-Filename'] = $filename;
 
@@ -33,50 +34,48 @@ trait MultipartFormDataModule
     }
 
     /**
-     * Sets the URLs to download files from.
-     *
-     * @param DownloadFrom[] $downloadFrom
-     *
-     * @throws NativeFunctionErrored
+     * Sets the URLs Gotenberg downloads files from, as if you had uploaded
+     * them.
      */
-    public function downloadFrom(array $downloadFrom): self
+    public function downloadFrom(DownloadFrom ...$downloadFrom): static
     {
-        $json = json_encode($downloadFrom);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->formValue('downloadFrom', $json);
+        $this->formValue('downloadFrom', json_encode($downloadFrom, JSON_THROW_ON_ERROR));
 
         return $this;
     }
 
     /**
-     * Sets the callback and error callback that Gotenberg will use to send
-     * respectively the output file and the error response.
-     *
-     * @param string $errorUrl Deprecated: use webhookEventsUrl() instead.
-     *                         If Gotenberg-Webhook-Events-Url is set, this
-     *                         parameter is not required.
+     * Adds ZIP archives that Gotenberg unpacks: each entry counts as an
+     * uploaded file.
      */
-    public function webhook(string $url, string $errorUrl = ''): self
+    public function archives(Stream ...$archives): static
     {
-        $this->headers['Gotenberg-Webhook-Url'] = $url;
-
-        if ($errorUrl !== '') {
-            $this->headers['Gotenberg-Webhook-Error-Url'] = $errorUrl;
+        foreach ($archives as $archive) {
+            $this->formFile($archive, 'archives');
         }
 
         return $this;
     }
 
     /**
-     * Overrides the default HTTP method that Gotenberg will use to call the
-     * webhook.
+     * Uploads the result to $url instead of returning it, then sends a
+     * webhook.success or webhook.error event to $eventsUrl.
+     */
+    public function webhook(string $url, string $eventsUrl): static
+    {
+        $this->headers['Gotenberg-Webhook-Url']        = $url;
+        $this->headers['Gotenberg-Webhook-Events-Url'] = $eventsUrl;
+
+        return $this;
+    }
+
+    /**
+     * Overrides the default HTTP method that Gotenberg uses to upload the
+     * result to the webhook.
      *
      * Either "POST", "PATCH", or "PUT" - default "POST".
      */
-    public function webhookMethod(string $method): self
+    public function webhookMethod(string $method): static
     {
         $this->headers['Gotenberg-Webhook-Method'] = $method;
 
@@ -84,166 +83,36 @@ trait MultipartFormDataModule
     }
 
     /**
-     * Overrides the default HTTP method that Gotenberg will use to call the
-     * error webhook.
-     *
-     * Either "POST", "PATCH", or "PUT" - default "POST".
-     *
-     * @deprecated Use webhookEventsUrl() instead.
-     */
-    public function webhookErrorMethod(string $method): self
-    {
-        $this->headers['Gotenberg-Webhook-Error-Method'] = $method;
-
-        return $this;
-    }
-
-    /**
-     * Sets the extra HTTP headers that Gotenberg will send alongside the
-     * request to the webhook and error webhook.
+     * Sets the extra HTTP headers that Gotenberg sends alongside the upload
+     * and the event.
      *
      * @param array<string,string> $headers
-     *
-     * @throws NativeFunctionErrored
      */
-    public function webhookExtraHttpHeaders(array $headers): self
+    public function webhookExtraHttpHeaders(array $headers): static
     {
-        $json = json_encode($headers);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
+        $this->headers['Gotenberg-Webhook-Extra-Http-Headers'] = json_encode($headers, JSON_THROW_ON_ERROR);
+
+        return $this;
+    }
+
+    protected function formValue(string $name, string|int|float|bool $value): void
+    {
+        if (is_bool($value)) {
+            $value = $value ? 'true' : 'false';
         }
 
-        $this->headers['Gotenberg-Webhook-Extra-Http-Headers'] = $json;
-
-        return $this;
-    }
-
-    /**
-     * Sets the URL that Gotenberg will use to send webhook event
-     * notifications (e.g., success/error events after webhook delivery).
-     */
-    public function webhookEventsUrl(string $url): self
-    {
-        $this->headers['Gotenberg-Webhook-Events-Url'] = $url;
-
-        return $this;
-    }
-
-    /**
-     * Configures watermarking on the resulting PDF(s). Call it once per
-     * watermark; watermarks are applied in the order they are added. Every field
-     * is sent for each watermark so the entries stay aligned by position.
-     * Provide $file for an "image" or "pdf" source.
-     *
-     * @param array<string,mixed> $options
-     *
-     * @throws NativeFunctionErrored
-     */
-    public function watermarking(string $source, string $expression = '', string $pages = '', array $options = [], Stream|null $file = null): self
-    {
-        $json = '';
-        if (count($options) > 0) {
-            $json = json_encode($options);
-            if ($json === false) {
-                throw NativeFunctionErrored::createFromLastPhpError();
-            }
-        }
-
-        $this->formValue('watermarkSource', $source);
-        $this->formValue('watermarkExpression', $expression);
-        $this->formValue('watermarkPages', $pages);
-        $this->formValue('watermarkOptions', $json);
-
-        if ($file !== null) {
-            $this->formFile($file->getFilename(), $file->getStream(), 'watermark');
-        }
-
-        return $this;
-    }
-
-    /**
-     * Adds watermark file.
-     */
-    public function watermarkFile(Stream $file): self
-    {
-        $this->formFile($file->getFilename(), $file->getStream(), 'watermark');
-
-        return $this;
-    }
-
-    /**
-     * Configures stamping on the resulting PDF(s). Call it once per stamp;
-     * stamps are applied in the order they are added. Every field is sent for
-     * each stamp so the entries stay aligned by position. Provide $file for an
-     * "image" or "pdf" source.
-     *
-     * @param array<string,mixed> $options
-     *
-     * @throws NativeFunctionErrored
-     */
-    public function stamping(string $source, string $expression = '', string $pages = '', array $options = [], Stream|null $file = null): self
-    {
-        $json = '';
-        if (count($options) > 0) {
-            $json = json_encode($options);
-            if ($json === false) {
-                throw NativeFunctionErrored::createFromLastPhpError();
-            }
-        }
-
-        $this->formValue('stampSource', $source);
-        $this->formValue('stampExpression', $expression);
-        $this->formValue('stampPages', $pages);
-        $this->formValue('stampOptions', $json);
-
-        if ($file !== null) {
-            $this->formFile($file->getFilename(), $file->getStream(), 'stamp');
-        }
-
-        return $this;
-    }
-
-    /**
-     * Adds stamp file.
-     */
-    public function stampFile(Stream $file): self
-    {
-        $this->formFile($file->getFilename(), $file->getStream(), 'stamp');
-
-        return $this;
-    }
-
-    /**
-     * Configures rotation on the resulting PDF(s).
-     * Only non-empty values are set.
-     */
-    public function rotating(int $angle, string $pages = ''): self
-    {
-        $this->formValue('rotateAngle', $angle);
-
-        if ($pages !== '') {
-            $this->formValue('rotatePages', $pages);
-        }
-
-        return $this;
-    }
-
-    protected function formValue(string $name, mixed $value): self
-    {
         $this->multipartFormData[] = [
             'name' => $name,
-            'contents' => $value,
+            'contents' => (string) $value,
         ];
-
-        return $this;
     }
 
-    protected function formFile(string $filename, StreamInterface $stream, string $name = 'files'): void
+    protected function formFile(Stream $file, string $name = 'files', string|null $filename = null): void
     {
         $this->multipartFormData[] = [
             'name' => $name,
-            'filename' => $filename,
-            'contents' => $stream,
+            'filename' => $filename ?? $file->filename,
+            'contents' => $file->stream,
         ];
     }
 
@@ -251,15 +120,8 @@ trait MultipartFormDataModule
     {
         $body = new MultipartStream($this->multipartFormData);
 
-        $request = Psr17FactoryDiscovery::findRequestFactory()
-            ->createRequest($method, $this->url . $this->endpoint)
+        return $this->apiRequest($method)
             ->withHeader('Content-Type', 'multipart/form-data; boundary="' . $body->getBoundary() . '"')
             ->withBody($body);
-
-        foreach ($this->headers as $key => $value) {
-            $request = $request->withHeader($key, $value);
-        }
-
-        return $request;
     }
 }

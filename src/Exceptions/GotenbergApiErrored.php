@@ -25,12 +25,6 @@ final class GotenbergApiErrored extends Exception
         return $this->response->getHeaderLine($header);
     }
 
-    /** @deprecated Use getCorrelationId() instead. */
-    public function getGotenbergTrace(string $header = 'Gotenberg-Trace'): string
-    {
-        return $this->getCorrelationId($header);
-    }
-
     public function getResponse(): ResponseInterface
     {
         return $this->response;

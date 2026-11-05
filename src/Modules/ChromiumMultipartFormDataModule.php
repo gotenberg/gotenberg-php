@@ -4,21 +4,23 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
-use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\MultipartFormDataModule;
 use Gotenberg\Stream;
+use Psr\Http\Message\RequestInterface;
 
+use function array_values;
 use function json_encode;
+
+use const JSON_THROW_ON_ERROR;
 
 trait ChromiumMultipartFormDataModule
 {
     use MultipartFormDataModule;
 
     /**
-     * Hides default white background and allows generating PDFs with
-     * transparency.
+     * Hides the default white background and allows transparency.
      */
-    public function omitBackground(): self
+    public function omitBackground(): static
     {
         $this->formValue('omitBackground', true);
 
@@ -26,10 +28,10 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
-     * Sets the duration (i.e., "1s", "2ms", etc.) to wait when loading an HTML
-     * document before converting it to PDF.
+     * Sets the duration (i.e., "1s", "2ms", etc.) to wait when loading the
+     * page before converting it.
      */
-    public function waitDelay(string $delay): self
+    public function waitDelay(string $delay): static
     {
         $this->formValue('waitDelay', $delay);
 
@@ -37,12 +39,12 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
-     * Sets the JavaScript expression to wait before converting an HTML
-     * document to PDF until it returns true.
+     * Sets the JavaScript expression to wait for before converting the page,
+     * until it returns true.
      *
      * For instance: "window.status === 'ready'".
      */
-    public function waitForExpression(string $expression): self
+    public function waitForExpression(string $expression): static
     {
         $this->formValue('waitForExpression', $expression);
 
@@ -50,10 +52,10 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
-     * Sets the selector (e.g. '#id') to query before converting an HTML
-     * document into PDF until it matches a node.
+     * Sets the selector (e.g. '#id') to query before converting the page,
+     * until it matches a node.
      */
-    public function waitForSelector(string $selector): self
+    public function waitForSelector(string $selector): static
     {
         $this->formValue('waitForSelector', $selector);
 
@@ -61,9 +63,20 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
+     * Waits until window.status equals the given value before converting the
+     * page.
+     */
+    public function waitForWindowStatus(string $status): static
+    {
+        $this->formValue('waitForWindowStatus', $status);
+
+        return $this;
+    }
+
+    /**
      * Forces Chromium to emulate the media type "print".
      */
-    public function emulatePrintMediaType(): self
+    public function emulatePrintMediaType(): static
     {
         $this->formValue('emulatedMediaType', 'print');
 
@@ -73,7 +86,7 @@ trait ChromiumMultipartFormDataModule
     /**
      * Forces Chromium to emulate the media type "screen".
      */
-    public function emulateScreenMediaType(): self
+    public function emulateScreenMediaType(): static
     {
         $this->formValue('emulatedMediaType', 'screen');
 
@@ -81,39 +94,24 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
-     * Simulates specific browser conditions by overriding CSS media features
+     * Overrides CSS media features, such as
+     * ['prefers-color-scheme' => 'dark'].
      *
-     * @param ChromiumEmulatedMediaFeatures[] $features
-     *
-     * @throws NativeFunctionErrored
+     * @param array<string,string> $features
      */
-    public function emulatedMediaFeatures(array $features): self
+    public function emulatedMediaFeatures(array $features): static
     {
-        $json = json_encode($features);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->formValue('emulatedMediaFeatures', $json);
+        $this->formValue('emulatedMediaFeatures', json_encode($features, JSON_THROW_ON_ERROR));
 
         return $this;
     }
 
     /**
      * Cookies to store in the Chromium cookie jar.
-     *
-     * @param ChromiumCookie[] $cookies
-     *
-     * @throws NativeFunctionErrored
      */
-    public function cookies(array $cookies): self
+    public function cookies(ChromiumCookie ...$cookies): static
     {
-        $json = json_encode($cookies);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->formValue('cookies', $json);
+        $this->formValue('cookies', json_encode(array_values($cookies), JSON_THROW_ON_ERROR));
 
         return $this;
     }
@@ -121,7 +119,7 @@ trait ChromiumMultipartFormDataModule
     /**
      * Overrides the default 'User-Agent' HTTP header.
      */
-    public function userAgent(string $userAgent): self
+    public function userAgent(string $userAgent): static
     {
         $this->formValue('userAgent', $userAgent);
 
@@ -129,21 +127,13 @@ trait ChromiumMultipartFormDataModule
     }
 
     /**
-     * Sets extra HTTP headers that Chromium will send when loading the HTML
-     * document.
+     * Sets extra HTTP headers that Chromium sends when loading the page.
      *
      * @param array<string,string> $headers
-     *
-     * @throws NativeFunctionErrored
      */
-    public function extraHttpHeaders(array $headers): self
+    public function extraHttpHeaders(array $headers): static
     {
-        $json = json_encode($headers);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->formValue('extraHttpHeaders', $json);
+        $this->formValue('extraHttpHeaders', json_encode($headers, JSON_THROW_ON_ERROR));
 
         return $this;
     }
@@ -151,19 +141,10 @@ trait ChromiumMultipartFormDataModule
     /**
      * Forces Gotenberg to return a 409 Conflict response if the HTTP status
      * code from the main page is not acceptable.
-     *
-     * @param int[] $statusCodes
-     *
-     * @throws NativeFunctionErrored
      */
-    public function failOnHttpStatusCodes(array $statusCodes): self
+    public function failOnHttpStatusCodes(int ...$statusCodes): static
     {
-        $json = json_encode($statusCodes);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->formValue('failOnHttpStatusCodes', $json);
+        $this->formValue('failOnHttpStatusCodes', json_encode(array_values($statusCodes), JSON_THROW_ON_ERROR));
 
         return $this;
     }
@@ -171,39 +152,21 @@ trait ChromiumMultipartFormDataModule
     /**
      * Forces Gotenberg to return a 409 Conflict response if the HTTP status
      * code from at least one resource is not acceptable.
-     *
-     * @param int[] $statusCodes
-     *
-     * @throws NativeFunctionErrored
      */
-    public function failOnResourceHttpStatusCodes(array $statusCodes): self
+    public function failOnResourceHttpStatusCodes(int ...$statusCodes): static
     {
-        $json = json_encode($statusCodes);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->formValue('failOnResourceHttpStatusCodes', $json);
+        $this->formValue('failOnResourceHttpStatusCodes', json_encode(array_values($statusCodes), JSON_THROW_ON_ERROR));
 
         return $this;
     }
 
-     /**
-      * Excludes resources from "failOnResourceHttpStatusCodes" checks based on
-      * their hostname.
-      *
-      * @param string[] $domains
-      *
-      * @throws NativeFunctionErrored
-      */
-    public function ignoreResourceHttpStatusDomains(array $domains): self
+    /**
+     * Excludes resources from failOnResourceHttpStatusCodes checks based on
+     * their hostname.
+     */
+    public function ignoreResourceHttpStatusDomains(string ...$domains): static
     {
-        $json = json_encode($domains);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->formValue('ignoreResourceHttpStatusDomains', $json);
+        $this->formValue('ignoreResourceHttpStatusDomains', json_encode(array_values($domains), JSON_THROW_ON_ERROR));
 
         return $this;
     }
@@ -212,7 +175,7 @@ trait ChromiumMultipartFormDataModule
      * Forces Gotenberg to return a 409 Conflict if Chromium fails to load at
      * least one resource.
      */
-    public function failOnResourceLoadingFailed(): self
+    public function failOnResourceLoadingFailed(): static
     {
         $this->formValue('failOnResourceLoadingFailed', true);
 
@@ -223,7 +186,7 @@ trait ChromiumMultipartFormDataModule
      * Forces Gotenberg to return a 409 Conflict response if there are
      * exceptions in the Chromium console.
      */
-    public function failOnConsoleExceptions(): self
+    public function failOnConsoleExceptions(): static
     {
         $this->formValue('failOnConsoleExceptions', true);
 
@@ -234,41 +197,32 @@ trait ChromiumMultipartFormDataModule
      * Forces Gotenberg to return a 409 Conflict response if the Chromium
      * console logs messages of the given types (log, debug, info, warning,
      * error, assert).
-     *
-     * @param string[] $types
-     *
-     * @throws NativeFunctionErrored
      */
-    public function failOnConsoleMessageTypes(array $types): self
+    public function failOnConsoleMessageTypes(string ...$types): static
     {
-        $json = json_encode($types);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->formValue('failOnConsoleMessageTypes', $json);
+        $this->formValue('failOnConsoleMessageTypes', json_encode(array_values($types), JSON_THROW_ON_ERROR));
 
         return $this;
     }
 
     /**
-     * Specifies whether Chromium have to wait or not for its network to be
+     * Specifies whether Chromium skips waiting for its network to be idle.
+     * Pass false for pages that fetch content after they load.
+     */
+    public function skipNetworkIdleEvent(bool $skip = true): static
+    {
+        $this->formValue('skipNetworkIdleEvent', $skip);
+
+        return $this;
+    }
+
+    /**
+     * Specifies whether Chromium skips waiting for its network to be almost
      * idle.
      */
-    public function skipNetworkIdleEvent(bool $skip = true): self
+    public function skipNetworkAlmostIdleEvent(bool $skip = true): static
     {
-        $this->formValue('skipNetworkIdleEvent', $skip ?: '0');
-
-        return $this;
-    }
-
-    /**
-     * Specifies whether Chromium have to wait or not for its network to be
-     * almost idle.
-     */
-    public function skipNetworkAlmostIdleEvent(bool $skip = true): self
-    {
-        $this->formValue('skipNetworkAlmostIdleEvent', $skip ?: '0');
+        $this->formValue('skipNetworkAlmostIdleEvent', $skip);
 
         return $this;
     }
@@ -276,12 +230,59 @@ trait ChromiumMultipartFormDataModule
     /**
      * Sets the additional files, like images, fonts, stylesheets, and so on.
      */
-    public function assets(Stream ...$assets): self
+    public function assets(Stream ...$assets): static
     {
         foreach ($assets as $asset) {
-            $this->formFile($asset->getFilename(), $asset->getStream());
+            $this->formFile($asset);
         }
 
         return $this;
     }
+
+    /**
+     * Converts a target URL.
+     */
+    public function url(string $url): RequestInterface
+    {
+        $this->formValue('url', $url);
+
+        return $this->route('url');
+    }
+
+    /**
+     * Converts an HTML document.
+     *
+     * Note: it automatically sets the index filename to "index.html", as
+     * required by Gotenberg. Pass null when an archive or downloadFrom
+     * provides it.
+     */
+    public function html(Stream|null $index): RequestInterface
+    {
+        if ($index !== null) {
+            $this->formFile($index, filename: 'index.html');
+        }
+
+        return $this->route('html');
+    }
+
+    /**
+     * Converts one or more markdown files.
+     *
+     * Note: it automatically sets the index filename to "index.html", as
+     * required by Gotenberg.
+     */
+    public function markdown(Stream|null $index, Stream ...$markdowns): RequestInterface
+    {
+        if ($index !== null) {
+            $this->formFile($index, filename: 'index.html');
+        }
+
+        foreach ($markdowns as $markdown) {
+            $this->formFile($markdown);
+        }
+
+        return $this->route('markdown');
+    }
+
+    abstract private function route(string $source): RequestInterface;
 }

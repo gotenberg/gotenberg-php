@@ -6,9 +6,8 @@ namespace Gotenberg;
 
 use Http\Discovery\Psr17FactoryDiscovery;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\StreamInterface;
 
-use function mb_substr;
+use function rtrim;
 
 trait ApiModule
 {
@@ -19,46 +18,26 @@ trait ApiModule
 
     public function __construct(string $baseUrl)
     {
-        if (mb_substr($baseUrl, -1) === '/') {
-            // We remove the trailing slash as the endpoints start with a slash.
-            $this->url = mb_substr($baseUrl, 0, -1);
-
-            return;
-        }
-
-        $this->url = $baseUrl;
+        // The endpoints start with a slash.
+        $this->url = rtrim($baseUrl, '/');
     }
 
     /**
      * Overrides the default UUID correlation ID that identifies a request in
-     * Gotenberg's logs.
+     * Gotenberg's logs. Set $header if Gotenberg runs with a custom
+     * --api-correlation-id-header.
      */
-    public function correlationId(string $correlationId, string $header = 'Gotenberg-Trace'): self
+    public function correlationId(string $correlationId, string $header = 'Gotenberg-Trace'): static
     {
         $this->headers[$header] = $correlationId;
 
         return $this;
     }
 
-    /**
-     * Overrides the default UUID trace, or request ID, that identifies a
-     * request in Gotenberg's logs.
-     *
-     * @deprecated Use correlationId() instead.
-     */
-    public function trace(string $trace, string $header = 'Gotenberg-Trace'): self
-    {
-        return $this->correlationId($trace, $header);
-    }
-
-    protected function request(string $method, StreamInterface|null $body = null): RequestInterface
+    protected function request(string $method = 'GET'): RequestInterface
     {
         $request = Psr17FactoryDiscovery::findRequestFactory()
             ->createRequest($method, $this->url . $this->endpoint);
-
-        if ($body !== null) {
-            $request->withBody($body);
-        }
 
         foreach ($this->headers as $key => $value) {
             $request = $request->withHeader($key, $value);

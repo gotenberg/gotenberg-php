@@ -13,6 +13,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
+use function file_get_contents;
 use function sys_get_temp_dir;
 use function unlink;
 
@@ -26,9 +27,7 @@ final class GotenbergTest extends TestCase
         $response = new Response(200, ['Gotenberg-Trace' => 'debug']);
         $client   = new DummyClient($response);
 
-        $response = Gotenberg::send(new Request('POST', 'https://my.url'), $client);
-
-        $this->assertNotNull($response);
+        $this->assertSame($response, Gotenberg::send(new Request('POST', 'https://my.url'), $client));
     }
 
     #[Test]
@@ -59,19 +58,30 @@ final class GotenbergTest extends TestCase
     }
 
     #[Test]
-    public function it_saves_the_output_file(): void
+    #[DataProvider('provideFilenameData')]
+    public function it_saves_the_output_file(string $contentDisposition, string $expectedFilename): void
     {
-        $response = new Response(200, ['Content-Disposition' => 'attachment; filename=my.pdf']);
+        $response = new Response(200, ['Content-Disposition' => $contentDisposition], 'PDF content');
         $client   = new DummyClient($response);
 
         $tempDir  = sys_get_temp_dir();
         $filename = Gotenberg::save(new Request('POST', 'https://my.url'), $tempDir, $client);
+        $filePath = $tempDir . DIRECTORY_SEPARATOR . $expectedFilename;
 
-        $filePath = $tempDir . DIRECTORY_SEPARATOR . 'my.pdf';
-
-        // verify file exists and delete it
+        $this->assertSame($expectedFilename, $filename);
+        $this->assertSame('PDF content', file_get_contents($filePath));
         $this->assertTrue(unlink($filePath));
-        $this->assertSame('my.pdf', $filename);
+    }
+
+    /** @return array<string, array{string, string}> */
+    public static function provideFilenameData(): array
+    {
+        return [
+            'unquoted'           => ['attachment; filename=my.pdf', 'my.pdf'],
+            'quoted'             => ['attachment; filename="my file.pdf"', 'my file.pdf'],
+            'rfc 6266 preferred' => ["attachment; filename=\"facture-ete.pdf\"; filename*=UTF-8''facture-%C3%A9t%C3%A9.pdf", 'facture-été.pdf'],
+            'directory dropped'  => ['attachment; filename="../../my.pdf"', 'my.pdf'],
+        ];
     }
 
     #[Test]
@@ -92,6 +102,7 @@ final class GotenbergTest extends TestCase
         return [
             'without content disposition' => [null],
             'with content disposition'    => ['no attachment'],
+            'with a dot dot filename'     => ['attachment; filename=..'],
         ];
     }
 }
