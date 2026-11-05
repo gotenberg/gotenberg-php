@@ -10,15 +10,14 @@ use Gotenberg\Exceptions\NoOutputFileInResponse;
 use Gotenberg\Modules\Chromium;
 use Gotenberg\Modules\LibreOffice;
 use Gotenberg\Modules\Pdf;
+use GuzzleHttp\Psr7\StreamWrapper;
 use Http\Discovery\Psr18ClientDiscovery;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 use function basename;
-use function fclose;
-use function fopen;
-use function fwrite;
+use function file_put_contents;
 use function preg_match;
 use function rawurldecode;
 
@@ -76,21 +75,8 @@ final class Gotenberg
             throw new NoOutputFileInResponse();
         }
 
-        $file = fopen($dirPath . DIRECTORY_SEPARATOR . $filename, 'w');
-        if ($file === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $body = $response->getBody();
-        while (! $body->eof()) {
-            if (fwrite($file, $body->read(8192)) === false) {
-                fclose($file);
-
-                throw NativeFunctionErrored::createFromLastPhpError();
-            }
-        }
-
-        if (fclose($file) === false) {
+        // Streams the body to disk in chunks, without loading it into memory.
+        if (file_put_contents($dirPath . DIRECTORY_SEPARATOR . $filename, StreamWrapper::getResource($response->getBody())) === false) {
             throw NativeFunctionErrored::createFromLastPhpError();
         }
 
