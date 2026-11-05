@@ -15,20 +15,12 @@ final class ApiModuleTest extends TestCase
         $dummy   = new DummyApiModule('https://my.url/');
         $request = $dummy
             ->correlationId('debug')
+            ->correlationId('debug', 'Request-Id')
             ->build();
 
         $this->assertSame('https://my.url', $dummy->getUrl());
+        $this->assertSame('https://my.url/foo', (string) $request->getUri());
         $this->assertSame(['debug'], $request->getHeader('Gotenberg-Trace'));
-    }
-
-    #[Test]
-    public function it_creates_a_valid_request_with_a_deprecated_trace_header(): void
-    {
-        $dummy   = new DummyApiModule('https://my.url/');
-        $request = $dummy
-            ->trace('debug')
-            ->build();
-
-        $this->assertSame(['debug'], $request->getHeader('Gotenberg-Trace'));
+        $this->assertSame(['debug'], $request->getHeader('Request-Id'));
     }
 }

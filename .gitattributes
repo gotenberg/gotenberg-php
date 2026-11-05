@@ -4,5 +4,5 @@
 /.gitignore                     export-ignore
 /Makefile                       export-ignore
 /phpcs.xml.dist                 export-ignore
-/phpstan.src.neon               export-ignore
+/phpstan.neon                   export-ignore
 /phpunit.xml                    export-ignore

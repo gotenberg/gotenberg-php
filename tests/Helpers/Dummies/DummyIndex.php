@@ -8,8 +8,10 @@ use Gotenberg\Index;
 
 final class DummyIndex implements Index
 {
+    private int $next = 0;
+
     public function create(): string
     {
-        return 'foo';
+        return (string) $this->next++;
     }
 }

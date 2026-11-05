@@ -4,23 +4,19 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
-use Gotenberg\EmbedMetadata;
-use Gotenberg\Exceptions\NativeFunctionErrored;
-use Gotenberg\FacturX;
-use Gotenberg\SplitMode;
+use Gotenberg\StagesModule;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
-
-use function json_encode;
 
 class ChromiumPdf
 {
     use ChromiumMultipartFormDataModule;
+    use StagesModule;
 
     /**
-     * Defines whether to print the entire content in one single page.
+     * Prints the entire content in one single page, as tall as the content.
      */
-    public function singlePage(): self
+    public function singlePage(): static
     {
         $this->formValue('singlePage', true);
 
@@ -28,36 +24,22 @@ class ChromiumPdf
     }
 
     /**
-     * Re-encodes the images of the resulting PDF to reduce its file size.
+     * Sets the paper size: "A3", "A4", "A5", "B4", "B5", "Letter" (default),
+     * "Legal" or "Tabloid". paperDimensions() overrides it.
      */
-    public function optimizeImages(int $quality = 80): self
+    public function paperSize(string $size): static
     {
-        $this->formValue('optimizeImages', true);
-        $this->formValue('imageQuality', $quality);
+        $this->formValue('paperSize', $size);
 
         return $this;
     }
 
     /**
-     * Overrides the default paper size, using various units such as 72pt,
+     * Overrides the paper width and height, using various units such as 72pt,
      * 96px, 1in, 25.4mm, 2.54cm, or 6pc. The default unit is inches when
      * not specified.
-     *
-     * Examples of paper size (width x height):
-     *
-     * Letter - 8.5 x 11 (default)
-     * Legal - 8.5 x 14
-     * Tabloid - 11 x 17
-     * Ledger - 17 x 11
-     * A0 - 33.1 x 46.8
-     * A1 - 23.4 x 33.1
-     * A2 - 16.54 x 23.4
-     * A3 - 11.7 x 16.54
-     * A4 - 8.27 x 11.7
-     * A5 - 5.83 x 8.27
-     * A6 - 4.13 x 5.83
      */
-    public function paperSize(float|string $width, float|string $height): self
+    public function paperDimensions(float|string $width, float|string $height): static
     {
         $this->formValue('paperWidth', $width);
         $this->formValue('paperHeight', $height);
@@ -70,7 +52,7 @@ class ChromiumPdf
      * 72pt, 96px, 1in, 25.4mm, 2.54cm, or 6pc. The default unit is inches when
      * not specified.
      */
-    public function margins(float|string $top, float|string $bottom, float|string $left, float|string $right): self
+    public function margins(float|string $top, float|string $bottom, float|string $left, float|string $right): static
     {
         $this->formValue('marginTop', $top);
         $this->formValue('marginBottom', $bottom);
@@ -83,7 +65,7 @@ class ChromiumPdf
     /**
      * Forces page size as defined by CSS.
      */
-    public function preferCssPageSize(): self
+    public function preferCssPageSize(): static
     {
         $this->formValue('preferCssPageSize', true);
 
@@ -91,21 +73,21 @@ class ChromiumPdf
     }
 
     /**
-     * Embeds the document outline into the PDF.
+     * Embeds the document outline, made from the headings, as bookmarks.
      */
-    public function generateDocumentOutline(): self
+    public function nativeBookmarks(): static
     {
-        $this->formValue('generateDocumentOutline', true);
+        $this->formValue('nativeBookmarks', true);
 
         return $this;
     }
 
     /**
-     * Generates tagged (accessible) PDF.
+     * Generates a tagged (accessible) PDF.
      */
-    public function generateTaggedPdf(): self
+    public function nativeTaggedPdf(): static
     {
-        $this->formValue('generateTaggedPdf', true);
+        $this->formValue('nativeTaggedPdf', true);
 
         return $this;
     }
@@ -113,7 +95,7 @@ class ChromiumPdf
     /**
      * Prints the background graphics.
      */
-    public function printBackground(): self
+    public function printBackground(): static
     {
         $this->formValue('printBackground', true);
 
@@ -123,7 +105,7 @@ class ChromiumPdf
     /**
      * Sets the paper orientation to landscape.
      */
-    public function landscape(): self
+    public function landscape(): static
     {
         $this->formValue('landscape', true);
 
@@ -133,7 +115,7 @@ class ChromiumPdf
     /**
      * Overrides the default scale of the page rendering (i.e., 1.0).
      */
-    public function scale(float $scale): self
+    public function scale(float $scale): static
     {
         $this->formValue('scale', $scale);
 
@@ -141,12 +123,12 @@ class ChromiumPdf
     }
 
     /**
-     * Set the page ranges to print, e.g., "1-5, 8, 11-13".
-     * Empty means all pages.
+     * Sets the pages to print, in Chromium's syntax, e.g., "1-5, 8, 11-13".
+     * The select stage picks pages after printing.
      */
-    public function nativePageRanges(string $ranges): self
+    public function nativePages(string $pages): static
     {
-        $this->formValue('nativePageRanges', $ranges);
+        $this->formValue('nativePages', $pages);
 
         return $this;
     }
@@ -157,9 +139,9 @@ class ChromiumPdf
      * Note: it automatically sets the filename to "header.html", as required
      * by Gotenberg.
      */
-    public function header(Stream $header): self
+    public function header(Stream $header): static
     {
-        $this->formFile('header.html', $header->getStream());
+        $this->formFile($header, filename: 'header.html');
 
         return $this;
     }
@@ -170,251 +152,16 @@ class ChromiumPdf
      * Note: it automatically sets the filename to "footer.html", as required
      * by Gotenberg.
      */
-    public function footer(Stream $footer): self
+    public function footer(Stream $footer): static
     {
-        $this->formFile('footer.html', $footer->getStream());
+        $this->formFile($footer, filename: 'footer.html');
 
         return $this;
     }
 
-    /**
-     * Splits the resulting PDF.
-     */
-    public function split(SplitMode $mode): self
+    private function route(string $source): RequestInterface
     {
-        $this->formValue('splitMode', $mode->mode);
-        $this->formValue('splitSpan', $mode->span);
-        $this->formValue('splitUnify', $mode->unify ?: '0');
-
-        return $this;
-    }
-
-    /**
-     * Sets the PDF/A format of the resulting PDF.
-     */
-    public function pdfa(string $format): self
-    {
-        $this->formValue('pdfa', $format);
-
-        return $this;
-    }
-
-    /**
-     * Enables PDF for Universal Access for optimal accessibility.
-     */
-    public function pdfua(): self
-    {
-        $this->formValue('pdfua', true);
-
-        return $this;
-    }
-
-    /**
-     * Sets the metadata to write.
-     *
-     * @param array<string,string|bool|float|int|array<string>> $metadata
-     *
-     * @throws NativeFunctionErrored
-     */
-    public function metadata(array $metadata): self
-    {
-        $json = json_encode($metadata);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->formValue('metadata', $json);
-
-        return $this;
-    }
-
-    /**
-     * Defines whether the resulting PDF should be flattened.
-     */
-    public function flatten(): self
-    {
-        $this->formValue('flatten', true);
-
-        return $this;
-    }
-
-    /**
-     * Defines whether the resulting PDF should be encrypted.
-     */
-    public function encrypt(string $userPassword, string $ownerPassword = ''): self
-    {
-        $this->formValue('userPassword', $userPassword);
-        $this->formValue('ownerPassword', $ownerPassword);
-
-        return $this;
-    }
-
-    /**
-     * Specifies whether printing the resulting PDF is allowed.
-     * Note: restricting any permission requires a userPassword or ownerPassword.
-     */
-    public function allowPrinting(bool $allow = true): self
-    {
-        $this->formValue('allowPrinting', $allow ?: '0');
-
-        return $this;
-    }
-
-    /**
-     * Specifies whether copying text and graphics from the resulting PDF is
-     * allowed.
-     * Note: restricting any permission requires a userPassword or ownerPassword.
-     */
-    public function allowCopying(bool $allow = true): self
-    {
-        $this->formValue('allowCopying', $allow ?: '0');
-
-        return $this;
-    }
-
-    /**
-     * Specifies whether modifying the resulting PDF is allowed.
-     * Note: restricting any permission requires a userPassword or ownerPassword.
-     */
-    public function allowModifying(bool $allow = true): self
-    {
-        $this->formValue('allowModifying', $allow ?: '0');
-
-        return $this;
-    }
-
-    /**
-     * Specifies whether adding or modifying annotations in the resulting PDF is
-     * allowed.
-     * Note: restricting any permission requires a userPassword or ownerPassword.
-     */
-    public function allowAnnotating(bool $allow = true): self
-    {
-        $this->formValue('allowAnnotating', $allow ?: '0');
-
-        return $this;
-    }
-
-    /**
-     * Specifies whether filling interactive form fields in the resulting PDF is
-     * allowed.
-     * Note: restricting any permission requires a userPassword or ownerPassword.
-     */
-    public function allowFillingForms(bool $allow = true): self
-    {
-        $this->formValue('allowFillingForms', $allow ?: '0');
-
-        return $this;
-    }
-
-    /**
-     * Specifies whether assembling the resulting PDF (insert, rotate, or delete
-     * pages and create bookmarks or thumbnails) is allowed.
-     * Note: restricting any permission requires a userPassword or ownerPassword.
-     */
-    public function allowAssembling(bool $allow = true): self
-    {
-        $this->formValue('allowAssembling', $allow ?: '0');
-
-        return $this;
-    }
-
-    /**
-     * Configures the embedding of a Factur-X / ZUGFeRD invoice XML into the
-     * resulting PDF. Requires a PDF/A-3 variant (set via the pdfa method).
-     */
-    public function facturX(FacturX $facturx): self
-    {
-        $this->formFile($facturx->xml->getFilename(), $facturx->xml->getStream(), 'facturxXml');
-        $this->formValue('facturxConformanceLevel', $facturx->conformanceLevel);
-        $this->formValue('facturxDocumentType', $facturx->documentType);
-        $this->formValue('facturxVersion', $facturx->version);
-
-        return $this;
-    }
-
-    /**
-     * Sets the file to embed in the resulting PDF.
-     */
-    public function embeds(Stream ...$embeds): self
-    {
-        foreach ($embeds as $embed) {
-            $this->formFile($embed->getFilename(), $embed->getStream(), 'embeds');
-        }
-
-        return $this;
-    }
-
-    /**
-     * Sets metadata on embedded files in the resulting PDF, required for
-     * Factur-X / ZUGFeRD compliance.
-     *
-     * @throws NativeFunctionErrored
-     */
-    public function embedsMetadata(EmbedMetadata ...$metadata): self
-    {
-        $map = [];
-        foreach ($metadata as $entry) {
-            $map[$entry->filename] = $entry;
-        }
-
-        $json = json_encode($map);
-        if ($json === false) {
-            throw NativeFunctionErrored::createFromLastPhpError();
-        }
-
-        $this->formValue('embedsMetadata', $json);
-
-        return $this;
-    }
-
-    /**
-     * Converts a target URL to PDF.
-     *
-     * @throws NativeFunctionErrored
-     */
-    public function url(string $url): RequestInterface
-    {
-        $this->formValue('url', $url);
-        $this->endpoint = '/forms/chromium/convert/url';
-
-        return $this->request();
-    }
-
-    /**
-     * Converts an HTML document to PDF.
-     *
-     * Note: it automatically sets the index filename to "index.html", as
-     * required by Gotenberg.
-     */
-    public function html(Stream|null $index): RequestInterface
-    {
-        if ($index !== null) {
-            $this->formFile('index.html', $index->getStream());
-        }
-
-        $this->endpoint = '/forms/chromium/convert/html';
-
-        return $this->request();
-    }
-
-    /**
-     * Converts one or more markdown files to PDF.
-     *
-     * Note: it automatically sets the index filename to "index.html", as
-     * required by Gotenberg.
-     */
-    public function markdown(Stream|null $index, Stream ...$markdowns): RequestInterface
-    {
-        if ($index !== null) {
-            $this->formFile('index.html', $index->getStream());
-        }
-
-        foreach ($markdowns as $markdown) {
-            $this->formFile($markdown->getFilename(), $markdown->getStream());
-        }
-
-        $this->endpoint = '/forms/chromium/convert/markdown';
+        $this->endpoint = '/forms/chromium/convert/' . $source;
 
         return $this->request();
     }
