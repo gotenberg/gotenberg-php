@@ -34,6 +34,7 @@ src/
   MultipartFormDataModule.php    Trait: multipart form data, webhooks, downloads, archives
   StagesModule.php               Trait: stages, merge ordering (Index)
   Stage.php                      Stage value object: one named constructor per Gotenberg stage
+  Profile.php, PaperSize.php…    Backed enums for the parameters with a fixed set of values
   Modules/
     Chromium.php                 Chromium entry point (pdf/screenshot)
     ChromiumPdf.php              Chromium PDF conversion builder
@@ -65,6 +66,10 @@ Every PHP file declares `strict_types=1`.
 ### Multipart form data
 
 Configuration is stored in `$this->multipartFormData` (array of `[name, value]` or `[name, value, filename]` entries). Use `$this->formValue()` and `$this->formFile()` helpers. `formValue()` sends booleans as `true`/`false`; encode lists and objects with `json_encode(..., JSON_THROW_ON_ERROR)`.
+
+### Known values
+
+A parameter with a fixed set of values takes a backed string enum, one file per enum in `src/` (`Profile`, `PaperSize`, `Magnification`…), with PascalCase cases. Send `$enum->value`; `json_encode` serializes enums inside lists and stage options on its own. A parameter that also takes free text, such as a page selection, takes a union (`string|Pages`).
 
 ### Coding standard
 
