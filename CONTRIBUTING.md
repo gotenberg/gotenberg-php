@@ -2,7 +2,7 @@
 
 Official PHP client for [Gotenberg](https://gotenberg.dev), a Docker-based API for converting documents to PDF. Two rules override everything else: **backward compatibility** (never rename or remove public methods or change method signatures without discussion) and **PSR compliance** (build on PSR-7, PSR-17, PSR-18, never introduce hard dependencies on specific HTTP implementations).
 
-- PHP 8.1+ (see `composer.json`)
+- PHP 8.3+ (see `composer.json`)
 - Composer
 
 ## Quick start
@@ -21,7 +21,7 @@ Run all Composer commands inside this Docker container:
 docker run --rm -it \
     -e PHP_EXTENSION_XDEBUG=1 \
     -v $(PWD):/usr/src/app/ \
-    thecodingmachine/php:8.1-v4-cli \
+    thecodingmachine/php:8.3-v4-cli \
     bash -c "composer run all"
 ```
 
@@ -31,7 +31,9 @@ docker run --rm -it \
 src/
   Gotenberg.php                  Static factory (entry point)
   ApiModule.php                  Base trait: URL, endpoint, headers, request building
-  MultipartFormDataModule.php    Trait: multipart form data, webhooks, downloads
+  MultipartFormDataModule.php    Trait: multipart form data, webhooks, downloads, archives
+  StagesModule.php               Trait: stages, merge ordering (Index)
+  Stage.php                      Stage value object: one named constructor per Gotenberg stage
   Modules/
     Chromium.php                 Chromium entry point (pdf/screenshot)
     ChromiumPdf.php              Chromium PDF conversion builder
@@ -39,10 +41,9 @@ src/
     ChromiumMultipartFormDataModule.php  Shared Chromium trait
     ChromiumCookie.php           Cookie value object
     LibreOffice.php              LibreOffice conversion builder
-    PdfEngines.php               PDF engines builder (merge, split, convert)
+    Pdf.php                      PDF builder: pipe, single-stage routes, read routes
   Exceptions/                    Custom exceptions
   Stream.php                     File stream wrapper
-  SplitMode.php                  Split mode enum
   DownloadFrom.php               Download-from value object
 tests/
   TestCase.php                   Base class with custom assertions
@@ -55,7 +56,7 @@ Start with `src/Gotenberg.php` for the public API surface, then follow into `src
 
 ### Fluent API
 
-All configuration methods return `$this`. The builder pattern is the backbone of the public API. Keep it uniform.
+All configuration methods return `$this`, typed `static`. The builder pattern is the backbone of the public API. Keep it uniform.
 
 ### Strict types
 
@@ -63,7 +64,7 @@ Every PHP file declares `strict_types=1`.
 
 ### Multipart form data
 
-Configuration is stored in `$this->multipartFormData` (array of `[name, value]` or `[name, value, filename]` entries). Use `$this->formValue()` and `$this->formFile()` helpers.
+Configuration is stored in `$this->multipartFormData` (array of `[name, value]` or `[name, value, filename]` entries). Use `$this->formValue()` and `$this->formFile()` helpers. `formValue()` sends booleans as `true`/`false`; encode lists and objects with `json_encode(..., JSON_THROW_ON_ERROR)`.
 
 ### Coding standard
 
@@ -73,14 +74,16 @@ Doctrine coding standard enforced via phpcs/phpcbf. Follow it strictly. Use expl
 
 For Chromium: add the method to `ChromiumPdf.php`, `ChromiumScreenshot.php`, or the shared trait `ChromiumMultipartFormDataModule.php` depending on scope. Call `$this->formValue('formFieldName', $value)` or `$this->formFile('formFieldName', $stream)`. Add a corresponding unit test with a data provider.
 
-For LibreOffice or PdfEngines: add the method to the relevant module class. Same `formValue`/`formFile` pattern, same test requirement.
+For LibreOffice or Pdf: add the method to the relevant module class. Same `formValue`/`formFile` pattern, same test requirement.
+
+For a new stage: add a named constructor to `Stage.php`, its options keyed by their Gotenberg names, `null` for "keep the default", and a `Stream` for a file option. `stages()` and `Pdf::run()` pick it up; add a case to `StageTest`.
 
 ## Testing
 
-Unit tests only (no integration tests, this is a client library). PHPUnit 10.5+. Base class `Gotenberg\Test\TestCase` provides custom assertions:
+Unit tests only (no integration tests, this is a client library). PHPUnit 12.4+. Base class `Gotenberg\Test\TestCase` provides custom assertions:
 
-- `assertContainsFormValue(string $name, string $expectedValue, RequestInterface $request)`: asserts a multipart form field has the expected value.
-- `assertContainsFormFile(string $name, RequestInterface $request)`: asserts a multipart form file exists.
+- `assertRequest(RequestInterface $request, string $endpoint, array $values, array $files)`: asserts the endpoint, the form values (`[name, value]`) and the form files (`[field, filename, content, content type]`).
+- `assertContainsFormValue()` and `assertContainsFormFile()`: the single checks `assertRequest()` runs.
 
 Tests follow a data provider pattern: a static method returns an array of test cases (description, `RequestInterface` built via the fluent API, expected form values/files), and the test method runs assertions against each.
 
@@ -106,6 +109,6 @@ Plan non-trivial changes before coding. Present what needs to change, why, which
 
 ### Commits
 
-[Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`. Scope should match the module (e.g., `chromium`, `libreoffice`, `pdfengines`).
+[Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`. Scope should match the module (e.g., `chromium`, `libreoffice`, `pdf`, `stage`).
 
 Stage specific files. Never `git add -A` or `git add .`.
