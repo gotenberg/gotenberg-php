@@ -154,6 +154,7 @@ order on the PDFs a Chromium or LibreOffice conversion makes:
 
 ```php
 use Gotenberg\Gotenberg;
+use Gotenberg\Profile;
 use Gotenberg\Stage;
 use Gotenberg\Stream;
 
@@ -161,7 +162,7 @@ Gotenberg::libreOffice($apiUrl)
     ->stages(
         Stage::merge(),
         Stage::stampText('DRAFT', x: 72, y: 72, fontSize: 24),
-        Stage::remediate('PDF/A-2b'),
+        Stage::remediate(Profile::PdfA2b),
     )
     ->convert(
         Stream::path($pathToDocx),
@@ -170,6 +171,7 @@ Gotenberg::libreOffice($apiUrl)
 ```
 
 A stage that reads a file, such as an image to stamp or a certificate, takes a `Stream`: the client uploads it for you.
+Options with a fixed set of values take an enum: `Profile`, `Font`, `Pages`, `PaperSize`, and so on.
 With a `merge` stage, the documents are merged in the order of the arguments. See [Run stages](https://gotenberg.dev/docs/pdf/pipe)
 for every stage and its order rules.
 
@@ -177,6 +179,7 @@ The `pdf` module runs stages on the PDFs you upload, reads them, and validates t
 
 ```php
 use Gotenberg\Gotenberg;
+use Gotenberg\Profile;
 use Gotenberg\Stage;
 use Gotenberg\Stream;
 
@@ -202,7 +205,7 @@ Gotenberg::pdf($apiUrl)->metadata(Stream::path($pathToPdf));
 Gotenberg::pdf($apiUrl)->bookmarks(Stream::path($pathToPdf));
 Gotenberg::pdf($apiUrl)->attachments(Stream::path($pathToPdf));
 Gotenberg::pdf($apiUrl)->form(null, Stream::path($pathToPdf));
-Gotenberg::pdf($apiUrl)->validate(['PDF/A-2b', 'PDF/UA-1'], Stream::path($pathToPdf));
+Gotenberg::pdf($apiUrl)->validate([Profile::PdfA2b, Profile::PdfUa1], Stream::path($pathToPdf));
 ```
 
 ## Send a request to the API
@@ -350,11 +353,12 @@ You may tell Gotenberg to upload the result to a webhook instead of answering wi
 
 ```php
 use Gotenberg\Gotenberg;
+use Gotenberg\WebhookMethod;
 
 $request = Gotenberg::chromium($apiUrl)
     ->pdf()
     ->webhook('https://my.webhook.url', 'https://my.webhook.url/events')
-    ->webhookMethod('PUT') // Optional, default POST.
+    ->webhookMethod(WebhookMethod::Put) // Optional, default POST.
     ->webhookExtraHttpHeaders(['Authorization' => 'Bearer …']) // Optional.
     ->url('https://my.url');
 ```
@@ -368,10 +372,13 @@ The client follows the Gotenberg 9 API:
   `encrypt()`, `allow*()`, `facturX()`, `embeds()`, `optimizeImages()`, `watermarking()`, `stamping()`, `rotating()`)
   become stages. `SplitMode`, `FacturX` and `EmbedMetadata` give way to `Stage`.
 * Fields with an engine twin take the `native` prefix: `nativePages()`, `nativeBookmarks()`, `nativeTaggedPdf()`,
-  `nativePdfa()`, `nativePdfua()`, `nativeQuality()`, `nativeWatermark*()`, and so on. `paperSize()` takes a name
-  (`A4`, `Letter`…), `paperDimensions()` the width and height.
+  `nativePdfa()`, `nativePdfua()`, `nativeQuality()`, `nativeWatermark*()`, and so on. `paperSize()` takes a
+  `PaperSize`, `paperDimensions()` the width and height.
 * `webhook()` takes the events URL, which Gotenberg requires; the error webhook is gone.
 * `downloadFrom()`, `cookies()` and the `failOn*()` methods are variadic, `emulatedMediaFeatures()` takes an array.
 * `Stream` exposes `filename` and `stream` as readonly properties.
+* Parameters with a fixed set of values take backed enums instead of strings (`Profile`, `PaperSize`, `SameSite`,
+  `WebhookMethod`…). `FacturX::CONFORMANCE_*` becomes `FacturXLevel`, `EmbedMetadata::RELATIONSHIP_*` becomes
+  `Relationship`. `nativePdfua()` takes no argument: LibreOffice only writes PDF/UA-1.
 * JSON encoding errors throw `JsonException`.
 * The deprecated `trace()` and `getGotenbergTrace()` are removed: use `correlationId()` and `getCorrelationId()`.
