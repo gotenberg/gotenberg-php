@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gotenberg\Test;
 
 use Gotenberg\Exceptions\GotenbergApiErrored;
+use Gotenberg\Exceptions\NativeFunctionErrored;
 use Gotenberg\Exceptions\NoOutputFileInResponse;
 use Gotenberg\Gotenberg;
 use Gotenberg\Test\Helpers\Dummies\DummyClient;
@@ -12,8 +13,10 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\WithoutErrorHandler;
 
 use function file_get_contents;
+use function ini_set;
 use function sys_get_temp_dir;
 use function unlink;
 
@@ -94,6 +97,24 @@ final class GotenbergTest extends TestCase
         $this->expectException(NoOutputFileInResponse::class);
 
         Gotenberg::save(new Request('POST', 'https://my.url'), sys_get_temp_dir(), $client);
+    }
+
+    #[Test]
+    #[WithoutErrorHandler]
+    public function it_throws_an_exception_if_the_output_file_cannot_be_opened(): void
+    {
+        $response = new Response(200, ['Content-Disposition' => 'attachment; filename=my.pdf'], 'PDF content');
+        $client   = new DummyClient($response);
+
+        $this->expectException(NativeFunctionErrored::class);
+
+        // Without PHPUnit's handler, PHP prints the fopen warning itself.
+        $displayErrors = ini_set('display_errors', '0');
+        try {
+            Gotenberg::save(new Request('POST', 'https://my.url'), sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'missing-dir', $client);
+        } finally {
+            ini_set('display_errors', (string) $displayErrors);
+        }
     }
 
     /** @return array<string, array{0: string|null}> */

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Test\Modules;
 
+use Closure;
 use Gotenberg\ConsoleMessageType;
 use Gotenberg\Gotenberg;
 use Gotenberg\Modules\ChromiumCookie;
@@ -19,21 +20,22 @@ use Psr\Http\Message\RequestInterface;
 final class ChromiumPdfTest extends TestCase
 {
     /**
+     * @param Closure(): RequestInterface                                   $build
      * @param list<array{0: string, 1: string}>                             $values
      * @param list<array{0: string, 1: string, 2: string, 3?: string|null}> $files
      */
     #[Test]
     #[DataProvider('provideRequestData')]
-    public function it_creates_a_valid_request(RequestInterface $request, string $endpoint, array $values, array $files = []): void
+    public function it_creates_a_valid_request(Closure $build, string $endpoint, array $values, array $files = []): void
     {
-        $this->assertRequest($request, $endpoint, $values, $files);
+        $this->assertRequest($build(), $endpoint, $values, $files);
     }
 
-    /** @return iterable<string, array{0: RequestInterface, 1: string, 2: list<array{0: string, 1: string}>, 3?: list<array{0: string, 1: string, 2: string, 3?: string|null}>}> */
+    /** @return iterable<string, array{0: Closure(): RequestInterface, 1: string, 2: list<array{0: string, 1: string}>, 3?: list<array{0: string, 1: string, 2: string, 3?: string|null}>}> */
     public static function provideRequestData(): iterable
     {
         yield 'url with every option' => [
-            Gotenberg::chromium('https://my.url/')
+            (static fn (): RequestInterface => Gotenberg::chromium('https://my.url/')
                 ->pdf()
                 ->singlePage()
                 ->paperSize(PaperSize::A4)
@@ -55,7 +57,7 @@ final class ChromiumPdfTest extends TestCase
                 ->waitForWindowStatus('ready')
                 ->emulatePrintMediaType()
                 ->emulatedMediaFeatures(['prefers-color-scheme' => 'dark'])
-                ->cookies(new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com', secure: true, sameSite: SameSite::Lax))
+                ->cookies(new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com', path: '/', secure: true, httpOnly: true, sameSite: SameSite::Lax))
                 ->userAgent('Gotenberg')
                 ->extraHttpHeaders(['My-Http-Header' => 'HTTP header content'])
                 ->failOnHttpStatusCodes(499, 599)
@@ -67,7 +69,7 @@ final class ChromiumPdfTest extends TestCase
                 ->skipNetworkIdleEvent(false)
                 ->skipNetworkAlmostIdleEvent()
                 ->assets(Stream::string('my.jpg', 'Image content'))
-                ->url('https://my.url'),
+                ->url('https://my.url')),
             '/forms/chromium/convert/url',
             [
                 ['url', 'https://my.url'],
@@ -93,7 +95,7 @@ final class ChromiumPdfTest extends TestCase
                 ['waitForWindowStatus', 'ready'],
                 ['emulatedMediaType', 'print'],
                 ['emulatedMediaFeatures', '{"prefers-color-scheme":"dark"}'],
-                ['cookies', '[{"name":"yummy_cookie","value":"choco","domain":"theyummycookie.com","secure":true,"sameSite":"Lax"}]'],
+                ['cookies', '[{"name":"yummy_cookie","value":"choco","domain":"theyummycookie.com","path":"\/","secure":true,"httpOnly":true,"sameSite":"Lax"}]'],
                 ['userAgent', 'Gotenberg'],
                 ['extraHttpHeaders', '{"My-Http-Header":"HTTP header content"}'],
                 ['failOnHttpStatusCodes', '[499,599]'],
@@ -113,14 +115,14 @@ final class ChromiumPdfTest extends TestCase
         ];
 
         yield 'html with stages' => [
-            Gotenberg::chromium('https://my.url')
+            (static fn (): RequestInterface => Gotenberg::chromium('https://my.url')
                 ->pdf()
                 ->emulateScreenMediaType()
                 ->stages(
                     Stage::stampImage(Stream::string('logo.png', 'Logo content'), x: 72, y: 72),
                     Stage::optimize(),
                 )
-                ->html(Stream::string('my.html', 'HTML content')),
+                ->html(Stream::string('my.html', 'HTML content'))),
             '/forms/chromium/convert/html',
             [
                 ['emulatedMediaType', 'screen'],
@@ -133,23 +135,23 @@ final class ChromiumPdfTest extends TestCase
         ];
 
         yield 'html from an archive' => [
-            Gotenberg::chromium('https://my.url')
+            (static fn (): RequestInterface => Gotenberg::chromium('https://my.url')
                 ->pdf()
                 ->archives(Stream::string('site.zip', 'ZIP content'))
-                ->html(null),
+                ->html(null)),
             '/forms/chromium/convert/html',
             [],
             [['archives', 'site.zip', 'ZIP content']],
         ];
 
         yield 'markdown' => [
-            Gotenberg::chromium('https://my.url')
+            (static fn (): RequestInterface => Gotenberg::chromium('https://my.url')
                 ->pdf()
                 ->markdown(
                     Stream::string('my.html', 'HTML content'),
                     Stream::string('my.md', 'Markdown content'),
                     Stream::string('my_second.md', 'Second markdown content'),
-                ),
+                )),
             '/forms/chromium/convert/markdown',
             [],
             [

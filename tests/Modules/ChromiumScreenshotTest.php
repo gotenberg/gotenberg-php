@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Test\Modules;
 
+use Closure;
 use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
 use Gotenberg\Test\TestCase;
@@ -14,21 +15,22 @@ use Psr\Http\Message\RequestInterface;
 final class ChromiumScreenshotTest extends TestCase
 {
     /**
+     * @param Closure(): RequestInterface                                   $build
      * @param list<array{0: string, 1: string}>                             $values
      * @param list<array{0: string, 1: string, 2: string, 3?: string|null}> $files
      */
     #[Test]
     #[DataProvider('provideRequestData')]
-    public function it_creates_a_valid_request(RequestInterface $request, string $endpoint, array $values, array $files = []): void
+    public function it_creates_a_valid_request(Closure $build, string $endpoint, array $values, array $files = []): void
     {
-        $this->assertRequest($request, $endpoint, $values, $files);
+        $this->assertRequest($build(), $endpoint, $values, $files);
     }
 
-    /** @return iterable<string, array{0: RequestInterface, 1: string, 2: list<array{0: string, 1: string}>, 3?: list<array{0: string, 1: string, 2: string, 3?: string|null}>}> */
+    /** @return iterable<string, array{0: Closure(): RequestInterface, 1: string, 2: list<array{0: string, 1: string}>, 3?: list<array{0: string, 1: string, 2: string, 3?: string|null}>}> */
     public static function provideRequestData(): iterable
     {
         yield 'url' => [
-            Gotenberg::chromium('https://my.url')
+            (static fn (): RequestInterface => Gotenberg::chromium('https://my.url')
                 ->screenshot()
                 ->width(1280)
                 ->height(720)
@@ -39,7 +41,7 @@ final class ChromiumScreenshotTest extends TestCase
                 ->optimizeForSpeed()
                 ->selector('#main')
                 ->waitDelay('1s')
-                ->url('https://my.url'),
+                ->url('https://my.url')),
             '/forms/chromium/screenshot/url',
             [
                 ['url', 'https://my.url'],
@@ -56,20 +58,20 @@ final class ChromiumScreenshotTest extends TestCase
         ];
 
         yield 'html' => [
-            Gotenberg::chromium('https://my.url')
+            (static fn (): RequestInterface => Gotenberg::chromium('https://my.url')
                 ->screenshot()
                 ->png()
-                ->html(Stream::string('my.html', 'HTML content')),
+                ->html(Stream::string('my.html', 'HTML content'))),
             '/forms/chromium/screenshot/html',
             [['format', 'png']],
             [['files', 'index.html', 'HTML content', 'text/html']],
         ];
 
         yield 'markdown' => [
-            Gotenberg::chromium('https://my.url')
+            (static fn (): RequestInterface => Gotenberg::chromium('https://my.url')
                 ->screenshot()
                 ->webp()
-                ->markdown(Stream::string('my.html', 'HTML content'), Stream::string('my.md', 'Markdown content')),
+                ->markdown(Stream::string('my.html', 'HTML content'), Stream::string('my.md', 'Markdown content'))),
             '/forms/chromium/screenshot/markdown',
             [['format', 'webp']],
             [
