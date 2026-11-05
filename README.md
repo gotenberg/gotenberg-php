@@ -147,10 +147,8 @@ Gotenberg::libreOffice($apiUrl)
     ->convert();
 ```
 
-## Stages
-
-A stage is one operation on a PDF: merge, split, stamp, redact, sign, make PDF/A, and so on. Gotenberg runs them in
-order on the PDFs a Chromium or LibreOffice conversion makes:
+A *stage* is one operation on a PDF: merge, stamp, sign, make PDF/A, and so on. Gotenberg runs the stages you give,
+in that order, on the PDFs a conversion makes:
 
 ```php
 use Gotenberg\Gotenberg;
@@ -158,6 +156,7 @@ use Gotenberg\Profile;
 use Gotenberg\Stage;
 use Gotenberg\Stream;
 
+// Merges the documents, stamps a text on each page and makes the output PDF/A-2b.
 Gotenberg::libreOffice($apiUrl)
     ->stages(
         Stage::merge(),
@@ -168,45 +167,26 @@ Gotenberg::libreOffice($apiUrl)
         Stream::path($pathToDocx),
         Stream::path($pathToXlsx)
     );
-```
 
-A stage that reads a file, such as an image to stamp or a certificate, takes a `Stream`: the client uploads it for you.
-Options with a fixed set of values take an enum: `Profile`, `Font`, `Pages`, `PaperSize`, and so on.
-With a `merge` stage, the documents are merged in the order of the arguments. See [Run stages](https://gotenberg.dev/docs/pdf/pipe)
-for every stage and its order rules.
-
-The `pdf` module runs stages on the PDFs you upload, reads them, and validates them:
-
-```php
-use Gotenberg\Gotenberg;
-use Gotenberg\Profile;
-use Gotenberg\Stage;
-use Gotenberg\Stream;
-
-// Runs a list of stages, through /forms/pdf/pipe.
+// The pdf module runs stages on the PDFs you upload, through /forms/pdf/pipe...
 Gotenberg::pdf($apiUrl)
     ->stages(
         Stage::select('1-2'),
-        Stage::stampImage(Stream::path($pathToLogo), x: 72, y: 72, width: 100),
         Stage::optimize(),
     )
     ->pipe(Stream::path($pathToPdf));
 
-// Runs one stage, through its own route: /forms/pdf/merge, /forms/pdf/sign, and so on.
-Gotenberg::pdf($apiUrl)
-    ->run(Stage::merge(), Stream::path($pathToPdf1), Stream::path($pathToPdf2));
-
+// ...or one stage through its own route, such as /forms/pdf/sign.
 Gotenberg::pdf($apiUrl)
     ->run(Stage::sign(Stream::path($pathToP12), certificatePassword: 'secret'), Stream::path($pathToPdf));
 
-// Reads the PDFs; Gotenberg answers JSON, one entry per PDF.
-Gotenberg::pdf($apiUrl)->info(Stream::path($pathToPdf));
+// It also reads and validates PDFs; Gotenberg answers JSON.
 Gotenberg::pdf($apiUrl)->metadata(Stream::path($pathToPdf));
-Gotenberg::pdf($apiUrl)->bookmarks(Stream::path($pathToPdf));
-Gotenberg::pdf($apiUrl)->attachments(Stream::path($pathToPdf));
-Gotenberg::pdf($apiUrl)->form(null, Stream::path($pathToPdf));
 Gotenberg::pdf($apiUrl)->validate([Profile::PdfA2b, Profile::PdfUa1], Stream::path($pathToPdf));
 ```
+
+A stage that reads a file, such as an image to stamp or a certificate, takes a `Stream`: the client uploads it for you.
+See [Run stages](https://gotenberg.dev/docs/pdf/pipe) for every stage and its order rules.
 
 ## Send a request to the API
 
