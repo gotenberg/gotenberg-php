@@ -4,6 +4,16 @@ declare(strict_types=1);
 
 namespace Gotenberg\Test;
 
+use Gotenberg\ColorSpace;
+use Gotenberg\EncryptionAlgorithm;
+use Gotenberg\FacturXDocumentType;
+use Gotenberg\FacturXLevel;
+use Gotenberg\Font;
+use Gotenberg\Pages;
+use Gotenberg\Permission;
+use Gotenberg\Profile;
+use Gotenberg\Relationship;
+use Gotenberg\RenderFormat;
 use Gotenberg\Stage;
 use Gotenberg\Stream;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -41,9 +51,9 @@ final class StageTest extends TestCase
 
         yield 'merge' => [Stage::merge(), '{"op":"merge"}', []];
         yield 'split every' => [Stage::splitEvery(2), '{"op":"split","every":2}', ['every' => '2']];
-        yield 'split ranges' => [Stage::splitRanges('1', '2-3'), '{"op":"split","ranges":["1","2-3"]}', ['ranges' => '["1","2-3"]']];
+        yield 'split ranges' => [Stage::splitRanges('1', '2-3', Pages::Odd), '{"op":"split","ranges":["1","2-3","odd"]}', ['ranges' => '["1","2-3","odd"]']];
         yield 'select' => [Stage::select('1-2'), '{"op":"select","pages":"1-2"}', ['pages' => '1-2']];
-        yield 'delete' => [Stage::delete('last'), '{"op":"delete","pages":"last"}', ['pages' => 'last']];
+        yield 'delete' => [Stage::delete(Pages::Last), '{"op":"delete","pages":"last"}', ['pages' => 'last']];
         yield 'insert' => [
             Stage::insert($pdf, 1, '2'),
             '{"op":"insert","source":"letterhead.pdf","at":1,"sourcePages":"2"}',
@@ -53,7 +63,7 @@ final class StageTest extends TestCase
 
         yield 'rotate' => [Stage::rotate(90), '{"op":"rotate","angle":90}', ['angle' => '90']];
         yield 'stamp text' => [
-            Stage::stampText('DRAFT', 'all', 72, 72.5, 24, 'Helvetica-Bold', '#ff0000', 0.5, 45),
+            Stage::stampText('DRAFT', Pages::All, 72, 72.5, 24, Font::HelveticaBold, '#ff0000', 0.5, 45),
             '{"op":"stamp-text","text":"DRAFT","pages":"all","x":72,"y":72.5,"fontSize":24,"font":"Helvetica-Bold","color":"#ff0000","opacity":0.5,"rotation":45}',
             ['text' => 'DRAFT', 'pages' => 'all', 'x' => '72', 'y' => '72.5', 'fontSize' => '24', 'font' => 'Helvetica-Bold', 'color' => '#ff0000', 'opacity' => '0.5', 'rotation' => '45'],
         ];
@@ -93,7 +103,7 @@ final class StageTest extends TestCase
 
         yield 'flatten form' => [Stage::flattenForm(), '{"op":"flatten-form"}', []];
         yield 'flatten transparency' => [Stage::flattenTransparency(), '{"op":"flatten-transparency"}', []];
-        yield 'convert colors' => [Stage::convertColors('cmyk'), '{"op":"convert-colors","target":"cmyk"}', ['target' => 'cmyk']];
+        yield 'convert colors' => [Stage::convertColors(ColorSpace::Cmyk), '{"op":"convert-colors","target":"cmyk"}', ['target' => 'cmyk']];
         yield 'redact' => [
             Stage::redact([['page' => 1, 'x' => 160, 'y' => 435, 'width' => 60, 'height' => 25]]),
             '{"op":"redact","regions":[{"page":1,"x":160,"y":435,"width":60,"height":25}]}',
@@ -102,7 +112,7 @@ final class StageTest extends TestCase
 
         yield 'autotag' => [Stage::autotag(), '{"op":"autotag"}', []];
         yield 'attach' => [
-            Stage::attach($file, 'data.csv', 'text/csv', 'Data'),
+            Stage::attach($file, 'data.csv', 'text/csv', Relationship::Data),
             '{"op":"attach","file":"data.csv","name":"data.csv","mimeType":"text\/csv","relationship":"Data"}',
             ['file' => 'data.csv', 'name' => 'data.csv', 'mimeType' => 'text/csv', 'relationship' => 'Data'],
             ['data.csv'],
@@ -117,21 +127,21 @@ final class StageTest extends TestCase
         ];
 
         yield 'encrypt' => [
-            Stage::encrypt('user', 'owner', 'aes256', ['print' => true, 'extractText' => false]),
-            '{"op":"encrypt","userPassword":"user","ownerPassword":"owner","algorithm":"aes256","permissions":{"print":true,"extractText":false}}',
-            ['userPassword' => 'user', 'ownerPassword' => 'owner', 'algorithm' => 'aes256', 'permissions' => '{"print":true,"extractText":false}'],
+            Stage::encrypt('user', 'owner', EncryptionAlgorithm::Aes256, [Permission::Print, Permission::ExtractText]),
+            '{"op":"encrypt","userPassword":"user","ownerPassword":"owner","algorithm":"aes256","permissions":{"print":false,"extractText":false}}',
+            ['userPassword' => 'user', 'ownerPassword' => 'owner', 'algorithm' => 'aes256', 'permissions' => '{"print":false,"extractText":false}'],
         ];
 
         yield 'decrypt' => [Stage::decrypt('secret'), '{"op":"decrypt","password":"secret"}', ['password' => 'secret']];
         yield 'decrypt without password' => [Stage::decrypt(), '{"op":"decrypt"}', []];
         yield 'remediate' => [
-            Stage::remediate(['PDF/A-2b', 'PDF/UA-1'], 'en-US', true, 'A chart'),
+            Stage::remediate([Profile::PdfA2b, Profile::PdfUa1], 'en-US', true, 'A chart'),
             '{"op":"remediate","profile":["PDF\/A-2b","PDF\/UA-1"],"language":"en-US","aggressive":true,"figureAltText":"A chart"}',
             ['profile' => '["PDF\/A-2b","PDF\/UA-1"]', 'language' => 'en-US', 'aggressive' => 'true', 'figureAltText' => 'A chart'],
         ];
 
         yield 'remediate factur-x' => [
-            Stage::remediate('Factur-X', xml: $xml, level: 'EN 16931', documentType: 'INVOICE'),
+            Stage::remediate(Profile::FacturX, xml: $xml, level: FacturXLevel::En16931, documentType: FacturXDocumentType::Invoice),
             '{"op":"remediate","profile":"Factur-X","xml":"invoice.xml","level":"EN 16931","documentType":"INVOICE"}',
             ['profile' => 'Factur-X', 'xml' => 'invoice.xml', 'level' => 'EN 16931', 'documentType' => 'INVOICE'],
             ['invoice.xml'],
@@ -151,7 +161,7 @@ final class StageTest extends TestCase
         ];
 
         yield 'render' => [
-            Stage::render('1', 300, 'jpeg', 80),
+            Stage::render('1', 300, RenderFormat::Jpeg, 80),
             '{"op":"render","pages":"1","dpi":300,"format":"jpeg","quality":80}',
             ['pages' => '1', 'dpi' => '300', 'format' => 'jpeg', 'quality' => '80'],
         ];

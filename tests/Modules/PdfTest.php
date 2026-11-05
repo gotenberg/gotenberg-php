@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Gotenberg\Test\Modules;
 
 use Gotenberg\Gotenberg;
+use Gotenberg\Permission;
+use Gotenberg\Profile;
 use Gotenberg\Stage;
 use Gotenberg\Stream;
 use Gotenberg\Test\Helpers\Dummies\DummyIndex;
@@ -88,7 +90,7 @@ final class PdfTest extends TestCase
 
         yield 'run encrypt' => [
             Gotenberg::pdf('https://my.url')
-                ->run(Stage::encrypt('user', permissions: ['print' => false]), Stream::string('report.pdf', 'Report content')),
+                ->run(Stage::encrypt('user', deny: [Permission::Print]), Stream::string('report.pdf', 'Report content')),
             '/forms/pdf/encrypt',
             [
                 ['userPassword', 'user'],
@@ -116,14 +118,14 @@ final class PdfTest extends TestCase
         ];
 
         yield 'validate a profile' => [
-            Gotenberg::pdf('https://my.url')->validate('PDF/A-3b', Stream::string('invoice.pdf', 'Invoice content')),
+            Gotenberg::pdf('https://my.url')->validate(Profile::PdfA3b, Stream::string('invoice.pdf', 'Invoice content')),
             '/forms/pdf/validate',
             [['profile', 'PDF/A-3b']],
             [['files', 'invoice.pdf', 'Invoice content', 'application/pdf']],
         ];
 
         yield 'validate a pair of profiles' => [
-            Gotenberg::pdf('https://my.url')->validate(['PDF/A-2b', 'PDF/UA-1'], Stream::string('archive.pdf', 'Archive content')),
+            Gotenberg::pdf('https://my.url')->validate([Profile::PdfA2b, Profile::PdfUa1], Stream::string('archive.pdf', 'Archive content')),
             '/forms/pdf/validate',
             [['profile', '["PDF\/A-2b","PDF\/UA-1"]']],
             [['files', 'archive.pdf', 'Archive content', 'application/pdf']],

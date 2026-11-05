@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Gotenberg\Test\Modules;
 
+use Gotenberg\ConsoleMessageType;
 use Gotenberg\Gotenberg;
 use Gotenberg\Modules\ChromiumCookie;
+use Gotenberg\PaperSize;
+use Gotenberg\SameSite;
 use Gotenberg\Stage;
 use Gotenberg\Stream;
 use Gotenberg\Test\TestCase;
@@ -33,7 +36,7 @@ final class ChromiumPdfTest extends TestCase
             Gotenberg::chromium('https://my.url/')
                 ->pdf()
                 ->singlePage()
-                ->paperSize('A4')
+                ->paperSize(PaperSize::A4)
                 ->paperDimensions(8.27, '11.7in')
                 ->margins(1, 2, '3mm', 4)
                 ->preferCssPageSize()
@@ -52,7 +55,7 @@ final class ChromiumPdfTest extends TestCase
                 ->waitForWindowStatus('ready')
                 ->emulatePrintMediaType()
                 ->emulatedMediaFeatures(['prefers-color-scheme' => 'dark'])
-                ->cookies(new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com', secure: true, sameSite: 'Lax'))
+                ->cookies(new ChromiumCookie('yummy_cookie', 'choco', 'theyummycookie.com', secure: true, sameSite: SameSite::Lax))
                 ->userAgent('Gotenberg')
                 ->extraHttpHeaders(['My-Http-Header' => 'HTTP header content'])
                 ->failOnHttpStatusCodes(499, 599)
@@ -60,7 +63,7 @@ final class ChromiumPdfTest extends TestCase
                 ->ignoreResourceHttpStatusDomains('example.com')
                 ->failOnResourceLoadingFailed()
                 ->failOnConsoleExceptions()
-                ->failOnConsoleMessageTypes('error', 'warning')
+                ->failOnConsoleMessageTypes(ConsoleMessageType::Error, ConsoleMessageType::Warning)
                 ->skipNetworkIdleEvent(false)
                 ->skipNetworkAlmostIdleEvent()
                 ->assets(Stream::string('my.jpg', 'Image content'))

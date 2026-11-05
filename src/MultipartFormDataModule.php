@@ -70,14 +70,12 @@ trait MultipartFormDataModule
     }
 
     /**
-     * Overrides the default HTTP method that Gotenberg uses to upload the
-     * result to the webhook.
-     *
-     * Either "POST", "PATCH", or "PUT" - default "POST".
+     * Overrides the default HTTP method (POST) that Gotenberg uses to upload
+     * the result to the webhook.
      */
-    public function webhookMethod(string $method): static
+    public function webhookMethod(WebhookMethod $method): static
     {
-        $this->headers['Gotenberg-Webhook-Method'] = $method;
+        $this->headers['Gotenberg-Webhook-Method'] = $method->value;
 
         return $this;
     }

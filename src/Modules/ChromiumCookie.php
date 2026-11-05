@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
+use Gotenberg\SameSite;
 use JsonSerializable;
 
 final readonly class ChromiumCookie implements JsonSerializable
@@ -15,7 +16,7 @@ final readonly class ChromiumCookie implements JsonSerializable
         public string|null $path = null,
         public bool|null $secure = null,
         public bool|null $httpOnly = null,
-        public string|null $sameSite = null,
+        public SameSite|null $sameSite = null,
     ) {
     }
 
@@ -41,7 +42,7 @@ final readonly class ChromiumCookie implements JsonSerializable
         }
 
         if ($this->sameSite !== null) {
-            $serialized['sameSite'] = $this->sameSite;
+            $serialized['sameSite'] = $this->sameSite->value;
         }
 
         return $serialized;
