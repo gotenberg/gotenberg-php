@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg;
 
+use BackedEnum;
 use JsonSerializable;
 
 use function array_filter;
@@ -21,10 +22,9 @@ use const JSON_THROW_ON_ERROR;
  * you upload to the pdf module.
  *
  * Options left to null keep Gotenberg's default. Pages take a page ("3"), a
- * range ("2-5"), a list of both ("1,3,5-7"), or "all", "odd", "even" or
- * "last" on their own.
+ * range ("2-5"), a list of both ("1,3,5-7"), or a Pages keyword.
  *
- * @phpstan-type Option string|int|float|bool|Stream|array<mixed>
+ * @phpstan-type Option string|int|float|bool|Stream|BackedEnum|array<mixed>
  */
 final readonly class Stage implements JsonSerializable
 {
@@ -56,10 +56,11 @@ final readonly class Stage implements JsonSerializable
     }
 
     /**
-     * Cuts each PDF into one part per page selection, such as "1-3" or "4,6".
+     * Cuts each PDF into one part per page selection, such as "1-3", "4,6" or
+     * Pages::Odd.
      * The stages after it run on each part.
      */
-    public static function splitRanges(string ...$ranges): self
+    public static function splitRanges(string|Pages ...$ranges): self
     {
         return self::of('split', ['ranges' => array_values($ranges)]);
     }
@@ -67,7 +68,7 @@ final readonly class Stage implements JsonSerializable
     /**
      * Keeps the pages you list, in the order you list them.
      */
-    public static function select(string $pages): self
+    public static function select(string|Pages $pages): self
     {
         return self::of('select', ['pages' => $pages]);
     }
@@ -75,7 +76,7 @@ final readonly class Stage implements JsonSerializable
     /**
      * Removes the pages you list.
      */
-    public static function delete(string $pages): self
+    public static function delete(string|Pages $pages): self
     {
         return self::of('delete', ['pages' => $pages]);
     }
@@ -84,7 +85,7 @@ final readonly class Stage implements JsonSerializable
      * Inserts the pages of another PDF after page $at; 0 inserts before the
      * first page.
      */
-    public static function insert(Stream $source, int|null $at = null, string|null $sourcePages = null): self
+    public static function insert(Stream $source, int|null $at = null, string|Pages|null $sourcePages = null): self
     {
         return self::of('insert', [
             'source' => $source,
@@ -97,7 +98,7 @@ final readonly class Stage implements JsonSerializable
      * Sets the rotation of pages, a multiple of 90. Viewers turn them
      * clockwise.
      */
-    public static function rotate(int $angle, string|null $pages = null): self
+    public static function rotate(int $angle, string|Pages|null $pages = null): self
     {
         return self::of('rotate', ['angle' => $angle, 'pages' => $pages]);
     }
@@ -109,11 +110,11 @@ final readonly class Stage implements JsonSerializable
      */
     public static function stampText(
         string $text,
-        string|null $pages = null,
+        string|Pages|null $pages = null,
         float|null $x = null,
         float|null $y = null,
         float|null $fontSize = null,
-        string|null $font = null,
+        Font|null $font = null,
         string|null $color = null,
         float|null $opacity = null,
         float|null $rotation = null,
@@ -137,7 +138,7 @@ final readonly class Stage implements JsonSerializable
      */
     public static function stampImage(
         Stream $image,
-        string|null $pages = null,
+        string|Pages|null $pages = null,
         float|null $x = null,
         float|null $y = null,
         float|null $width = null,
@@ -163,7 +164,7 @@ final readonly class Stage implements JsonSerializable
     public static function stampPdf(
         Stream $source,
         int|null $sourcePage = null,
-        string|null $pages = null,
+        string|Pages|null $pages = null,
         float|null $x = null,
         float|null $y = null,
         float|null $scale = null,
@@ -246,9 +247,9 @@ final readonly class Stage implements JsonSerializable
     }
 
     /**
-     * Converts every color to "cmyk", "rgb", "gray", or "output-intent".
+     * Converts every color to one color space.
      */
-    public static function convertColors(string $target): self
+    public static function convertColors(ColorSpace $target): self
     {
         return self::of('convert-colors', ['target' => $target]);
     }
@@ -273,14 +274,14 @@ final readonly class Stage implements JsonSerializable
     }
 
     /**
-     * Embeds a file in the PDF. $relationship is "Source", "Data",
-     * "Alternative", "Supplement" or "Unspecified".
+     * Embeds a file in the PDF. $relationship makes it a PDF/A-3 associated
+     * file.
      */
     public static function attach(
         Stream $file,
         string|null $name = null,
         string|null $mimeType = null,
-        string|null $relationship = null,
+        Relationship|null $relationship = null,
     ): self {
         return self::of('attach', [
             'file' => $file,
@@ -317,19 +318,25 @@ final readonly class Stage implements JsonSerializable
     }
 
     /**
-     * Protects the PDF with passwords. $algorithm is "aes256", "aes128",
-     * "rc4-128" or "rc4-40". $permissions sets what a reader without the owner
-     * password may do: print, printHighQuality, modifyContent, extractText,
-     * modifyAnnotations, fillForms, assemble.
+     * Protects the PDF with passwords. A reader without the owner password may
+     * do everything but what $deny lists.
      *
-     * @param array<string,bool>|null $permissions
+     * @param list<Permission>|null $deny
      */
     public static function encrypt(
         string|null $userPassword = null,
         string|null $ownerPassword = null,
-        string|null $algorithm = null,
-        array|null $permissions = null,
+        EncryptionAlgorithm|null $algorithm = null,
+        array|null $deny = null,
     ): self {
+        $permissions = null;
+        if ($deny !== null && $deny !== []) {
+            $permissions = [];
+            foreach ($deny as $permission) {
+                $permissions[$permission->value] = false;
+            }
+        }
+
         return self::of('encrypt', [
             'userPassword' => $userPassword,
             'ownerPassword' => $ownerPassword,
@@ -347,24 +354,22 @@ final readonly class Stage implements JsonSerializable
     }
 
     /**
-     * Repairs the PDF until it conforms to a profile, such as "PDF/A-2b",
-     * "PDF/UA-1" or "Factur-X", or to a PDF/A profile and a PDF/UA one
-     * together.
+     * Repairs the PDF until it conforms to a profile, or to a PDF/A profile,
+     * or Factur-X, and a PDF/UA one together.
      *
-     * For Factur-X, $xml embeds an invoice XML, with its $level ("MINIMUM",
-     * "BASIC WL", "BASIC", "EN 16931", "EXTENDED" or "XRECHNUNG") and
+     * For Factur-X, $xml embeds an invoice XML, with its $level and
      * $documentType.
      *
-     * @param string|list<string> $profile
+     * @param Profile|list<Profile> $profile
      */
     public static function remediate(
-        string|array $profile,
+        Profile|array $profile,
         string|null $language = null,
         bool|null $aggressive = null,
         string|null $figureAltText = null,
         Stream|null $xml = null,
-        string|null $level = null,
-        string|null $documentType = null,
+        FacturXLevel|null $level = null,
+        FacturXDocumentType|null $documentType = null,
     ): self {
         return self::of('remediate', [
             'profile' => $profile,
@@ -414,12 +419,12 @@ final readonly class Stage implements JsonSerializable
     }
 
     /**
-     * Draws pages as "png" or "jpeg" images.
+     * Draws pages as images.
      */
     public static function render(
-        string|null $pages = null,
+        string|Pages|null $pages = null,
         int|null $dpi = null,
-        string|null $format = null,
+        RenderFormat|null $format = null,
         int|null $quality = null,
     ): self {
         return self::of('render', [
@@ -453,6 +458,7 @@ final readonly class Stage implements JsonSerializable
         return array_map(static function (mixed $value): string {
             return match (true) {
                 $value instanceof Stream => $value->filename,
+                $value instanceof BackedEnum => (string) $value->value,
                 is_bool($value) => $value ? 'true' : 'false',
                 is_array($value) => json_encode($value, JSON_THROW_ON_ERROR),
                 default => (string) $value,

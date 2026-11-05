@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
+use Gotenberg\PaperSize;
 use Gotenberg\StagesModule;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
@@ -24,12 +25,12 @@ class ChromiumPdf
     }
 
     /**
-     * Sets the paper size: "A3", "A4", "A5", "B4", "B5", "Letter" (default),
-     * "Legal" or "Tabloid". paperDimensions() overrides it.
+     * Sets the paper size; default PaperSize::Letter. paperDimensions()
+     * overrides it.
      */
-    public function paperSize(string $size): static
+    public function paperSize(PaperSize $size): static
     {
-        $this->formValue('paperSize', $size);
+        $this->formValue('paperSize', $size->value);
 
         return $this;
     }

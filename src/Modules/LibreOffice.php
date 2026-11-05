@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
+use Gotenberg\InitialView;
+use Gotenberg\Magnification;
 use Gotenberg\MultipartFormDataModule;
+use Gotenberg\PageLayout;
+use Gotenberg\PaperSize;
+use Gotenberg\Profile;
 use Gotenberg\StagesModule;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
@@ -25,13 +30,12 @@ class LibreOffice
     }
 
     /**
-     * Sets the paper size of every page: "A3", "A4", "A5", "B4", "B5",
-     * "Letter", "Legal" or "Tabloid". Without it, each document keeps its own
-     * page size.
+     * Sets the paper size of every page. Without it, each document keeps its
+     * own page size.
      */
-    public function paperSize(string $size): static
+    public function paperSize(PaperSize $size): static
     {
-        $this->formValue('paperSize', $size);
+        $this->formValue('paperSize', $size->value);
 
         return $this;
     }
@@ -352,22 +356,23 @@ class LibreOffice
     }
 
     /**
-     * Exports PDF/A: "PDF/A-1b", "PDF/A-2b", "PDF/A-3b" or "PDF/A-4". The
-     * remediate stage reaches the other PDF/A levels.
+     * Exports PDF/A: Profile::PdfA1b, PdfA2b, PdfA3b or PdfA4; Gotenberg
+     * answers 400 to the others. The remediate stage reaches the other PDF/A
+     * levels.
      */
-    public function nativePdfa(string $profile): static
+    public function nativePdfa(Profile $profile): static
     {
-        $this->formValue('nativePdfa', $profile);
+        $this->formValue('nativePdfa', $profile->value);
 
         return $this;
     }
 
     /**
-     * Exports PDF/UA: "PDF/UA-1".
+     * Exports PDF/UA-1, the only PDF/UA profile LibreOffice writes.
      */
-    public function nativePdfua(string $profile): static
+    public function nativePdfua(): static
     {
-        $this->formValue('nativePdfua', $profile);
+        $this->formValue('nativePdfua', Profile::PdfUa1->value);
 
         return $this;
     }
@@ -383,12 +388,11 @@ class LibreOffice
     }
 
     /**
-     * Specifies how the document shall be displayed when opened: "default",
-     * "outline" or "thumbnails".
+     * Specifies how the document shall be displayed when opened.
      */
-    public function initialView(string $view): static
+    public function initialView(InitialView $view): static
     {
-        $this->formValue('initialView', $view);
+        $this->formValue('initialView', $view->value);
 
         return $this;
     }
@@ -404,19 +408,18 @@ class LibreOffice
     }
 
     /**
-     * Specifies the magnification when the document opens: "default",
-     * "fitVisible", "fitWidth", "fitPage" or "fitActualSize".
+     * Specifies the magnification when the document opens.
      */
-    public function magnification(string $magnification): static
+    public function magnification(Magnification $magnification): static
     {
-        $this->formValue('magnification', $magnification);
+        $this->formValue('magnification', $magnification->value);
 
         return $this;
     }
 
     /**
-     * Specifies the zoom when the document opens, with the magnification
-     * "fitActualSize".
+     * Specifies the zoom, in percent, when the document opens, with
+     * Magnification::Zoom.
      */
     public function zoom(int $zoom): static
     {
@@ -426,12 +429,11 @@ class LibreOffice
     }
 
     /**
-     * Specifies the page layout when the document opens: "default",
-     * "singlePage", "continuous" or "continuousFacing".
+     * Specifies the page layout when the document opens.
      */
-    public function pageLayout(string $layout): static
+    public function pageLayout(PageLayout $layout): static
     {
-        $this->formValue('pageLayout', $layout);
+        $this->formValue('pageLayout', $layout->value);
 
         return $this;
     }

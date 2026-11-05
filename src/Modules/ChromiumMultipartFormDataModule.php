@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gotenberg\Modules;
 
+use Gotenberg\ConsoleMessageType;
 use Gotenberg\MultipartFormDataModule;
 use Gotenberg\Stream;
 use Psr\Http\Message\RequestInterface;
@@ -195,10 +196,9 @@ trait ChromiumMultipartFormDataModule
 
     /**
      * Forces Gotenberg to return a 409 Conflict response if the Chromium
-     * console logs messages of the given types (log, debug, info, warning,
-     * error, assert).
+     * console logs messages of the given types.
      */
-    public function failOnConsoleMessageTypes(string ...$types): static
+    public function failOnConsoleMessageTypes(ConsoleMessageType ...$types): static
     {
         $this->formValue('failOnConsoleMessageTypes', json_encode(array_values($types), JSON_THROW_ON_ERROR));
 

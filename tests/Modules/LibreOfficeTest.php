@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Gotenberg\Test\Modules;
 
 use Gotenberg\Gotenberg;
+use Gotenberg\InitialView;
+use Gotenberg\Magnification;
+use Gotenberg\PageLayout;
+use Gotenberg\PaperSize;
+use Gotenberg\Profile;
 use Gotenberg\Stage;
 use Gotenberg\Stream;
 use Gotenberg\Test\Helpers\Dummies\DummyIndex;
@@ -32,7 +37,7 @@ final class LibreOfficeTest extends TestCase
         yield 'every option' => [
             Gotenberg::libreOffice('https://my.url')
                 ->password('my_password')
-                ->paperSize('A4')
+                ->paperSize(PaperSize::Legal)
                 ->paperDimensions('21cm', 29.7)
                 ->landscape()
                 ->nativePages('my_nativePages')
@@ -63,14 +68,14 @@ final class LibreOfficeTest extends TestCase
                 ->nativeWatermarkRotation(45.5)
                 ->nativeWatermarkFont('my_nativeWatermarkFont')
                 ->nativeTiledWatermarkText('my_nativeTiledWatermarkText')
-                ->nativePdfa('PDF/A-2b')
-                ->nativePdfua('PDF/UA-1')
+                ->nativePdfa(Profile::PdfA2b)
+                ->nativePdfua()
                 ->nativeTaggedPdf()
-                ->initialView('my_initialView')
+                ->initialView(InitialView::Thumbnails)
                 ->initialPage(2)
-                ->magnification('my_magnification')
+                ->magnification(Magnification::FitWindow)
                 ->zoom(2)
-                ->pageLayout('my_pageLayout')
+                ->pageLayout(PageLayout::TwoColumnRight)
                 ->openBookmarkLevels(2)
                 ->resizeWindowToInitialPage()
                 ->centerWindow()
@@ -82,7 +87,7 @@ final class LibreOfficeTest extends TestCase
                 ->convert(Stream::string('my.docx', 'Word content'), Stream::string('my.xlsx', 'Excel content')),
             [
                 ['password', 'my_password'],
-                ['paperSize', 'A4'],
+                ['paperSize', 'Legal'],
                 ['paperWidth', '21cm'],
                 ['paperHeight', '29.7'],
                 ['landscape', 'true'],
@@ -117,11 +122,11 @@ final class LibreOfficeTest extends TestCase
                 ['nativePdfa', 'PDF/A-2b'],
                 ['nativePdfua', 'PDF/UA-1'],
                 ['nativeTaggedPdf', 'true'],
-                ['initialView', 'my_initialView'],
+                ['initialView', 'thumbnails'],
                 ['initialPage', '2'],
-                ['magnification', 'my_magnification'],
+                ['magnification', 'fitWindow'],
                 ['zoom', '2'],
-                ['pageLayout', 'my_pageLayout'],
+                ['pageLayout', 'twoColumnRight'],
                 ['openBookmarkLevels', '2'],
                 ['resizeWindowToInitialPage', 'true'],
                 ['centerWindow', 'true'],
@@ -140,7 +145,7 @@ final class LibreOfficeTest extends TestCase
         yield 'merge stage keeps the order of the arguments' => [
             Gotenberg::libreOffice('https://my.url')
                 ->index(new DummyIndex())
-                ->stages(Stage::merge(), Stage::remediate('PDF/A-2b'))
+                ->stages(Stage::merge(), Stage::remediate(Profile::PdfA2b))
                 ->convert(Stream::string('b.docx', 'Word content'), Stream::string('a.xlsx', 'Excel content')),
             [['stages', '[{"op":"merge"},{"op":"remediate","profile":"PDF\\/A-2b"}]']],
             [

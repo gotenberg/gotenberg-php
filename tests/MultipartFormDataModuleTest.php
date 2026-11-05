@@ -7,6 +7,7 @@ namespace Gotenberg\Test;
 use Gotenberg\DownloadFrom;
 use Gotenberg\Stream;
 use Gotenberg\Test\Helpers\Dummies\DummyMultipartFormDataModule;
+use Gotenberg\WebhookMethod;
 use PHPUnit\Framework\Attributes\Test;
 
 final class MultipartFormDataModuleTest extends TestCase
@@ -23,7 +24,7 @@ final class MultipartFormDataModuleTest extends TestCase
             )
             ->archives(Stream::string('site.zip', 'zip content'))
             ->webhook('https://my.webhook.url', 'https://my.webhook.events.url')
-            ->webhookMethod('PUT')
+            ->webhookMethod(WebhookMethod::Put)
             ->webhookExtraHttpHeaders(['My-Webhook-Http-Header' => 'HTTP header content'])
             ->build();
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gotenberg\Modules;
 
 use Gotenberg\MultipartFormDataModule;
+use Gotenberg\Profile;
 use Gotenberg\Stage;
 use Gotenberg\StagesModule;
 use Gotenberg\Stream;
@@ -111,15 +112,15 @@ class Pdf
     }
 
     /**
-     * Checks the PDFs against a profile, such as "PDF/A-3b", "PDF/UA-1" or
-     * "Factur-X", or against a PDF/A profile and a PDF/UA one together.
+     * Checks the PDFs against a profile, or against a PDF/A profile, or
+     * Factur-X, and a PDF/UA one together.
      * Gotenberg returns JSON, one entry per PDF under its file name.
      *
-     * @param string|list<string> $profile
+     * @param Profile|list<Profile> $profile
      */
-    public function validate(string|array $profile, Stream ...$pdfs): RequestInterface
+    public function validate(Profile|array $profile, Stream ...$pdfs): RequestInterface
     {
-        $this->formValue('profile', is_array($profile) ? json_encode($profile, JSON_THROW_ON_ERROR) : $profile);
+        $this->formValue('profile', is_array($profile) ? json_encode($profile, JSON_THROW_ON_ERROR) : $profile->value);
 
         return $this->read('validate', ...$pdfs);
     }
