@@ -17,8 +17,8 @@
     "libreoffice",
     "chrome",
     "chromium",
-    "pdf/a",
-    "pdf/ua",
+    "pdf-a",
+    "pdf-ua",
     "factur-x"
   ],
   "license": "MIT",
