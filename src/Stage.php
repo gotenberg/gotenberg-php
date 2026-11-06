@@ -436,6 +436,16 @@ final readonly class Stage implements JsonSerializable
     }
 
     /**
+     * Returns the files the PDF embeds, every one, or the one $name gives.
+     * Each comes back named after the PDF, then after itself, such as
+     * invoice_factur-x.xml. It comes last in a list of stages.
+     */
+    public static function extractAttachments(string|null $name = null): self
+    {
+        return self::of('extract-attachments', ['name' => $name]);
+    }
+
+    /**
      * Returns the files the stage reads. Gotenberg expects them among the
      * uploaded files.
      *

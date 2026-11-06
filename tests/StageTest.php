@@ -169,5 +169,12 @@ final class StageTest extends TestCase
             '{"op":"render","pages":"1","dpi":300,"format":"jpeg","quality":80}',
             ['pages' => '1', 'dpi' => '300', 'format' => 'jpeg', 'quality' => '80'],
         ];
+
+        yield 'extract attachments' => [static fn (): Stage => Stage::extractAttachments(), '{"op":"extract-attachments"}', []];
+        yield 'extract one attachment' => [
+            (static fn (): Stage => Stage::extractAttachments('factur-x.xml')),
+            '{"op":"extract-attachments","name":"factur-x.xml"}',
+            ['name' => 'factur-x.xml'],
+        ];
     }
 }
