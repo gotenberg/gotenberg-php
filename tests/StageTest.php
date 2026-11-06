@@ -176,5 +176,12 @@ final class StageTest extends TestCase
             '{"op":"extract-attachments","name":"factur-x.xml"}',
             ['name' => 'factur-x.xml'],
         ];
+
+        yield 'extract text' => [static fn (): Stage => Stage::extractText(), '{"op":"extract-text"}', []];
+        yield 'extract text with options' => [
+            (static fn (): Stage => Stage::extractText(Pages::Odd, true, true, false)),
+            '{"op":"extract-text","pages":"odd","invisible":true,"artifacts":true,"annotations":false}',
+            ['pages' => 'odd', 'invisible' => 'true', 'artifacts' => 'true', 'annotations' => 'false'],
+        ];
     }
 }

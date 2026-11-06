@@ -446,6 +446,27 @@ final readonly class Stage implements JsonSerializable
     }
 
     /**
+     * Returns the text the pages show as a .txt file, its pages separated by
+     * a form feed, such as report.txt. $invisible adds the text layer a
+     * searchable scan carries, $artifacts the headers, footers and page
+     * numbers, and $annotations the text of annotations. It comes last in a
+     * list of stages.
+     */
+    public static function extractText(
+        string|Pages|null $pages = null,
+        bool|null $invisible = null,
+        bool|null $artifacts = null,
+        bool|null $annotations = null,
+    ): self {
+        return self::of('extract-text', [
+            'pages' => $pages,
+            'invisible' => $invisible,
+            'artifacts' => $artifacts,
+            'annotations' => $annotations,
+        ]);
+    }
+
+    /**
      * Returns the files the stage reads. Gotenberg expects them among the
      * uploaded files.
      *
