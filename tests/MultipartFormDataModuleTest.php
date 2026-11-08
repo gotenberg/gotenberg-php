@@ -21,6 +21,7 @@ final class MultipartFormDataModuleTest extends TestCase
             ->downloadFrom(
                 new DownloadFrom('https://my.url/my_filename'),
                 new DownloadFrom('https://my.url/my_filename_2', ['X-Header' => 'value']),
+                new DownloadFrom('https://my.url/download?id=42', filename: 'my_filename_3.docx'),
             )
             ->archives(Stream::string('site.zip', 'zip content'))
             ->webhook('https://my.webhook.url', 'https://my.webhook.events.url')
@@ -38,7 +39,7 @@ final class MultipartFormDataModuleTest extends TestCase
         $this->assertRequest(
             $request,
             '/foo',
-            [['downloadFrom', '[{"url":"https:\/\/my.url\/my_filename"},{"url":"https:\/\/my.url\/my_filename_2","extraHttpHeaders":{"X-Header":"value"}}]']],
+            [['downloadFrom', '[{"url":"https:\/\/my.url\/my_filename"},{"url":"https:\/\/my.url\/my_filename_2","extraHttpHeaders":{"X-Header":"value"}},{"url":"https:\/\/my.url\/download?id=42","filename":"my_filename_3.docx"}]']],
             [['archives', 'site.zip', 'zip content']],
         );
     }

@@ -142,7 +142,9 @@ Gotenberg::chromium($apiUrl)
 // Or even tell Gotenberg to download the files for you.
 Gotenberg::libreOffice($apiUrl)
     ->downloadFrom(
-        new DownloadFrom('https://url.to.document.docx', ['MyHeader' => 'MyValue'])
+        new DownloadFrom('https://url.to.document.docx', ['MyHeader' => 'MyValue']),
+        // Name the file when neither the server nor the URL path does.
+        new DownloadFrom('https://url.to/download?id=42', filename: 'appendix.docx'),
     )
     ->convert();
 ```
