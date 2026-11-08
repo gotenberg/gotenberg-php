@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Gotenberg;
 
 /**
- * The paper sizes of the Chromium and LibreOffice conversions.
+ * The paper sizes of the Chromium and LibreOffice conversions, and of the
+ * compose stage.
  */
 enum PaperSize: string
 {

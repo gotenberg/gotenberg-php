@@ -11,6 +11,7 @@ use Gotenberg\FacturXDocumentType;
 use Gotenberg\FacturXLevel;
 use Gotenberg\Font;
 use Gotenberg\Pages;
+use Gotenberg\PaperSize;
 use Gotenberg\Permission;
 use Gotenberg\Profile;
 use Gotenberg\Relationship;
@@ -108,6 +109,18 @@ final class StageTest extends TestCase
         yield 'flatten form' => [static fn (): Stage => Stage::flattenForm(), '{"op":"flatten-form"}', []];
         yield 'flatten transparency' => [static fn (): Stage => Stage::flattenTransparency(), '{"op":"flatten-transparency"}', []];
         yield 'convert colors' => [static fn (): Stage => Stage::convertColors(ColorSpace::Cmyk), '{"op":"convert-colors","target":"cmyk"}', ['target' => 'cmyk']];
+        yield 'compose' => [
+            (static fn (): Stage => Stage::compose([['source' => 'a.pdf', 'x' => 0, 'y' => 180, 'scale' => 0.25], ['sourcePage' => 2, 'page' => 2]], paperWidth: '6in', paperHeight: '5in')),
+            '{"op":"compose","paperWidth":"6in","paperHeight":"5in","placements":[{"source":"a.pdf","x":0,"y":180,"scale":0.25},{"sourcePage":2,"page":2}]}',
+            ['paperWidth' => '6in', 'paperHeight' => '5in', 'placements' => '[{"source":"a.pdf","x":0,"y":180,"scale":0.25},{"sourcePage":2,"page":2}]'],
+        ];
+
+        yield 'compose on a paper size' => [
+            (static fn (): Stage => Stage::compose([['x' => 20, 'y' => 231, 'scale' => 0.6]], PaperSize::A4)),
+            '{"op":"compose","paperSize":"A4","placements":[{"x":20,"y":231,"scale":0.6}]}',
+            ['paperSize' => 'A4', 'placements' => '[{"x":20,"y":231,"scale":0.6}]'],
+        ];
+
         yield 'redact' => [
             (static fn (): Stage => Stage::redact([['page' => 1, 'x' => 160, 'y' => 435, 'width' => 60, 'height' => 25]])),
             '{"op":"redact","regions":[{"page":1,"x":160,"y":435,"width":60,"height":25}]}',

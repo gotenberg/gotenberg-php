@@ -22,7 +22,9 @@ use const JSON_THROW_ON_ERROR;
  * you upload to the pdf module.
  *
  * Options left to null keep Gotenberg's default. Pages take a page ("3"), a
- * range ("2-5"), a list of both ("1,3,5-7"), or a Pages keyword.
+ * range ("2-5"), an open range ("3-", "-3"), a Pages keyword, or a list of
+ * them ("1,3,5-7"). A "!" in front of a part excludes its pages: "!1" keeps
+ * every page but the first.
  *
  * @phpstan-type Option string|int|float|bool|Stream|BackedEnum|array<mixed>
  */
@@ -101,6 +103,32 @@ final readonly class Stage implements JsonSerializable
     public static function rotate(int $angle, string|Pages|null $pages = null): self
     {
         return self::of('rotate', ['angle' => $angle, 'pages' => $pages]);
+    }
+
+    /**
+     * Draws pages of the PDFs on new pages of the size you choose: a label, a
+     * packing slip, a sheet of several pages. Set $paperSize, or $paperWidth
+     * and $paperHeight, lengths such as "6in", "15cm" or "432pt"; either
+     * overrides the side $paperSize sets. Each placement draws one page:
+     * "source" names the PDF, by file name, and may be left out when there is
+     * one; "sourcePage" and "page", the new page it lands on, default to 1;
+     * "x" and "y" are in points from the bottom-left corner; "rotation" is in
+     * degrees counter-clockwise. Every PDF must be placed.
+     *
+     * @param list<array{source?: string, sourcePage?: int, page?: int, x?: float, y?: float, scale?: float, rotation?: float}> $placements
+     */
+    public static function compose(
+        array $placements,
+        PaperSize|null $paperSize = null,
+        string|null $paperWidth = null,
+        string|null $paperHeight = null,
+    ): self {
+        return self::of('compose', [
+            'paperSize' => $paperSize,
+            'paperWidth' => $paperWidth,
+            'paperHeight' => $paperHeight,
+            'placements' => $placements,
+        ]);
     }
 
     /**
