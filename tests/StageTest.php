@@ -17,6 +17,7 @@ use Gotenberg\Profile;
 use Gotenberg\Relationship;
 use Gotenberg\RenderFormat;
 use Gotenberg\Stage;
+use Gotenberg\StampPosition;
 use Gotenberg\Stream;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -84,6 +85,26 @@ final class StageTest extends TestCase
             (static fn (): Stage => Stage::stampPdf($pdf, 1, '1', 0, 0, 1, 1, 0)),
             '{"op":"stamp-pdf","source":"letterhead.pdf","sourcePage":1,"pages":"1","x":0,"y":0,"scale":1,"opacity":1,"rotation":0}',
             ['source' => 'letterhead.pdf', 'sourcePage' => '1', 'pages' => '1', 'x' => '0', 'y' => '0', 'scale' => '1', 'opacity' => '1', 'rotation' => '0'],
+            ['letterhead.pdf'],
+        ];
+
+        yield 'stamp text at a position' => [
+            (static fn (): Stage => Stage::stampText('DRAFT', x: 0, y: -20, rotation: 45, position: StampPosition::Center)),
+            '{"op":"stamp-text","text":"DRAFT","x":0,"y":-20,"rotation":45,"position":"center"}',
+            ['text' => 'DRAFT', 'x' => '0', 'y' => '-20', 'rotation' => '45', 'position' => 'center'],
+        ];
+
+        yield 'stamp image at a position' => [
+            (static fn (): Stage => Stage::stampImage($image, x: -36, y: -36, width: 100, position: StampPosition::TopRight)),
+            '{"op":"stamp-image","image":"logo.png","x":-36,"y":-36,"width":100,"position":"top-right"}',
+            ['image' => 'logo.png', 'x' => '-36', 'y' => '-36', 'width' => '100', 'position' => 'top-right'],
+            ['logo.png'],
+        ];
+
+        yield 'stamp pdf at a position' => [
+            (static fn (): Stage => Stage::stampPdf($pdf, scale: 0.5, position: StampPosition::BottomLeft)),
+            '{"op":"stamp-pdf","source":"letterhead.pdf","scale":0.5,"position":"bottom-left"}',
+            ['source' => 'letterhead.pdf', 'scale' => '0.5', 'position' => 'bottom-left'],
             ['letterhead.pdf'],
         ];
 

@@ -156,13 +156,14 @@ in that order, on the PDFs a conversion makes:
 use Gotenberg\Gotenberg;
 use Gotenberg\Profile;
 use Gotenberg\Stage;
+use Gotenberg\StampPosition;
 use Gotenberg\Stream;
 
-// Merges the documents, stamps a text on each page and makes the output PDF/A-2b.
+// Merges the documents, stamps a text across the center of each page and makes the output PDF/A-2b.
 Gotenberg::libreOffice($apiUrl)
     ->stages(
         Stage::merge(),
-        Stage::stampText('DRAFT', x: 72, y: 72, fontSize: 24),
+        Stage::stampText('DRAFT', fontSize: 96, opacity: 0.2, rotation: 45, position: StampPosition::Center),
         Stage::remediate(Profile::PdfA2b),
     )
     ->convert(

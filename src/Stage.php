@@ -134,7 +134,8 @@ final readonly class Stage implements JsonSerializable
     /**
      * Draws a line of text over pages. Positions are in points from the
      * bottom-left corner, the color is "#rrggbb", and the font one of the 14
-     * standard PDF fonts.
+     * standard PDF fonts. A position places the text on each page instead, and
+     * x and y then move it from there.
      */
     public static function stampText(
         string $text,
@@ -146,6 +147,7 @@ final readonly class Stage implements JsonSerializable
         string|null $color = null,
         float|null $opacity = null,
         float|null $rotation = null,
+        StampPosition|null $position = null,
     ): self {
         return self::of('stamp-text', [
             'text' => $text,
@@ -157,12 +159,14 @@ final readonly class Stage implements JsonSerializable
             'color' => $color,
             'opacity' => $opacity,
             'rotation' => $rotation,
+            'position' => $position,
         ]);
     }
 
     /**
      * Draws a PNG or JPEG image over pages. Positions and sizes are in points
-     * from the bottom-left corner.
+     * from the bottom-left corner. A position places the image on each page
+     * instead, and x and y then move it from there.
      */
     public static function stampImage(
         Stream $image,
@@ -173,6 +177,7 @@ final readonly class Stage implements JsonSerializable
         float|null $height = null,
         float|null $opacity = null,
         float|null $rotation = null,
+        StampPosition|null $position = null,
     ): self {
         return self::of('stamp-image', [
             'image' => $image,
@@ -183,11 +188,13 @@ final readonly class Stage implements JsonSerializable
             'height' => $height,
             'opacity' => $opacity,
             'rotation' => $rotation,
+            'position' => $position,
         ]);
     }
 
     /**
-     * Draws a page of another PDF over pages: a letterhead, a seal.
+     * Draws a page of another PDF over pages: a letterhead, a seal. A position
+     * places the page on each page, and x and y then move it from there.
      */
     public static function stampPdf(
         Stream $source,
@@ -198,6 +205,7 @@ final readonly class Stage implements JsonSerializable
         float|null $scale = null,
         float|null $opacity = null,
         float|null $rotation = null,
+        StampPosition|null $position = null,
     ): self {
         return self::of('stamp-pdf', [
             'source' => $source,
@@ -208,6 +216,7 @@ final readonly class Stage implements JsonSerializable
             'scale' => $scale,
             'opacity' => $opacity,
             'rotation' => $rotation,
+            'position' => $position,
         ]);
     }
 
