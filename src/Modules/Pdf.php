@@ -63,7 +63,7 @@ class Pdf
 
     /**
      * Reads the page count, the PDF version, and whether the PDFs are
-     * encrypted, tagged, linearized or hold form fields. Gotenberg returns
+     * encrypted, tagged, linearized, signed or hold form fields. Gotenberg returns
      * JSON, one entry per PDF under its file name.
      */
     public function info(Stream ...$pdfs): RequestInterface
