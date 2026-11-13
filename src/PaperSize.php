@@ -10,6 +10,9 @@ namespace Gotenberg;
  */
 enum PaperSize: string
 {
+    case A0      = 'A0';
+    case A1      = 'A1';
+    case A2      = 'A2';
     case A3      = 'A3';
     case A4      = 'A4';
     case A5      = 'A5';
