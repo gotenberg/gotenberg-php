@@ -504,6 +504,19 @@ final readonly class Stage implements JsonSerializable
     }
 
     /**
+     * Lets a stage that rewrites the PDF remove its signatures: merge, split,
+     * select, delete, insert, compose, flatten-form, flatten-transparency,
+     * convert-colors, redact, optimize, encrypt, decrypt and remediate. A
+     * signature covers the bytes of the file it was made in, so no rewrite
+     * keeps it, and Gotenberg refuses to rewrite a signed PDF without it. The
+     * signatures go, and their visible appearance stays on the page.
+     */
+    public function dropSignatures(): self
+    {
+        return new self($this->op, [...$this->options, 'dropSignatures' => true]);
+    }
+
+    /**
      * Returns the files the stage reads. Gotenberg expects them among the
      * uploaded files.
      *

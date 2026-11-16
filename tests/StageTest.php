@@ -57,6 +57,8 @@ final class StageTest extends TestCase
 
         yield 'merge' => [static fn (): Stage => Stage::merge(), '{"op":"merge"}', []];
         yield 'split every' => [static fn (): Stage => Stage::splitEvery(2), '{"op":"split","every":2}', ['every' => '2']];
+        yield 'split every, dropping signatures' => [static fn (): Stage => Stage::splitEvery(1)->dropSignatures(), '{"op":"split","every":1,"dropSignatures":true}', ['every' => '1', 'dropSignatures' => 'true']];
+        yield 'merge, dropping signatures' => [static fn (): Stage => Stage::merge()->dropSignatures(), '{"op":"merge","dropSignatures":true}', ['dropSignatures' => 'true']];
         yield 'split ranges' => [static fn (): Stage => Stage::splitRanges('1', '2-3', Pages::Odd), '{"op":"split","ranges":["1","2-3","odd"]}', ['ranges' => '["1","2-3","odd"]']];
         yield 'select' => [static fn (): Stage => Stage::select('1-2'), '{"op":"select","pages":"1-2"}', ['pages' => '1-2']];
         yield 'delete' => [static fn (): Stage => Stage::delete(Pages::Last), '{"op":"delete","pages":"last"}', ['pages' => 'last']];
