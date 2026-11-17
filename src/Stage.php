@@ -6,6 +6,7 @@ namespace Gotenberg;
 
 use BackedEnum;
 use JsonSerializable;
+use stdClass;
 
 use function array_filter;
 use function array_map;
@@ -26,7 +27,7 @@ use const JSON_THROW_ON_ERROR;
  * them ("1,3,5-7"). A "!" in front of a part excludes its pages: "!1" keeps
  * every page but the first.
  *
- * @phpstan-type Option string|int|float|bool|Stream|BackedEnum|array<mixed>
+ * @phpstan-type Option string|int|float|bool|Stream|BackedEnum|array<mixed>|stdClass
  */
 final readonly class Stage implements JsonSerializable
 {
@@ -517,6 +518,30 @@ final readonly class Stage implements JsonSerializable
     }
 
     /**
+     * Makes merge add one bookmark per PDF, at its first page, with the PDF's
+     * own bookmarks nested under it. Each is labeled by the first of $label
+     * that gives one, title by default, falling back to the filename without
+     * the extension. $labels sets the label of the PDFs it names by filename,
+     * such as ['annex.pdf' => 'Annex'].
+     *
+     * @param list<BookmarkLabel>  $label
+     * @param array<string,string> $labels
+     */
+    public function fileBookmarks(array $label = [], array $labels = []): self
+    {
+        $fileBookmarks = new stdClass();
+        if ($label !== []) {
+            $fileBookmarks->label = array_map(static fn (BookmarkLabel $source): string => $source->value, $label);
+        }
+
+        if ($labels !== []) {
+            $fileBookmarks->labels = (object) $labels;
+        }
+
+        return new self($this->op, [...$this->options, 'fileBookmarks' => $fileBookmarks]);
+    }
+
+    /**
      * Returns the files the stage reads. Gotenberg expects them among the
      * uploaded files.
      *
@@ -541,7 +566,7 @@ final readonly class Stage implements JsonSerializable
                 $value instanceof Stream => $value->filename,
                 $value instanceof BackedEnum => (string) $value->value,
                 is_bool($value) => $value ? 'true' : 'false',
-                is_array($value) => json_encode($value, JSON_THROW_ON_ERROR),
+                is_array($value), $value instanceof stdClass => json_encode($value, JSON_THROW_ON_ERROR),
                 default => (string) $value,
             };
         }, $this->options);
