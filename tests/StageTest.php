@@ -20,6 +20,7 @@ use Gotenberg\RenderFormat;
 use Gotenberg\Stage;
 use Gotenberg\StampPosition;
 use Gotenberg\Stream;
+use Gotenberg\TextFormat;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -221,6 +222,12 @@ final class StageTest extends TestCase
             (static fn (): Stage => Stage::extractText(Pages::Odd, true, true, false)),
             '{"op":"extract-text","pages":"odd","invisible":true,"artifacts":true,"annotations":false}',
             ['pages' => 'odd', 'invisible' => 'true', 'artifacts' => 'true', 'annotations' => 'false'],
+        ];
+
+        yield 'extract text as markdown' => [
+            (static fn (): Stage => Stage::extractText(format: TextFormat::Markdown)),
+            '{"op":"extract-text","format":"markdown"}',
+            ['format' => 'markdown'],
         ];
     }
 }
