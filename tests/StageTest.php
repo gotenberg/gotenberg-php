@@ -170,6 +170,12 @@ final class StageTest extends TestCase
             ['dedup' => 'true', 'subsetFonts' => 'false'],
         ];
 
+        yield 'optimize without stream compression' => [
+            (static fn (): Stage => Stage::optimize(compressStreams: false)),
+            '{"op":"optimize","compressStreams":false}',
+            ['compressStreams' => 'false'],
+        ];
+
         yield 'encrypt' => [
             (static fn (): Stage => Stage::encrypt('user', 'owner', EncryptionAlgorithm::Aes256, [Permission::Print, Permission::ExtractText])),
             '{"op":"encrypt","userPassword":"user","ownerPassword":"owner","algorithm":"aes256","permissions":{"print":false,"extractText":false}}',

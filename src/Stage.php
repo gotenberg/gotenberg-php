@@ -339,18 +339,21 @@ final readonly class Stage implements JsonSerializable
 
     /**
      * Rewrites the PDF to shrink it, without losing quality. Every option is
-     * on unless you turn it off.
+     * on unless you turn it off. $compressStreams compresses the streams a
+     * producer left uncompressed.
      */
     public static function optimize(
         bool|null $objectStreams = null,
         bool|null $dedup = null,
         bool|null $recompressImages = null,
         bool|null $subsetFonts = null,
+        bool|null $compressStreams = null,
     ): self {
         return self::of('optimize', [
             'objectStreams' => $objectStreams,
             'dedup' => $dedup,
             'recompressImages' => $recompressImages,
+            'compressStreams' => $compressStreams,
             'subsetFonts' => $subsetFonts,
         ]);
     }
