@@ -39,6 +39,7 @@ final class LibreOfficeTest extends TestCase
         yield 'every option' => [
             (static fn (): RequestInterface => Gotenberg::libreOffice('https://my.url')
                 ->password('my_password')
+                ->locale('en-AU')
                 ->paperSize(PaperSize::Legal)
                 ->paperDimensions('21cm', 29.7)
                 ->landscape()
@@ -89,6 +90,7 @@ final class LibreOfficeTest extends TestCase
                 ->convert(Stream::string('my.docx', 'Word content'), Stream::string('my.xlsx', 'Excel content'))),
             [
                 ['password', 'my_password'],
+                ['locale', 'en-AU'],
                 ['paperSize', 'Legal'],
                 ['paperWidth', '21cm'],
                 ['paperHeight', '29.7'],

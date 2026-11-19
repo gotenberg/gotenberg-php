@@ -30,6 +30,20 @@ class LibreOffice
     }
 
     /**
+     * Formats the dates, numbers and currencies that follow the reader's
+     * locale, such as Excel's short date, with a BCP 47 language tag such as
+     * en-AU or de-DE. It also sets the page size of a document that defines
+     * none. Content that carries its own language keeps it. Without it, the
+     * locale of the Gotenberg image applies.
+     */
+    public function locale(string $locale): static
+    {
+        $this->formValue('locale', $locale);
+
+        return $this;
+    }
+
+    /**
      * Sets the paper size of every page. Without it, each document keeps its
      * own page size.
      */
