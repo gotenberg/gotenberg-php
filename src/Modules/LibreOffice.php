@@ -122,6 +122,17 @@ class LibreOffice
     }
 
     /**
+     * Shows the tracked changes marked up, insertions and deletions included.
+     * Without it, the document converts as if every change were accepted.
+     */
+    public function showTrackedChanges(bool $show = true): static
+    {
+        $this->formValue('showTrackedChanges', $show);
+
+        return $this;
+    }
+
+    /**
      * Specifies whether form fields are exported as widgets or only their fixed
      * print representation is exported.
      */

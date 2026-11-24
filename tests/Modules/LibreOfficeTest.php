@@ -47,6 +47,7 @@ final class LibreOfficeTest extends TestCase
                 ->singlePage()
                 ->skipEmptyPages()
                 ->updateIndexes(false)
+                ->showTrackedChanges()
                 ->exportFormFields(false)
                 ->allowDuplicateFieldNames()
                 ->nativeBookmarks(false)
@@ -99,6 +100,7 @@ final class LibreOfficeTest extends TestCase
                 ['singlePage', 'true'],
                 ['skipEmptyPages', 'true'],
                 ['updateIndexes', 'false'],
+                ['showTrackedChanges', 'true'],
                 ['exportFormFields', 'false'],
                 ['allowDuplicateFieldNames', 'true'],
                 ['nativeBookmarks', 'false'],
